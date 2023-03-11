@@ -1,0 +1,12 @@
+#JWT设置
+jwt:
+  #过期时间七天(秒)
+  exp_time: 604800
+  #验证主题
+  sub: cako-blog
+  #（red_time）30天
+  ref_time: 2592000
+
+
+
+

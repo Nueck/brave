@@ -1,0 +1,27 @@
+[package]
+name = "brave"
+version = "0.1.0"
+edition = "2021"
+authors = ["Nueck <nueck@outlook.com>"]
+repository = "https://github.com/Nueck/brave/"
+
+#发布禁止
+publish = false
+
+[workspace]
+members = [".", "brave-web", "brave-middleware", "brave-utils"]
+
+[dependencies]
+#主要的web服务
+cako-web = { path = "brave-web" }
+#中间件
+cako-middleware = { path = "brave-middleware" }
+
+
+
+
+
+
+
+
+

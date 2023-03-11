@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="CMakePresetLoader"><![CDATA[{
+  "useNewFormat": true
+}]]></component>
+  <component name="CMakeSettings">
+    <configurations>
+      <configuration PROFILE_NAME="Debug" ENABLED="true" CONFIG_NAME="Debug" />
+    </configurations>
+  </component>
+  <component name="CargoProjects">
+    <cargoProject FILE="$PROJECT_DIR$/Cargo.toml" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="532997e4-8890-44d1-bfd0-eea66c3a6ba9" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/Cargo.toml" beforeDir="false" afterPath="$PROJECT_DIR$/Cargo.toml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cako-middleware/.gitignore" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/cako-middleware/Cargo.toml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/cako-middleware/README.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/cako-middleware/src/auth_middleware.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/cako-middleware/src/lib.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/cako-utils/Cargo.toml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/cako-utils/src/error.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/cako-utils/src/jwt/blake2.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/cako-utils/src/jwt/config.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/cako-utils/src/jwt/jwt.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/cako-utils/src/jwt/mod.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/cako-utils/src/lib.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/cako-web/.gitignore" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/cako-web/Cargo.toml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/cako-web/README.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/cako-web/src/blog/mod.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/cako-web/src/blog/test.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/cako-web/src/config.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/cako-web/src/db.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/cako-web/src/error/mod.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/cako-web/src/error/web_error.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/cako-web/src/handler/login.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/cako-web/src/handler/mod.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/cako-web/src/handler/test.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/cako-web/src/handler/token.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/cako-web/src/handler/user.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/cako-web/src/lib.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/cako-web/src/log.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/cako-web/src/web_service.rs" beforeDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="MacroExpansionManager">
+    <option name="directoryName" value="w47n5v36" />
+  </component>
+  <component name="MarkdownSettingsMigration">
+    <option name="stateVersion" value="1" />
+  </component>
+  <component name="ProjectId" id="2MrXC3wq8wM6Fr2AjuIxptLwdZG" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "RunOnceActivity.OpenProjectViewOnStart": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.cidr.known.project.marker": "true",
+    "WebServerToolWindowFactoryState": "false",
+    "cf.first.check.clang-format": "false",
+    "cidr.known.project.marker": "true",
+    "last_opened_file_path": "/home/nueck/Code/MyProject/brave",
+    "org.rust.cargo.project.model.PROJECT_DISCOVERY": "true",
+    "vue.rearranger.settings.migration": "true"
+  }
+}]]></component>
+  <component name="RustProjectSettings">
+    <option name="toolchainHomeDirectory" value="/usr/bin" />
+  </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="532997e4-8890-44d1-bfd0-eea66c3a6ba9" name="Changes" comment="" />
+      <created>1678526544035</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1678526544035</updated>
+      <workItem from="1678526545844" duration="49000" />
+    </task>
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+</project>
