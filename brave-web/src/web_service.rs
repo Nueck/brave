@@ -34,6 +34,24 @@ pub async fn web_start() -> std::io::Result<()> {
     HttpServer::new(move || {
         App::new()
             .service(
+                //主要api的service
+                web::scope(&*GLOBAL_ENV_CONFIG.api_scope.clone())
+                    .app_data(web::Data::new(states.clone()))
+                    .wrap(JWTAuth) //身份验证
+                    .wrap(
+                        //跨域支持
+                        Cors::default()
+                            .allowed_origin(&*EnvConfig::get_api_string())
+                            .allowed_methods(vec!["GET", "POST"])
+                            .allowed_headers(vec![header::AUTHORIZATION, header::ACCEPT])
+                            .allowed_header(header::CONTENT_TYPE)
+                            .supports_credentials()
+                            .max_age(3600),
+                    )
+                    .wrap(Logger::default()) //api的日志
+                    .configure(super::handler::config_init), //服务配置
+            )
+            .service(
                 web::scope(&GLOBAL_ENV_CONFIG.web_scope) //博客方面的加载
                     // .wrap_fn(|sreq, srv| { //用于跳转https
                     //     let host = sreq.connection_info().host().to_owned();
@@ -61,24 +79,6 @@ pub async fn web_start() -> std::io::Result<()> {
                             .max_age(3600),
                     )
                     .configure(super::blog::web_config_init),
-            )
-            .service(
-                //主要api的service
-                web::scope(&*GLOBAL_ENV_CONFIG.api_scope.clone())
-                    .app_data(web::Data::new(states.clone()))
-                    .wrap(JWTAuth) //身份验证
-                    .wrap(
-                        //跨域支持
-                        Cors::default()
-                            .allowed_origin(&*EnvConfig::get_api_string())
-                            .allowed_methods(vec!["GET", "POST"])
-                            .allowed_headers(vec![header::AUTHORIZATION, header::ACCEPT])
-                            .allowed_header(header::CONTENT_TYPE)
-                            .supports_credentials()
-                            .max_age(3600),
-                    )
-                    .wrap(Logger::default()) //api的日志
-                    .configure(super::handler::config_init), //服务配置
             )
     })
     .bind(EnvConfig::get_api_string())?

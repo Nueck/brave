@@ -1,7 +1,6 @@
 use actix_web::web;
 
 mod login;
-mod test;
 mod token;
 mod user;
 
