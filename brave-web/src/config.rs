@@ -1,5 +1,5 @@
 use crate::db::connect_db;
-use cako_utils::jwt::config::JWTConfig;
+use brave_utils::jwt::config::JWTConfig;
 use config::Config;
 use once_cell::sync::Lazy;
 use sea_orm::{ConnectOptions, DatabaseConnection};
@@ -52,7 +52,7 @@ impl AppState {
     }
 }
 
-//修改deadpool中代码
+/*对数据库的配置*/
 impl PGConfig {
     pub fn get_pb_connect_opt(&self) -> Result<ConnectOptions, ConfigError> {
         let mut url = String::new();
@@ -69,12 +69,10 @@ impl PGConfig {
 
         if let Some(password) = &self.password {
             //添加用户名和密码间距
-            url.push_str(":");
-            url.push_str(password);
+            url.push_str(":"+password);
         } else {
-            url.push_str(":");
             //设置默认密码
-            url.push_str("123456");
+            url.push_str(":123456");
         }
 
         if let Some(host) = &self.host {

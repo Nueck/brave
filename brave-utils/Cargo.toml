@@ -1,5 +1,5 @@
 [package]
-name = "cako-utils"
+name = "brave-utils"
 version = "0.1.0"
 edition = "2021"
 authors = ["Nueck <nueck@outlook.com>"]

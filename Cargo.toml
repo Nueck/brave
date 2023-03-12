@@ -13,9 +13,9 @@ members = [".", "brave-web", "brave-middleware", "brave-utils"]
 
 [dependencies]
 #主要的web服务
-cako-web = { path = "brave-web" }
+brave-web = { path = "brave-web" }
 #中间件
-cako-middleware = { path = "brave-middleware" }
+brave-middleware = { path = "brave-middleware" }
 
 
 

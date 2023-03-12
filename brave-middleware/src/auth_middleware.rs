@@ -8,8 +8,8 @@ use actix_web::{
     dev::{Service, ServiceRequest, ServiceResponse, Transform},
     Error, HttpMessage, HttpResponse,
 };
-use cako_utils::error::AuthError;
-use cako_utils::jwt::jwt::TokenMsg;
+use brave_utils::error::AuthError;
+use brave_utils::jwt::jwt::TokenMsg;
 use futures_util::future::LocalBoxFuture;
 
 pub struct JWTAuth;

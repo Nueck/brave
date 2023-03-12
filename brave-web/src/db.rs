@@ -4,6 +4,8 @@ use sea_orm::{Database, DatabaseConnection};
 pub async fn connect_db() -> DatabaseConnection {
     let opt = GLOBAL_ENV_CONFIG.pg.get_pb_connect_opt();
 
+    println!("{:?}",opt);
+
     let conn = match opt {
         Ok(opt) => {
             //连接数据库
@@ -14,6 +16,8 @@ pub async fn connect_db() -> DatabaseConnection {
             panic!();
         }
     };
+
+
 
     let connect = match conn {
         Ok(conn) => {

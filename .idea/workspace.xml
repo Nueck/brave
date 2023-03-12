@@ -16,14 +16,22 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="532997e4-8890-44d1-bfd0-eea66c3a6ba9" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/brave-web/src/blog/page.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/brave-web/src/core/mod.rs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/brave-web/src/blog/mod.rs" beforeDir="false" afterPath="$PROJECT_DIR$/brave-web/src/blog/mod.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/brave-web/src/blog/test.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Cargo.toml" beforeDir="false" afterPath="$PROJECT_DIR$/Cargo.toml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/brave-middleware/Cargo.toml" beforeDir="false" afterPath="$PROJECT_DIR$/brave-middleware/Cargo.toml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/brave-middleware/src/auth_middleware.rs" beforeDir="false" afterPath="$PROJECT_DIR$/brave-middleware/src/auth_middleware.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/brave-middleware/src/lib.rs" beforeDir="false" afterPath="$PROJECT_DIR$/brave-middleware/src/lib.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/brave-utils/Cargo.toml" beforeDir="false" afterPath="$PROJECT_DIR$/brave-utils/Cargo.toml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/brave-web/Cargo.toml" beforeDir="false" afterPath="$PROJECT_DIR$/brave-web/Cargo.toml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/brave-web/src/config.rs" beforeDir="false" afterPath="$PROJECT_DIR$/brave-web/src/config.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/brave-web/src/db.rs" beforeDir="false" afterPath="$PROJECT_DIR$/brave-web/src/db.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/brave-web/src/handler/login.rs" beforeDir="false" afterPath="$PROJECT_DIR$/brave-web/src/handler/login.rs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/brave-web/src/handler/mod.rs" beforeDir="false" afterPath="$PROJECT_DIR$/brave-web/src/handler/mod.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/brave-web/src/handler/test.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/brave-web/src/handler/user.rs" beforeDir="false" afterPath="$PROJECT_DIR$/brave-web/src/handler/user.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/brave-web/src/lib.rs" beforeDir="false" afterPath="$PROJECT_DIR$/brave-web/src/lib.rs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/brave-web/src/web_service.rs" beforeDir="false" afterPath="$PROJECT_DIR$/brave-web/src/web_service.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/main.rs" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -50,6 +58,7 @@
   </component>
   <component name="PropertiesComponent">{
   &quot;keyToString&quot;: {
+    &quot;ASKED_ADD_EXTERNAL_FILES&quot;: &quot;true&quot;,
     &quot;ASKED_MARK_IGNORED_FILES_AS_EXCLUDED&quot;: &quot;true&quot;,
     &quot;ASKED_SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
@@ -59,10 +68,52 @@
     &quot;cf.first.check.clang-format&quot;: &quot;false&quot;,
     &quot;cidr.known.project.marker&quot;: &quot;true&quot;,
     &quot;last_opened_file_path&quot;: &quot;/home/nueck/Code/MyProject/brave&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
     &quot;org.rust.cargo.project.model.PROJECT_DISCOVERY&quot;: &quot;true&quot;,
+    &quot;org.rust.disableDetachedFileInspection/home/nueck/Code/MyProject/brave/brave-web/entity/src/mod.rs&quot;: &quot;true&quot;,
+    &quot;org.rust.disableDetachedFileInspection/home/nueck/Code/MyProject/brave/brave-web/entity/src/prelude.rs&quot;: &quot;true&quot;,
+    &quot;org.rust.disableDetachedFileInspection/home/nueck/Code/MyProject/brave/brave-web/entity/src/users.rs&quot;: &quot;true&quot;,
+    &quot;org.rust.disableDetachedFileInspection/home/nueck/Code/MyProject/brave/brave-web/migration/src/lib.rs&quot;: &quot;true&quot;,
+    &quot;org.rust.disableDetachedFileInspection/home/nueck/Code/MyProject/brave/brave-web/migration/src/m20220101_000001_create_table.rs&quot;: &quot;true&quot;,
+    &quot;org.rust.disableDetachedFileInspection/home/nueck/Code/MyProject/brave/brave-web/migration/src/main.rs&quot;: &quot;true&quot;,
+    &quot;org.rust.disableDetachedFileInspection/home/nueck/Code/MyProject/brave/entity/src/prelude.rs&quot;: &quot;true&quot;,
+    &quot;org.rust.hideNoCargoProjectNotifications/home/nueck/Code/MyProject/brave/brave-web/Cargo.toml&quot;: &quot;true&quot;,
+    &quot;org.rust.hideNoCargoProjectNotifications/home/nueck/Code/MyProject/brave/brave-web/migration/Cargo.toml&quot;: &quot;true&quot;,
     &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
 }</component>
+  <component name="RecentsManager">
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/brave-web/src" />
+    </key>
+  </component>
+  <component name="RunManager">
+    <configuration name="Run brave" type="CargoCommandRunConfiguration" factoryName="Cargo Command" temporary="true">
+      <option name="command" value="run --package brave --bin brave" />
+      <option name="workingDirectory" value="file://$PROJECT_DIR$" />
+      <option name="emulateTerminal" value="false" />
+      <option name="channel" value="DEFAULT" />
+      <option name="requiredFeatures" value="true" />
+      <option name="allFeatures" value="false" />
+      <option name="withSudo" value="false" />
+      <option name="buildTarget" value="REMOTE" />
+      <option name="backtrace" value="SHORT" />
+      <envs />
+      <option name="isRedirectInput" value="false" />
+      <option name="redirectInputPath" value="" />
+      <method v="2">
+        <option name="CARGO.BUILD_TASK_PROVIDER" enabled="true" />
+      </method>
+    </configuration>
+    <recent_temporary>
+      <list>
+        <item itemvalue="Cargo.Run brave" />
+      </list>
+    </recent_temporary>
+  </component>
   <component name="RustProjectSettings">
     <option name="toolchainHomeDirectory" value="/usr/bin" />
     <option name="version" value="2" />
@@ -78,6 +129,14 @@
       <workItem from="1678526545844" duration="49000" />
       <workItem from="1678526986270" duration="218000" />
       <workItem from="1678527211986" duration="67000" />
+      <workItem from="1678532276540" duration="212000" />
+      <workItem from="1678532808278" duration="332000" />
+      <workItem from="1678533149890" duration="292000" />
+      <workItem from="1678533454499" duration="1146000" />
+      <workItem from="1678545949884" duration="3388000" />
+      <workItem from="1678601876161" duration="1355000" />
+      <workItem from="1678626905295" duration="21000" />
+      <workItem from="1678627374267" duration="836000" />
     </task>
     <servers />
   </component>

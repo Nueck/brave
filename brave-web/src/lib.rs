@@ -6,3 +6,5 @@ mod config;
 mod db;
 mod handler;
 mod log;
+mod entity;
+mod core;

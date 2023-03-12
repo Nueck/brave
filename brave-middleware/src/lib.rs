@@ -1,4 +1,4 @@
-use cako_utils::jwt::jwt::Jot;
+use brave_utils::jwt::jwt::Jot;
 use once_cell::sync::Lazy;
 
 pub mod auth_middleware;
