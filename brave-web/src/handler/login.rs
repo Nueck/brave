@@ -10,10 +10,9 @@ pub async fn login() -> impl Responder {
     let claims = Claims {
         sub: "cako-blog".to_string(),
         exp: get_current_timestamp() + GLOBAL_YAML_CONFIG.jwt.exp_time.unwrap(),
+        auth: "admin".to_string(),
     };
     let token = GLOB_JOT.generate_token(&claims);
-
-
 
     HttpResponse::Ok().json(serde_json::json!({"status": "success", "message": token }))
 }

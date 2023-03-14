@@ -71,13 +71,7 @@ where
         } else {
             //首先判断有没有认证
             return match req.headers().get(header::AUTHORIZATION) {
-                None => {
-                    log::info!("- {} There is no authentication token", ip);
-                    const MESSAGE: &str = "There is no authentication token";
-                    let json =
-                        serde_json::json!({"status": "no authentication", "message": MESSAGE});
-                    Box::pin(async { Err(ErrorUnauthorized(json)) })
-                }
+                None => Box::pin(async { Err(ErrorUnauthorized("No Authentication")) }),
                 Some(header_value) => {
                     let bearer_token = header_value.to_str().unwrap();
 
@@ -88,6 +82,7 @@ where
                     //进行token认证
                     match GLOB_JOT.validation_token(&token_msg) {
                         Ok(data) => {
+                            /*将用户信息传下去*/
                             req.extensions_mut().insert(data);
 
                             let fut = self.service.call(req);
@@ -98,15 +93,11 @@ where
                         }
                         Err(err) => {
                             return match err {
-                                AuthError::VerifyError => {
-                                    const MESSAGE: &str = "Authentication failure";
-                                    let json = serde_json::json!({"status": "failure", "message": MESSAGE});
-                                    Box::pin(async { Err(ErrorUnauthorized(json)) })
-                                }
+                                AuthError::VerifyError => Box::pin(async {
+                                    Err(ErrorUnauthorized("Authentication failure"))
+                                }),
                                 AuthError::ExpirationError => {
-                                    const MESSAGE: &str = "Login expired";
-                                    let json = serde_json::json!({"status": "expired", "message": MESSAGE});
-                                    Box::pin(async { Err(ErrorUnauthorized(json)) })
+                                    Box::pin(async { Err(ErrorUnauthorized("Expired")) })
                                 }
                             };
                         }

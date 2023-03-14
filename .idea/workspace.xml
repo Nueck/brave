@@ -18,11 +18,10 @@
     <list default="true" id="532997e4-8890-44d1-bfd0-eea66c3a6ba9" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/brave-middleware/src/auth_middleware.rs" beforeDir="false" afterPath="$PROJECT_DIR$/brave-middleware/src/auth_middleware.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/brave-utils/src/jwt/jwt.rs" beforeDir="false" afterPath="$PROJECT_DIR$/brave-utils/src/jwt/jwt.rs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/brave-web/src/config.rs" beforeDir="false" afterPath="$PROJECT_DIR$/brave-web/src/config.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/brave-web/src/db.rs" beforeDir="false" afterPath="$PROJECT_DIR$/brave-web/src/db.rs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/brave-web/src/handler/login.rs" beforeDir="false" afterPath="$PROJECT_DIR$/brave-web/src/handler/login.rs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/brave-web/src/handler/user.rs" beforeDir="false" afterPath="$PROJECT_DIR$/brave-web/src/handler/user.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/config.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/config.yaml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -135,7 +134,7 @@
       <workItem from="1678601876161" duration="1355000" />
       <workItem from="1678626905295" duration="21000" />
       <workItem from="1678627374267" duration="836000" />
-      <workItem from="1678784739509" duration="9179000" />
+      <workItem from="1678784739509" duration="10375000" />
     </task>
     <servers />
   </component>

@@ -2,8 +2,6 @@ use crate::db::connect_db;
 use brave_utils::jwt::config::JWTConfig;
 use config::Config;
 use once_cell::sync::Lazy;
-use sea_orm::strum::Display;
-use sea_orm::ColumnType::Json;
 use sea_orm::{ConnectOptions, DatabaseConnection};
 use serde::{Deserialize, Serialize};
 use std::{env, fmt};
@@ -143,6 +141,7 @@ impl EnvConfig {
 }
 
 impl AuthorityConfig {
+    #[allow(unused)]
     fn new() -> AuthorityConfig {
         AuthorityConfig {
             /*默认值*/
