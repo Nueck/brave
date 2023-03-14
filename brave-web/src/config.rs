@@ -2,6 +2,8 @@ use crate::db::connect_db;
 use brave_utils::jwt::config::JWTConfig;
 use config::Config;
 use once_cell::sync::Lazy;
+use sea_orm::strum::Display;
+use sea_orm::ColumnType::Json;
 use sea_orm::{ConnectOptions, DatabaseConnection};
 use serde::{Deserialize, Serialize};
 use std::{env, fmt};
@@ -29,12 +31,21 @@ pub struct PGConfig {
     pub port: Option<u16>,
 }
 
+/*权限信息*/
+#[derive(Debug, Clone, Default, Serialize, Deserialize)]
+pub struct AuthorityConfig {
+    pub auth: Option<Vec<String>>,
+    pub super_admin: Option<String>,
+    pub admin: Option<String>,
+}
+
 //创建yaml配置文件的结构体
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]
 pub struct GConfig {
     pub core_url: Option<String>,
     pub core_post_url: Option<String>,
     pub jwt: JWTConfig,
+    pub authority: AuthorityConfig,
 }
 
 //数据库连接问题
@@ -69,7 +80,8 @@ impl PGConfig {
 
         if let Some(password) = &self.password {
             //添加用户名和密码间距
-            url.push_str(":"+password);
+            url.push_str(":");
+            url.push_str(password);
         } else {
             //设置默认密码
             url.push_str(":123456");
@@ -130,7 +142,40 @@ impl EnvConfig {
     }
 }
 
-//这里引用deadpool中的代码
+impl AuthorityConfig {
+    fn new() -> AuthorityConfig {
+        AuthorityConfig {
+            /*默认值*/
+            auth: Some(vec![
+                "super".to_string(),
+                "admin".to_string(),
+                "user".to_string(),
+            ]),
+            super_admin: Some("super".to_string()),
+            admin: Some("admin".to_string()),
+        }
+    }
+
+    /*获取默认的*/
+    pub fn get_authority_config(&self) -> Self {
+        let mut auth_config = AuthorityConfig::new();
+
+        if let Some(auth) = &self.auth {
+            auth_config.auth = Some(auth.clone());
+        }
+
+        if let Some(admin) = &self.admin {
+            auth_config.admin = Some(admin.clone());
+        }
+
+        if let Some(super_admin) = &self.super_admin {
+            auth_config.super_admin = Some(super_admin.clone());
+        }
+
+        auth_config
+    }
+}
+
 #[derive(Copy, Clone, Debug)]
 pub enum ConfigError {
     DbnameMissing,

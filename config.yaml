@@ -7,6 +7,12 @@ jwt:
   #（red_time）30天
   ref_time: 2592000
 
+#权限管理
+authority:
+  auth: [ 'super','admin','user' ]
+  super_admin: super
+  admin: admin
+
 
 
 
