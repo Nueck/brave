@@ -11,12 +11,19 @@ use serde::{Deserialize, Serialize};
 pub struct Claims {
     pub sub: String,
     pub exp: u64,
+    pub auth: String,
 }
 
 //用于存放需要验证的信息
 pub struct TokenMsg {
     pub token: String,
     pub ip: String,
+}
+
+/*用于存放token解析后的数据*/
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub struct TokenData {
+    pub auth: String,
 }
 
 //用于存放的编码和解码密钥
@@ -49,7 +56,7 @@ impl Jot {
         .unwrap()
     }
 
-    pub fn validation_token(&self, token_msg: &TokenMsg) -> Result<bool, AuthError> {
+    pub fn validation_token(&self, token_msg: &TokenMsg) -> Result<TokenData, AuthError> {
         let validation = Validation::new(Algorithm::EdDSA);
         let token_data = match decode::<Claims>(&token_msg.token, &self.decoding_key, &validation) {
             Ok(c) => c,
@@ -81,7 +88,9 @@ impl Jot {
             return Err(AuthError::VerifyError);
         }
         //验证成功
-        Ok(true)
+        Ok(TokenData {
+            auth: token_data.claims.auth,
+        })
     }
 }
 
@@ -94,6 +103,7 @@ mod tests {
         let jwt = JWTConfig {
             exp_time: Some(1000),
             sub: Some("blog".to_string()),
+            ref_time: Some(1000),
         };
 
         JWTConfig::new(jwt);
@@ -102,6 +112,7 @@ mod tests {
         let claims = Claims {
             sub: "blog".to_string(),
             exp: get_current_timestamp() + JWTConfig::global().get_exp_time(),
+            auth: "super".to_string(),
         };
 
         let token = jot.generate_token(&claims);

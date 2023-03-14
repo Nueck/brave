@@ -2,11 +2,11 @@ use std::future::{ready, Ready};
 use std::task::{Context, Poll};
 
 use crate::GLOB_JOT;
+use actix_web::error::ErrorUnauthorized;
 use actix_web::http::header;
 use actix_web::{
-    body::EitherBody,
     dev::{Service, ServiceRequest, ServiceResponse, Transform},
-    Error, HttpMessage, HttpResponse,
+    Error, HttpMessage,
 };
 use brave_utils::error::AuthError;
 use brave_utils::jwt::jwt::TokenMsg;
@@ -20,7 +20,7 @@ where
     S::Future: 'static,
     B: 'static,
 {
-    type Response = ServiceResponse<EitherBody<B>>;
+    type Response = ServiceResponse<B>;
     type Error = Error;
     type Transform = JWTAuthMiddleware<S>;
     type InitError = ();
@@ -41,7 +41,7 @@ where
     S::Future: 'static,
     B: 'static,
 {
-    type Response = ServiceResponse<EitherBody<B>>;
+    type Response = ServiceResponse<B>;
     type Error = Error;
     type Future = LocalBoxFuture<'static, Result<Self::Response, Self::Error>>;
 
@@ -63,21 +63,20 @@ where
         let ip = addr.ip().to_string();
 
         return if req.path() == "/api/login" {
-            let res = self.service.call(req);
-            Box::pin(async move { res.await.map(ServiceResponse::map_into_left_body) })
+            let fut = self.service.call(req);
+            Box::pin(async move {
+                let res = fut.await?;
+                Ok(res)
+            })
         } else {
             //首先判断有没有认证
-            match req.headers().get(header::AUTHORIZATION) {
+            return match req.headers().get(header::AUTHORIZATION) {
                 None => {
                     log::info!("- {} There is no authentication token", ip);
-                    let (request, _pl) = req.into_parts();
                     const MESSAGE: &str = "There is no authentication token";
-                    let response = HttpResponse::Unauthorized()
-                        .json(
-                            serde_json::json!({"status": "no authentication", "message": MESSAGE}),
-                        )
-                        .map_into_right_body();
-                    Box::pin(async { Ok(ServiceResponse::new(request, response)) })
+                    let json =
+                        serde_json::json!({"status": "no authentication", "message": MESSAGE});
+                    Box::pin(async { Err(ErrorUnauthorized(json)) })
                 }
                 Some(header_value) => {
                     let bearer_token = header_value.to_str().unwrap();
@@ -87,37 +86,33 @@ where
                     let token_msg = TokenMsg { token, ip };
 
                     //进行token认证
-                    return match GLOB_JOT.validation_token(&token_msg) {
-                        Ok(_) => {
-                            let res = self.service.call(req);
+                    match GLOB_JOT.validation_token(&token_msg) {
+                        Ok(data) => {
+                            req.extensions_mut().insert(data);
 
-                            Box::pin(
-                                async move { res.await.map(ServiceResponse::map_into_left_body) },
-                            )
+                            let fut = self.service.call(req);
+                            Box::pin(async move {
+                                let res = fut.await?;
+                                Ok(res)
+                            })
                         }
                         Err(err) => {
                             return match err {
                                 AuthError::VerifyError => {
-                                    let (request, _pl) = req.into_parts();
                                     const MESSAGE: &str = "Authentication failure";
-                                    let response = HttpResponse::Unauthorized()
-                                        .json(serde_json::json!({"status": "failure", "message": MESSAGE}))
-                                        .map_into_right_body();
-                                    Box::pin(async { Ok(ServiceResponse::new(request, response)) })
+                                    let json = serde_json::json!({"status": "failure", "message": MESSAGE});
+                                    Box::pin(async { Err(ErrorUnauthorized(json)) })
                                 }
                                 AuthError::ExpirationError => {
-                                    let (request, _pl) = req.into_parts();
                                     const MESSAGE: &str = "Login expired";
-                                    let response = HttpResponse::Unauthorized()
-                                        .json(serde_json::json!({"status": "expired", "message": MESSAGE}))
-                                        .map_into_right_body();
-                                    Box::pin(async { Ok(ServiceResponse::new(request, response)) })
+                                    let json = serde_json::json!({"status": "expired", "message": MESSAGE});
+                                    Box::pin(async { Err(ErrorUnauthorized(json)) })
                                 }
                             };
                         }
-                    };
+                    }
                 }
-            }
+            };
         };
     }
 }
