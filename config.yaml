@@ -13,6 +13,11 @@ authority:
   super_admin: super
   admin: admin
 
+#Blake设置
+blake:
+  #加密的加盐
+  salt: "brave"
+
 
 
 

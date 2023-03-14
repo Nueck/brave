@@ -3,12 +3,7 @@ use crate::entity::users::Entity as Users;
 use actix_web::{post, web, Error, HttpResponse, Responder};
 use brave_utils::jwt::jwt::TokenData;
 use sea_orm::EntityTrait;
-use serde::Serialize;
-
-#[derive(Serialize)]
-struct UserObj {
-    user_name: String,
-}
+use serde::{Deserialize, Serialize};
 
 #[post("/users")]
 pub async fn get_users(

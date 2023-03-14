@@ -12,11 +12,12 @@ pub struct Model {
     #[sea_orm(column_type = "Text")]
     pub user_phone: String,
     pub user_email: String,
-    #[sea_orm(column_type = "Text", nullable)]
-    pub user_address: Option<String>,
+    #[sea_orm(column_type = "Text")]
+    pub user_address: String,
     pub create_time: DateTime,
     pub article_num: i32,
     pub album_num: i32,
+    pub pwd_hash: String,
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]

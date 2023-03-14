@@ -1,4 +1,5 @@
 use crate::db::connect_db;
+use brave_utils::blake3::Blake3Config;
 use brave_utils::jwt::config::JWTConfig;
 use config::Config;
 use once_cell::sync::Lazy;
@@ -44,6 +45,7 @@ pub struct GConfig {
     pub core_post_url: Option<String>,
     pub jwt: JWTConfig,
     pub authority: AuthorityConfig,
+    pub blake: Blake3Config,
 }
 
 //数据库连接问题
