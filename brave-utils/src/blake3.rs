@@ -1,6 +1,5 @@
 use blake3::Hasher;
 use serde::{Deserialize, Serialize};
-use std::hash::Hash;
 
 /*对加密的内容的一个加密工具*/
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]
@@ -10,27 +9,22 @@ pub struct Blake3Config {
 }
 
 impl Blake3Config {
-    pub fn new(blake: Blake3Config) -> Self {
-        let salt_config = match blake.salt {
+    /*带加盐的*/
+    pub fn generate_with_salt(&self, str: &str) -> String {
+        //用于默认值
+        let salt_config = match &self.salt {
             None => "brave".to_string(),
             Some(data) => data.to_string(),
         };
 
-        Self {
-            salt: Some(salt_config),
-        }
-    }
-
-    /*带加盐的*/
-    pub fn generate_with_salt(&self, str: String) -> String {
-        let mut hasher = Hasher::new_derive_key(&self.salt.clone().unwrap());
+        let mut hasher = Hasher::new_derive_key(&salt_config.to_string());
         hasher.update(str.as_ref());
         let hash2 = hasher.finalize();
         hash2.to_string()
     }
 
     /*不加盐的*/
-    pub fn generate(&self, str: String) -> String {
+    pub fn generate(&self, str: &str) -> String {
         let mut hasher = Hasher::new();
         hasher.update(str.as_ref());
         let hash2 = hasher.finalize();
@@ -41,7 +35,6 @@ impl Blake3Config {
 #[cfg(test)]
 mod blake3tests {
     use super::*;
-    use ring::rand::generate;
 
     #[test]
     fn blake3_test() {
@@ -63,10 +56,10 @@ mod blake3tests {
         // // Print a hash as hex.
         // println!("{}", hash1);
 
-        let blake = Blake3Config::new(Blake3Config {
-            salt: Some("qwe123".to_string()),
-        });
-        let str = blake.generate("123".to_string());
+        let blake = Blake3Config {
+            salt: Some("brave".to_string()),
+        };
+        let str = blake.generate_with_salt("123456");
 
         println!("{}", str);
     }
