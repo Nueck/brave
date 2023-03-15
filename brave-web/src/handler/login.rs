@@ -1,10 +1,12 @@
 use crate::config::{AppState, GLOBAL_YAML_CONFIG};
 use crate::entity::prelude::Users;
 use crate::entity::users;
+use crate::entity::users::Model;
 use actix_web::{post, web, HttpResponse};
-use brave_utils::common::is_valid_email;
+use brave_utils::common::{generation_random_number, is_valid_email};
 use brave_utils::jwt::jwt::Claims;
 use brave_utils::jwt::jwt::GLOB_JOT;
+use brave_utils::mail::MailConfig;
 use jsonwebtoken::get_current_timestamp;
 use sea_orm::{ColumnTrait, EntityTrait, QueryFilter};
 use serde::Deserialize;
@@ -13,6 +15,11 @@ use serde::Deserialize;
 pub struct UserInfo {
     pub username: String,
     pub password: String,
+}
+
+#[derive(Deserialize)]
+pub struct MailInfo {
+    pub email: String,
 }
 
 /*
@@ -80,7 +87,22 @@ pub async fn login(data: web::Data<AppState>, user_info: web::Json<UserInfo>) ->
 /*注册*/
 #[post("/register")]
 pub async fn register(data: web::Data<AppState>) -> HttpResponse {
-    /*判断邮箱地址*/
+    /*判断邮箱地址是否存在或在用户名*/
+    // let db = &data.conn;
+    // match Users::find()
+    //     .filter(
+    //         //断用户名是否是邮箱
+    //         if is_valid_email(&user_info.username) {
+    //             users::Column::UserEmail.contains(&user_info.username)
+    //         },
+    //     )
+    //     .one(db)
+    //     .await
+    //     .expect("Could not find Users -- Login")
+    // {
+    //     None => {}
+    //     Some(_) => {}
+    // }
     const MSG: &str = "Password error";
     HttpResponse::Ok().json(serde_json::json!({"status": "error", "message": MSG }))
 }
@@ -92,8 +114,30 @@ pub async fn register(data: web::Data<AppState>) -> HttpResponse {
 //     Ok(HttpResponse::Ok().json(serde_json::json!({"status": "error", "message": MSG })))
 // }
 
-// #[post("/sendmail")]
-// pub async fn sendmail(data: web::Data<AppState>) -> Result<HttpResponse> {
-//     const MSG: &str = "Password error";
-//     Ok(HttpResponse::Ok().json(serde_json::json!({"status": "error", "message": MSG })))
-// }
+#[post("/sendmail")]
+pub async fn sendmail(data: web::Data<AppState>, mail: web::Json<MailInfo>) -> HttpResponse {
+    /*将随机数发送到相应的邮箱*/
+    match &GLOBAL_YAML_CONFIG.mail {
+        None => {
+            const MSG: &str = "The server does not support email sending";
+            HttpResponse::Ok().json(serde_json::json!({"status": "error", "message": MSG }))
+        }
+        Some(m) => {
+            /*生成随机数*/
+            let num = generation_random_number();
+            match m.sendmail(mail.email.clone(), &num.to_string()) {
+                true => {
+                    /*生成加盐的数据*/
+                    let code = GLOBAL_YAML_CONFIG
+                        .blake
+                        .generate_with_salt(&num.to_string());
+                    HttpResponse::Ok().json(serde_json::json!({"status": "success", "code": num }))
+                }
+                false => {
+                    const MSG: &str = "Email sending failure";
+                    HttpResponse::Ok().json(serde_json::json!({"status": "error", "message": MSG }))
+                }
+            }
+        }
+    }
+}

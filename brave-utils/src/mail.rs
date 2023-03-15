@@ -14,7 +14,7 @@ pub struct MailConfig {
 }
 
 impl MailConfig {
-    pub fn sendmail(&self, target_email: String, code: &str) {
+    pub fn sendmail(&self, target_email: String, code: &str) -> bool {
         let email = Message::builder()
             .from((&self.mine_email.clone()).parse().unwrap())
             .to(target_email.parse().unwrap())
@@ -41,8 +41,14 @@ impl MailConfig {
 
         // Send the email
         match mailer.send(&email) {
-            Ok(_) => log::info!("Email sent successfully!"),
-            Err(e) => log::error!("Could not send email: {e:?}"),
+            Ok(_) => {
+                log::info!("Email sent successfully!");
+                true
+            }
+            Err(e) => {
+                log::error!("Could not send email: {e:?}");
+                false
+            }
         }
     }
 }

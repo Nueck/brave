@@ -54,13 +54,7 @@ where
         let addr = req.peer_addr().unwrap();
         let ip = addr.ip().to_string();
 
-        return if req.path() == "/api/login" || req.path() == "/api/verification" {
-            let fut = self.service.call(req);
-            Box::pin(async move {
-                let res = fut.await?;
-                Ok(res)
-            })
-        } else {
+        return if is_need_verification(req.path()) {
             //首先判断有没有认证
             return match req.headers().get(header::AUTHORIZATION) {
                 None => Box::pin(async { Err(ErrorUnauthorized("No Authentication")) }),
@@ -96,6 +90,16 @@ where
                     }
                 }
             };
+        } else {
+            let fut = self.service.call(req);
+            Box::pin(async move {
+                let res = fut.await?;
+                Ok(res)
+            })
         };
     }
+}
+
+fn is_need_verification(path: &str) -> bool {
+    !(path == "/api/login" || path == "/api/register" || path == "/api/sendmail")
 }
