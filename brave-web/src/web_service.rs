@@ -1,9 +1,9 @@
 use crate::config::{AppState, EnvConfig, GLOBAL_ENV_CONFIG, GLOBAL_YAML_CONFIG};
+use crate::middleware::auth_middleware::JWTAuth;
 use actix_cors::Cors;
 use actix_web::http::header;
 use actix_web::middleware::Logger;
 use actix_web::{web, App, HttpServer};
-use brave_middleware::auth_middleware::JWTAuth;
 use brave_utils::jwt::config::JWTConfig;
 
 #[actix_rt::main]

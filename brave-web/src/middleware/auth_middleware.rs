@@ -1,6 +1,7 @@
 use std::future::{ready, Ready};
 use std::task::{Context, Poll};
 
+use crate::config::GLOBAL_YAML_CONFIG;
 use actix_web::error::ErrorUnauthorized;
 use actix_web::http::header;
 use actix_web::{
@@ -68,14 +69,27 @@ where
                     //进行token认证
                     match GLOB_JOT.validation_token(&token_msg) {
                         Ok(data) => {
-                            /*将用户信息传下去*/
-                            req.extensions_mut().insert(data);
+                            /*判断用户权限是否存在*/
+                            if GLOBAL_YAML_CONFIG
+                                .authority
+                                .auth
+                                .clone()
+                                .unwrap()
+                                .contains(&data.auth)
+                            {
+                                /*将用户信息传下去*/
+                                req.extensions_mut().insert(data);
 
-                            let fut = self.service.call(req);
-                            Box::pin(async move {
-                                let res = fut.await?;
-                                Ok(res)
-                            })
+                                let fut = self.service.call(req);
+                                Box::pin(async move {
+                                    let res = fut.await?;
+                                    Ok(res)
+                                })
+                            } else {
+                                Box::pin(async {
+                                    Err(ErrorUnauthorized("Permission does not exist"))
+                                })
+                            }
                         }
                         Err(err) => {
                             return match err {

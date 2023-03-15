@@ -9,14 +9,11 @@ repository = "https://github.com/Nueck/brave/"
 publish = false
 
 [workspace]
-members = [".", "brave-web", "brave-middleware", "brave-utils"]
+members = [".", "brave-web", "brave-utils"]
 
 [dependencies]
 #主要的web服务
 brave-web = { path = "brave-web" }
-#中间件
-brave-middleware = { path = "brave-middleware" }
-
 
 
 
