@@ -1,13 +1,12 @@
 use crate::config::{AppState, GLOBAL_YAML_CONFIG};
 use crate::entity::prelude::Users;
 use crate::entity::users;
-use crate::entity::users::Model;
 use actix_web::{post, web, HttpResponse};
 use brave_utils::common::{generation_random_number, is_valid_email};
 use brave_utils::jwt::jwt::Claims;
 use brave_utils::jwt::jwt::GLOB_JOT;
-use brave_utils::mail::MailConfig;
 use jsonwebtoken::get_current_timestamp;
+use sea_orm::ActiveValue::Set;
 use sea_orm::{ColumnTrait, EntityTrait, QueryFilter};
 use serde::Deserialize;
 
@@ -73,6 +72,7 @@ pub async fn login(data: web::Data<AppState>, user_info: web::Json<UserInfo>) ->
                     sub: GLOBAL_YAML_CONFIG.jwt.get_sub(),
                     exp: get_current_timestamp() + GLOBAL_YAML_CONFIG.jwt.get_exp_time(),
                     auth: user.user_authority.clone(),
+                    code: None,
                 };
                 let token = GLOB_JOT.generate_token(&claims);
 
@@ -81,6 +81,7 @@ pub async fn login(data: web::Data<AppState>, user_info: web::Json<UserInfo>) ->
                     sub: GLOBAL_YAML_CONFIG.jwt.get_sub(),
                     exp: get_current_timestamp() + GLOBAL_YAML_CONFIG.jwt.get_ref_time(),
                     auth: user.user_authority,
+                    code: None,
                 };
                 let ref_token = GLOB_JOT.generate_token(&claims);
 
@@ -100,23 +101,72 @@ pub async fn register(data: web::Data<AppState>, info: web::Json<RegisterInfo>) 
     let db = &data.conn;
     match Users::find()
         .filter(users::Column::UserEmail.contains(&info.email))
-        .filter(users::Column::UserName.contains(&info.username))
         .one(db)
         .await
         .expect("Could not find Users -- Login")
+        .is_some()
+        || Users::find()
+            .filter(users::Column::UserName.contains(&info.username))
+            .one(db)
+            .await
+            .expect("Could not find Users -- Login")
+            .is_some()
     {
-        None => {
-            /*用户不存在的时候注册*/
-
-            /*验证验证码是否正确*/
-
-            const MSG: &str = "Password error";
+        true => {
+            /*用户存在则不能注册*/
+            const MSG: &str = "User presence";
             HttpResponse::Ok().json(serde_json::json!({"status": "error", "message": MSG }))
         }
-        Some(user) => {
-            /*用户存在则不能注册*/
-            const MSG: &str = "Password error";
-            HttpResponse::Ok().json(serde_json::json!({"status": "error", "message": MSG }))
+        false => {
+            /*用户不存在的时候注册*/
+            /*验证验证码是否正确*/
+            match GLOB_JOT.validation_to_claim(&info.code) {
+                Ok(data) => {
+                    //对需要验证的code的加盐
+                    let verify_code = GLOBAL_YAML_CONFIG
+                        .blake
+                        .generate_with_salt(&info.verify_code);
+
+                    let code = data.code.unwrap();
+                    //判断验证码是否正确
+                    if verify_code == code {
+                        /*保存数据到数据库*/
+                        /*对密码加密*/
+                        let pwd = GLOBAL_YAML_CONFIG.blake.generate_with_salt(&info.password);
+                        //初始化数据
+                        let user = users::ActiveModel {
+                            user_name: Set((&info.username.as_str()).parse().unwrap()),
+                            user_authority: Set("user".to_owned()),
+                            user_email: Set((&info.email.as_str()).parse().unwrap()),
+                            user_address: Set((&info.username.as_str()).parse().unwrap()),
+                            pwd_hash: Set(pwd),
+                            ..Default::default() // all other attributes are `NotSet`
+                        };
+
+                        match users::Entity::insert(user).exec(db).await {
+                            Ok(_) => {
+                                const MSG: &str = "Successful registration";
+                                HttpResponse::Ok()
+                                    .json(serde_json::json!({"status": "success", "message": MSG }))
+                            }
+                            Err(err) => {
+                                log::error!("Registration failure : {err:?}");
+                                const MSG: &str = "Registration failure";
+                                HttpResponse::Ok()
+                                    .json(serde_json::json!({"status": "error", "message": MSG }))
+                            }
+                        }
+                    } else {
+                        const MSG: &str = "Verification code error";
+                        HttpResponse::Ok()
+                            .json(serde_json::json!({"status": "code error", "message": MSG }))
+                    }
+                }
+                Err(_) => {
+                    const MSG: &str = "Error in sending data";
+                    HttpResponse::Ok().json(serde_json::json!({"status": "error", "message": MSG }))
+                }
+            }
         }
     }
 }
@@ -129,7 +179,7 @@ pub async fn register(data: web::Data<AppState>, info: web::Json<RegisterInfo>) 
 // }
 
 #[post("/sendmail")]
-pub async fn sendmail(data: web::Data<AppState>, mail: web::Json<MailInfo>) -> HttpResponse {
+pub async fn sendmail(mail: web::Json<MailInfo>) -> HttpResponse {
     /*将随机数发送到相应的邮箱*/
     match &GLOBAL_YAML_CONFIG.mail {
         None => {
@@ -141,15 +191,22 @@ pub async fn sendmail(data: web::Data<AppState>, mail: web::Json<MailInfo>) -> H
             let num = generation_random_number();
             match m.sendmail(mail.email.clone(), &num.to_string()) {
                 true => {
-                    /*生成加盐的数据*/
+                    /*生成加盐的数据 和使用token加密*/
+                    let num_code = GLOBAL_YAML_CONFIG
+                        .blake
+                        .generate_with_salt(&num.to_string());
+
                     let claims = Claims {
                         sub: GLOBAL_YAML_CONFIG.jwt.get_sub(),
-                        exp: get_current_timestamp() + GLOBAL_YAML_CONFIG.jwt.get_code_time(),
-                        auth: "Have no authority".parse().unwrap(),
+                        //验证码时间有效5分钟
+                        exp: get_current_timestamp() + 300,
+                        //由于对权限的控制，这个生成的token是无法用在登陆
+                        auth: "Have no authority".to_string(),
+                        code: Some(num_code),
                     };
                     let code = GLOB_JOT.generate_token(&claims);
 
-                    HttpResponse::Ok().json(serde_json::json!({"status": "success", "code": num }))
+                    HttpResponse::Ok().json(serde_json::json!({"status": "success", "code": code }))
                 }
                 false => {
                     const MSG: &str = "Email sending failure";

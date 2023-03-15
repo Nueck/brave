@@ -20,7 +20,9 @@ impl MailConfig {
             .to(target_email.parse().unwrap())
             .subject("Brave验证码")
             .header(ContentType::TEXT_PLAIN)
-            .body(String::from("你的验证码是".to_owned() + &code))
+            .body(String::from(
+                "你的验证码是".to_owned() + &code + "  有效时间5分钟",
+            ))
             .unwrap();
 
         let passwd = &self.password;

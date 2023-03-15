@@ -9,8 +9,8 @@ pub struct Model {
     pub user_id: i32,
     pub user_name: String,
     pub user_authority: String,
-    #[sea_orm(column_type = "Text")]
-    pub user_phone: String,
+    #[sea_orm(column_type = "Text", nullable)]
+    pub user_phone: Option<String>,
     pub user_email: String,
     #[sea_orm(column_type = "Text")]
     pub user_address: String,

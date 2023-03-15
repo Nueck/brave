@@ -10,7 +10,6 @@ pub struct JWTConfig {
     pub exp_time: Option<u64>,
     pub sub: Option<String>,
     pub ref_time: Option<u64>,
-    pub code_time: Option<u64>,
 }
 
 //JWTConfig配置
@@ -37,13 +36,6 @@ impl JWTConfig {
     pub fn get_ref_time(&self) -> u64 {
         match &self.ref_time {
             None => 1000, //默认值
-            Some(num) => num.to_owned(),
-        }
-    }
-
-    pub fn get_code_time(&self) -> u64 {
-        match &self.code_time {
-            None => 300, //默认值
             Some(num) => num.to_owned(),
         }
     }

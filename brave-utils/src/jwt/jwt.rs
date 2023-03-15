@@ -16,6 +16,7 @@ pub struct Claims {
     pub sub: String,
     pub exp: u64,
     pub auth: String,
+    pub code: Option<String>,
 }
 
 //用于存放需要验证的信息
@@ -96,6 +97,22 @@ impl Jot {
             auth: token_data.claims.auth,
         })
     }
+
+    /*用于登陆验证码的的验证*/
+    pub fn validation_to_claim(&self, token_msg: &str) -> Result<Claims, AuthError> {
+        let validation = Validation::new(Algorithm::EdDSA);
+        match decode::<Claims>(&token_msg, &self.decoding_key, &validation) {
+            Ok(data) => {
+                //判断时间是否正确
+                if data.claims.exp < get_current_timestamp() {
+                    Err(AuthError::VerifyError)
+                } else {
+                    Ok(data.claims)
+                }
+            }
+            Err(_) => Err(AuthError::VerifyError),
+        }
+    }
 }
 
 #[cfg(test)]
@@ -117,6 +134,7 @@ mod tests {
             sub: "blog".to_string(),
             exp: get_current_timestamp() + JWTConfig::global().get_exp_time(),
             auth: "super".to_string(),
+            code: None,
         };
 
         let token = jot.generate_token(&claims);
