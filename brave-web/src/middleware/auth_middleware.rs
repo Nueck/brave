@@ -115,5 +115,8 @@ where
 }
 
 fn is_need_verification(path: &str) -> bool {
-    !(path == "/api/login" || path == "/api/register" || path == "/api/sendmail")
+    !(path == "/api/login"
+        || path == "/api/register"
+        || path == "/api/sendmail"
+        || path == "/api/forget")
 }
