@@ -49,14 +49,6 @@ where
         self.service.poll_ready(cx)
     }
 
-    //其中的左右用stackoverflow的大佬解释
-    //I'm kind of late to the party but the best way to do this from within
-    //Actix middleware is using futures::future::Either.
-    //You can see how it's used here: https://github.com/actix/examples/blob/master/middleware/middleware/src/redirect.rs.
-    //The left hand side of Either will be a Future which passes the response to the next stage
-    //in the chain. The right hand side will be a response (usually HttpResponse)
-    //if you wish to return the response early.
-
     fn call(&self, req: ServiceRequest) -> Self::Future {
         //获取ip
         let addr = req.peer_addr().unwrap();

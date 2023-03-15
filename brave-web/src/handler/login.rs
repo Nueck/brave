@@ -2,11 +2,14 @@ use crate::config::{AppState, GLOBAL_YAML_CONFIG};
 use crate::entity::prelude::Users;
 use crate::entity::users;
 use actix_web::{post, web, HttpResponse, Result};
+use brave_utils::common::is_valid_email;
 use brave_utils::jwt::jwt::Claims;
 use brave_utils::jwt::jwt::GLOB_JOT;
 use jsonwebtoken::get_current_timestamp;
+use once_cell::sync::Lazy;
 use sea_orm::{ColumnTrait, EntityTrait, QueryFilter};
 use serde::Deserialize;
+use std::collections::HashMap;
 
 #[derive(Deserialize)]
 pub struct UserInfo {
@@ -31,13 +34,26 @@ pub async fn login(
         .generate_with_salt(&user_info.password);
 
     let db = &data.conn;
+
+    /*判断用户名是否是邮箱*/
+
+    let user;
+    if is_valid_email(&user_info.username) {
+        user = Users::find()
+            .filter(users::Column::UserEmail.contains(&user_info.username))
+            .one(db)
+            .await
+            .expect("Could not find Users -- Login")
+            .unwrap();
+    } else {
+        user = Users::find()
+            .filter(users::Column::UserName.contains(&user_info.username))
+            .one(db)
+            .await
+            .expect("Could not find Users -- Login")
+            .unwrap();
+    }
     /*获取user数据*/
-    let user = Users::find()
-        .filter(users::Column::UserName.contains(&user_info.username))
-        .one(db)
-        .await
-        .expect("Could not find Users -- Login")
-        .unwrap();
 
     /*进行密码比对*/
     if pwd == user.pwd_hash {
@@ -67,6 +83,7 @@ pub async fn login(
 /*注册*/
 #[post("/register")]
 pub async fn register(data: web::Data<AppState>) -> Result<HttpResponse> {
+    /*判断邮箱地址*/
     const MSG: &str = "Password error";
     Ok(HttpResponse::Ok().json(serde_json::json!({"status": "error", "message": MSG })))
 }
@@ -74,6 +91,12 @@ pub async fn register(data: web::Data<AppState>) -> Result<HttpResponse> {
 /*获取验证码*/
 #[post("/verification")]
 pub async fn verification_code(data: web::Data<AppState>) -> Result<HttpResponse> {
+    const MSG: &str = "Password error";
+    Ok(HttpResponse::Ok().json(serde_json::json!({"status": "error", "message": MSG })))
+}
+
+#[post("/sendmail")]
+pub async fn sendmail(data: web::Data<AppState>) -> Result<HttpResponse> {
     const MSG: &str = "Password error";
     Ok(HttpResponse::Ok().json(serde_json::json!({"status": "error", "message": MSG })))
 }
