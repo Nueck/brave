@@ -8,6 +8,7 @@ repository = "https://github.com/Nueck/brave/"
 [dependencies]
 jsonwebtoken = "8.2.0"
 log = "0.4.17"
+rand = "0.8.5"
 ring = { version = "0.16.20", features = ["std"] }
 base64 = "0.21.0"
 serde = { version = "1.0.137", features = ["derive"] }

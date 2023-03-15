@@ -2,7 +2,6 @@ use crate::common::is_outlook_email;
 use lettre::message::header::ContentType;
 use lettre::transport::smtp::authentication::Credentials;
 use lettre::{Message, SmtpTransport, Transport};
-use log::log;
 use serde::{Deserialize, Serialize};
 
 //mail的配置

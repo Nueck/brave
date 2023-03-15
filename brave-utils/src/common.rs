@@ -1,3 +1,4 @@
+use rand::Rng;
 use regex::Regex;
 /*判断是否是邮箱地址*/
 pub fn is_valid_email(email: &str) -> bool {
@@ -13,4 +14,20 @@ pub fn is_outlook_email(email: &str) -> bool {
     }
     let domain = email_parts[1].to_lowercase();
     domain == "outlook.com"
+}
+
+/*生成随机数*/
+pub fn generation_random_number() -> u32 {
+    let mut rng = rand::thread_rng();
+    rng.gen_range(10000..=99999)
+}
+
+#[cfg(test)]
+mod common_tests {
+    use super::*;
+
+    #[test]
+    fn common_test1() {
+        println!("{}", generation_random_number())
+    }
 }
