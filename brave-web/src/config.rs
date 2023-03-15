@@ -1,6 +1,7 @@
 use crate::db::connect_db;
 use brave_utils::blake3::Blake3Config;
 use brave_utils::jwt::config::JWTConfig;
+use brave_utils::mail::MailConfig;
 use config::Config;
 use once_cell::sync::Lazy;
 use sea_orm::{ConnectOptions, DatabaseConnection};
@@ -46,6 +47,7 @@ pub struct GConfig {
     pub jwt: JWTConfig,
     pub authority: AuthorityConfig,
     pub blake: Blake3Config,
+    pub mail: Option<MailConfig>,
 }
 
 //数据库连接问题

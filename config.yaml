@@ -18,6 +18,14 @@ blake:
   #加盐
   salt: brave
 
+#邮箱地址设置（自己需要更改）
+mail:
+  mine_email: brave-rust@outlook.com
+  smtp_server: smtp.office365.com
+  password: 123456
+  port: 587
+
+
 
 
 

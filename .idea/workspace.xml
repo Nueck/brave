@@ -16,13 +16,10 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="532997e4-8890-44d1-bfd0-eea66c3a6ba9" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/brave-utils/src/common.rs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/brave-utils/src/mail.rs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/brave-middleware/src/auth_middleware.rs" beforeDir="false" afterPath="$PROJECT_DIR$/brave-middleware/src/auth_middleware.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/brave-utils/Cargo.toml" beforeDir="false" afterPath="$PROJECT_DIR$/brave-utils/Cargo.toml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/brave-utils/src/jwt/jwt.rs" beforeDir="false" afterPath="$PROJECT_DIR$/brave-utils/src/jwt/jwt.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/brave-utils/src/common.rs" beforeDir="false" afterPath="$PROJECT_DIR$/brave-utils/src/common.rs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/brave-utils/src/lib.rs" beforeDir="false" afterPath="$PROJECT_DIR$/brave-utils/src/lib.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/brave-utils/src/mail.rs" beforeDir="false" afterPath="$PROJECT_DIR$/brave-utils/src/mail.rs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/brave-web/src/config.rs" beforeDir="false" afterPath="$PROJECT_DIR$/brave-web/src/config.rs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/brave-web/src/handler/login.rs" beforeDir="false" afterPath="$PROJECT_DIR$/brave-web/src/handler/login.rs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/config.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/config.yaml" afterDir="false" />
@@ -89,7 +86,7 @@
       <recent name="$PROJECT_DIR$/brave-web/src" />
     </key>
   </component>
-  <component name="RunManager" selected="Cargo.Run brave">
+  <component name="RunManager" selected="Cargo.Test mail::mail_tests::mail_test1">
     <configuration name="Run brave" type="CargoCommandRunConfiguration" factoryName="Cargo Command" temporary="true">
       <option name="command" value="run --package brave --bin brave" />
       <option name="workingDirectory" value="file://$PROJECT_DIR$" />
@@ -124,8 +121,44 @@
         <option name="CARGO.BUILD_TASK_PROVIDER" enabled="true" />
       </method>
     </configuration>
+    <configuration name="Test mail::mail_tests::mail_test1" type="CargoCommandRunConfiguration" factoryName="Cargo Command" temporary="true">
+      <option name="command" value="test --package brave-utils --lib mail::mail_tests::mail_test1 -- --exact" />
+      <option name="workingDirectory" value="file://$PROJECT_DIR$" />
+      <option name="emulateTerminal" value="false" />
+      <option name="channel" value="DEFAULT" />
+      <option name="requiredFeatures" value="true" />
+      <option name="allFeatures" value="false" />
+      <option name="withSudo" value="false" />
+      <option name="buildTarget" value="REMOTE" />
+      <option name="backtrace" value="SHORT" />
+      <envs />
+      <option name="isRedirectInput" value="false" />
+      <option name="redirectInputPath" value="" />
+      <method v="2">
+        <option name="CARGO.BUILD_TASK_PROVIDER" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="Test mail_tests" type="CargoCommandRunConfiguration" factoryName="Cargo Command" temporary="true">
+      <option name="command" value="test --package brave-utils --lib mail::mail_tests" />
+      <option name="workingDirectory" value="file://$PROJECT_DIR$" />
+      <option name="emulateTerminal" value="false" />
+      <option name="channel" value="DEFAULT" />
+      <option name="requiredFeatures" value="true" />
+      <option name="allFeatures" value="false" />
+      <option name="withSudo" value="false" />
+      <option name="buildTarget" value="REMOTE" />
+      <option name="backtrace" value="SHORT" />
+      <envs />
+      <option name="isRedirectInput" value="false" />
+      <option name="redirectInputPath" value="" />
+      <method v="2">
+        <option name="CARGO.BUILD_TASK_PROVIDER" enabled="true" />
+      </method>
+    </configuration>
     <recent_temporary>
       <list>
+        <item itemvalue="Cargo.Test mail::mail_tests::mail_test1" />
+        <item itemvalue="Cargo.Test mail_tests" />
         <item itemvalue="Cargo.Run brave" />
         <item itemvalue="Cargo.Test blake3::blake3tests::blake3_test" />
       </list>
@@ -158,7 +191,7 @@
       <workItem from="1678626905295" duration="21000" />
       <workItem from="1678627374267" duration="836000" />
       <workItem from="1678784739509" duration="10375000" />
-      <workItem from="1678802271993" duration="17613000" />
+      <workItem from="1678802271993" duration="21075000" />
     </task>
     <servers />
   </component>
