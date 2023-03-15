@@ -3,7 +3,7 @@ jwt:
   #过期时间七天(秒)
   exp_time: 604800
   #验证主题
-  sub: cako-blog
+  sub: brave
   #（red_time）30天
   ref_time: 2592000
 
@@ -15,8 +15,8 @@ authority:
 
 #Blake设置
 blake:
-  #加密的加盐
-  salt: "brave"
+  #加盐
+  salt: brave
 
 
 

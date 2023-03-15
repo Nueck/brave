@@ -42,7 +42,7 @@ impl JWTConfig {
 
     pub fn get_sub(&self) -> String {
         match &self.sub {
-            None => "cako".to_string(),
+            None => "brave".to_string(),
             Some(s) => s.to_string(),
         }
     }

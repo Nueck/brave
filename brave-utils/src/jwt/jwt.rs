@@ -4,8 +4,12 @@ use jsonwebtoken::errors::ErrorKind;
 use jsonwebtoken::{
     decode, encode, get_current_timestamp, Algorithm, DecodingKey, EncodingKey, Validation,
 };
+use once_cell::sync::Lazy;
 use ring::signature::{Ed25519KeyPair, KeyPair};
 use serde::{Deserialize, Serialize};
+
+//全局的变量
+pub static GLOB_JOT: Lazy<Jot> = Lazy::new(|| Jot::new());
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Claims {

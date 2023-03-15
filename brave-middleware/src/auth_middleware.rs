@@ -1,7 +1,6 @@
 use std::future::{ready, Ready};
 use std::task::{Context, Poll};
 
-use crate::GLOB_JOT;
 use actix_web::error::ErrorUnauthorized;
 use actix_web::http::header;
 use actix_web::{
@@ -10,6 +9,7 @@ use actix_web::{
 };
 use brave_utils::error::AuthError;
 use brave_utils::jwt::jwt::TokenMsg;
+use brave_utils::jwt::jwt::GLOB_JOT;
 use futures_util::future::LocalBoxFuture;
 
 pub struct JWTAuth;
@@ -62,7 +62,7 @@ where
         let addr = req.peer_addr().unwrap();
         let ip = addr.ip().to_string();
 
-        return if req.path() == "/api/login" {
+        return if req.path() == "/api/login" || req.path() == "/api/verification" {
             let fut = self.service.call(req);
             Box::pin(async move {
                 let res = fut.await?;
@@ -97,7 +97,7 @@ where
                                     Err(ErrorUnauthorized("Authentication failure"))
                                 }),
                                 AuthError::ExpirationError => {
-                                    Box::pin(async { Err(ErrorUnauthorized("Expired")) })
+                                    Box::pin(async { Err(ErrorUnauthorized("Token Expired")) })
                                 }
                             };
                         }

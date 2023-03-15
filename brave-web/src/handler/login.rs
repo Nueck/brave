@@ -2,8 +2,8 @@ use crate::config::{AppState, GLOBAL_YAML_CONFIG};
 use crate::entity::prelude::Users;
 use crate::entity::users;
 use actix_web::{post, web, HttpResponse, Result};
-use brave_middleware::GLOB_JOT;
 use brave_utils::jwt::jwt::Claims;
+use brave_utils::jwt::jwt::GLOB_JOT;
 use jsonwebtoken::get_current_timestamp;
 use sea_orm::{ColumnTrait, EntityTrait, QueryFilter};
 use serde::Deserialize;
@@ -62,4 +62,18 @@ pub async fn login(
         const MSG: &str = "Password error";
         Ok(HttpResponse::Ok().json(serde_json::json!({"status": "error", "message": MSG })))
     }
+}
+
+/*注册*/
+#[post("/register")]
+pub async fn register(data: web::Data<AppState>) -> Result<HttpResponse> {
+    const MSG: &str = "Password error";
+    Ok(HttpResponse::Ok().json(serde_json::json!({"status": "error", "message": MSG })))
+}
+
+/*获取验证码*/
+#[post("/verification")]
+pub async fn verification_code(data: web::Data<AppState>) -> Result<HttpResponse> {
+    const MSG: &str = "Password error";
+    Ok(HttpResponse::Ok().json(serde_json::json!({"status": "error", "message": MSG })))
 }
