@@ -14,7 +14,13 @@ pub async fn get_users(
     let auth = token.auth.clone();
 
     //只有是超级管理员才能访问
-    if auth == GLOBAL_YAML_CONFIG.authority.super_admin.clone().unwrap() {
+    if auth
+        == GLOBAL_YAML_CONFIG
+            .authority
+            .get_authority_config()
+            .super_admin
+            .unwrap()
+    {
         let db = &data.conn;
         let data = Users::find()
             .into_json()

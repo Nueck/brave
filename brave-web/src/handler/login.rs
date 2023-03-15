@@ -241,6 +241,7 @@ pub async fn forget(data: web::Data<AppState>, info: web::Json<ForgetInfo>) -> H
     }
 }
 
+/*发送邮件*/
 #[post("/sendmail")]
 pub async fn sendmail(mail: web::Json<MailInfo>) -> HttpResponse {
     /*将随机数发送到相应的邮箱*/
