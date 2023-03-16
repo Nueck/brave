@@ -1,4 +1,4 @@
-use crate::config::{AppState, EnvConfig, GLOBAL_ENV_CONFIG, GLOBAL_YAML_CONFIG};
+use crate::config::{AppState, EnvConfig, InitStatus, GLOBAL_ENV_CONFIG, GLOBAL_YAML_CONFIG};
 use crate::middleware::auth_middleware::JWTAuth;
 use actix_cors::Cors;
 use actix_web::http::header;
@@ -10,6 +10,9 @@ use brave_utils::jwt::config::JWTConfig;
 pub async fn web_start() -> std::io::Result<()> {
     //初始化日志
     super::log::init_log();
+
+    //初始化配置文件
+    InitStatus::new(InitStatus { is_init: false });
 
     //初始化jwt配置
     JWTConfig::new(GLOBAL_YAML_CONFIG.jwt.clone());

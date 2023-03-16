@@ -3,14 +3,25 @@ use brave_utils::blake3::Blake3Config;
 use brave_utils::jwt::config::JWTConfig;
 use brave_utils::mail::MailConfig;
 use config::Config;
-use once_cell::sync::Lazy;
+use once_cell::sync::{Lazy, OnceCell};
 use sea_orm::{ConnectOptions, DatabaseConnection};
 use serde::{Deserialize, Serialize};
-use std::{env, fmt};
+use std::fs::File;
+use std::io::Write;
+use std::time::Duration;
+use std::{env, fmt, fs};
 
 //设置全局变量
 pub static GLOBAL_ENV_CONFIG: Lazy<EnvConfig> = Lazy::new(|| EnvConfig::get_env());
 pub static GLOBAL_YAML_CONFIG: Lazy<GConfig> = Lazy::new(|| GConfig::open_yaml());
+//全局的一个只能呢个变化一次的
+pub static GLOB_INIT: OnceCell<InitStatus> = OnceCell::new();
+
+/*初始化的状态 */
+#[derive(Debug, Clone, Default, Serialize, Deserialize)]
+pub struct InitStatus {
+    pub is_init: bool,
+}
 
 //创建.env的结构体
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]
@@ -65,6 +76,49 @@ impl AppState {
     }
 }
 
+impl InitStatus {
+    pub fn global() -> &'static InitStatus {
+        GLOB_INIT
+            .get()
+            .expect("InitStatus config is not initialized")
+    }
+
+    pub fn new(init: InitStatus) {
+        /*首先先读取配置文件中的配置*/
+        // 获取 home 目录
+        let mut config_path = dirs::config_dir().expect("Failed to get config directory");
+
+        // 添加myapp文件夹到路径
+        config_path.push("brave");
+        // 创建brave文件夹（如果不存在）
+        if !config_path.exists() {
+            fs::create_dir_all(&config_path).expect("Failed to create directory")
+        }
+        config_path.push("config");
+        /*判断文件是否存在 .config/brave/config*/
+        if config_path.exists() {
+            let f_config = std::fs::File::open(config_path).expect("Could not open conf file");
+            let config: InitStatus =
+                serde_json::from_reader(f_config).expect("Could not read conf file");
+
+            GLOB_INIT
+                .set(config)
+                .expect("InitStatus Initialization failure")
+        } else {
+            /*需要创建文件并且将数据存在配置文件*/
+            let json = serde_json::to_string_pretty(&init).expect("InitStatus to Json failure");
+            /*将文件保存在配置文件中*/
+            let mut file = File::create(config_path.as_path()).expect("Could not open conf file");
+            file.write_all(json.as_bytes())
+                .expect("Description Failed to write the configuration file");
+
+            GLOB_INIT
+                .set(init)
+                .expect("InitStatus config Initialization failure")
+        }
+    }
+}
+
 /*对数据库的配置*/
 impl PGConfig {
     pub fn get_pb_connect_opt(&self) -> Result<ConnectOptions, ConfigError> {
@@ -110,7 +164,17 @@ impl PGConfig {
             None => return Err(ConfigError::DbnameEmpty),
         };
 
-        let opt = ConnectOptions::new(url);
+        let mut opt = ConnectOptions::new(url);
+
+        //基础设置(这里先这样写死后期可能开放出来配置)
+        opt.max_connections(100)
+            .min_connections(5)
+            .connect_timeout(Duration::from_secs(8))
+            .acquire_timeout(Duration::from_secs(8))
+            .idle_timeout(Duration::from_secs(8))
+            .max_lifetime(Duration::from_secs(8))
+            .sqlx_logging(true)
+            .sqlx_logging_level(log::LevelFilter::Info);
 
         Ok(opt)
     }
