@@ -17,6 +17,13 @@ pub struct UserInfo {
 }
 
 #[derive(Deserialize)]
+pub struct EmailLoginInfo {
+    pub email: String,
+    pub verify_code: String,
+    pub code: String,
+}
+
+#[derive(Deserialize)]
 pub struct MailInfo {
     pub email: String,
 }
@@ -97,6 +104,77 @@ pub async fn login(data: web::Data<AppState>, user_info: web::Json<UserInfo>) ->
             } else {
                 const MSG: &str = "Password error";
                 HttpResponse::Ok().json(serde_json::json!({"status": "error", "message": MSG }))
+            }
+        }
+    }
+}
+
+/*邮箱验证码登陆*/
+#[post("email-login")]
+pub async fn email_login(
+    data: web::Data<AppState>,
+    info: web::Json<EmailLoginInfo>,
+) -> HttpResponse {
+    /*
+     * 登陆获取,
+     */
+    let db = &data.conn;
+    /*
+     *获取user数据
+     */
+    match Users::find()
+        .filter(users::Column::UserEmail.contains(&info.email))
+        .one(db)
+        .await
+        .expect("Could not find Users -- Login")
+    {
+        None => {
+            const MSG: &str = "User does not exist";
+            HttpResponse::Ok().json(serde_json::json!({"status": "nonexistence", "message": MSG }))
+        }
+        Some(user) => {
+            /*验证验证码是否正确*/
+            match GLOB_JOT.validation_to_claim(&info.code) {
+                Ok(data) => {
+                    //对需要验证的code的加盐
+                    let verify_code = GLOBAL_YAML_CONFIG
+                        .blake
+                        .generate_with_salt(&info.verify_code);
+
+                    let code = data.data.clone().unwrap().code;
+                    let email = data.data.clone().unwrap().email;
+                    //判断验证码是否正确
+                    if verify_code == code && email == info.email.clone() {
+                        //短时间的token
+                        let claims = Claims {
+                            sub: GLOBAL_YAML_CONFIG.jwt.get_sub(),
+                            exp: get_current_timestamp() + GLOBAL_YAML_CONFIG.jwt.get_exp_time(),
+                            auth: user.user_authority.clone(),
+                            data: None,
+                        };
+                        let token = GLOB_JOT.generate_token(&claims);
+
+                        //长时间的token
+                        let claims = Claims {
+                            sub: GLOBAL_YAML_CONFIG.jwt.get_sub(),
+                            exp: get_current_timestamp() + GLOBAL_YAML_CONFIG.jwt.get_ref_time(),
+                            auth: user.user_authority,
+                            data: None,
+                        };
+                        let ref_token = GLOB_JOT.generate_token(&claims);
+
+                        HttpResponse::Ok().json(serde_json::json!({"status": "success",  "data":{"token": token ,"refreshToken": ref_token} ,}))
+                    } else {
+                        const MSG: &str = "Verification code error";
+                        HttpResponse::Ok()
+                            .json(serde_json::json!({"status": "error", "message": MSG }))
+                    }
+                }
+
+                Err(_) => {
+                    const MSG: &str = "Error in sending data";
+                    HttpResponse::Ok().json(serde_json::json!({"status": "error", "message": MSG }))
+                }
             }
         }
     }
