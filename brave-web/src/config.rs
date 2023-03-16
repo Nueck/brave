@@ -14,7 +14,7 @@ use std::{env, fmt, fs};
 //设置全局变量
 pub static GLOBAL_ENV_CONFIG: Lazy<EnvConfig> = Lazy::new(|| EnvConfig::get_env());
 pub static GLOBAL_YAML_CONFIG: Lazy<GConfig> = Lazy::new(|| GConfig::open_yaml());
-//全局的一个只能呢个变化一次的
+//全局的一个只能变化一次的
 pub static GLOB_INIT: OnceCell<InitStatus> = OnceCell::new();
 
 /*初始化的状态 */
@@ -117,6 +117,25 @@ impl InitStatus {
                 .expect("InitStatus config Initialization failure")
         }
     }
+
+    /*用于初始化设置初始化状态的*/
+    pub fn set(init: InitStatus) {
+        //获取文件位置信息
+        let mut config_path = dirs::config_dir().expect("Failed to get config directory");
+        // 获取配置文件位置
+        config_path.push("brave");
+        config_path.push("config");
+
+        /*将文件保存在配置文件中*/
+        let json = serde_json::to_string_pretty(&init).expect("InitStatus to Json failure");
+        let mut file = File::open(config_path.as_path()).expect("Could not open conf file");
+        file.write_all(json.as_bytes())
+            .expect("Description Failed to write the configuration file");
+
+        GLOB_INIT
+            .set(init)
+            .expect("InitStatus config Initialization failure")
+    }
 }
 
 /*对数据库的配置*/
@@ -183,7 +202,7 @@ impl PGConfig {
 impl GConfig {
     fn open_yaml() -> Self {
         // 读取yaml数据
-        let f_yaml = std::fs::File::open("config.yaml").expect("Could not open file.");
+        let f_yaml = File::open("config.yaml").expect("Could not open file.");
         // serde_yaml 解析字符串为 User 对象
         serde_yaml::from_reader(f_yaml).expect("Could not read values.")
     }
