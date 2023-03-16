@@ -17,7 +17,9 @@ use serde_json::json;
 #[derive(Deserialize)]
 pub struct InitInfo {
     pub username: String,
+    pub email: String,
     pub password: String,
+    pub address: String,
 }
 
 /*

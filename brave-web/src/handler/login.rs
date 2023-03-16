@@ -95,12 +95,14 @@ pub async fn login(data: web::Data<AppState>, user_info: web::Json<UserInfo>) ->
                 let claims = Claims {
                     sub: GLOBAL_YAML_CONFIG.jwt.get_sub(),
                     exp: get_current_timestamp() + GLOBAL_YAML_CONFIG.jwt.get_ref_time(),
-                    auth: user.user_authority,
+                    auth: user.user_authority.clone(),
                     data: None,
                 };
                 let ref_token = GLOB_JOT.generate_token(&claims);
 
-                HttpResponse::Ok().json(serde_json::json!({"status": "success",  "data":{"token": token ,"refreshToken": ref_token} ,}))
+                let role = vec![user.user_authority];
+                let json = serde_json::json!({"status": "success",  "data":{"token": token ,"refreshToken": ref_token} , "role":role});
+                HttpResponse::Ok().json(json)
             } else {
                 const MSG: &str = "Password error";
                 HttpResponse::Ok().json(serde_json::json!({"status": "error", "message": MSG }))
@@ -158,12 +160,15 @@ pub async fn email_login(
                         let claims = Claims {
                             sub: GLOBAL_YAML_CONFIG.jwt.get_sub(),
                             exp: get_current_timestamp() + GLOBAL_YAML_CONFIG.jwt.get_ref_time(),
-                            auth: user.user_authority,
+                            auth: user.user_authority.clone(),
                             data: None,
                         };
                         let ref_token = GLOB_JOT.generate_token(&claims);
 
-                        HttpResponse::Ok().json(serde_json::json!({"status": "success",  "data":{"token": token ,"refreshToken": ref_token} ,}))
+                        let role = vec![user.user_authority];
+                        let json = serde_json::json!({"status": "success",  "data":{"token": token ,"refreshToken": ref_token} , "role":role});
+
+                        HttpResponse::Ok().json(json)
                     } else {
                         const MSG: &str = "Verification code error";
                         HttpResponse::Ok()

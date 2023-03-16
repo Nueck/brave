@@ -1,5 +1,6 @@
 use crate::config::{AppState, EnvConfig, InitStatus, GLOBAL_ENV_CONFIG, GLOBAL_YAML_CONFIG};
 use crate::middleware::auth_middleware::JWTAuth;
+use crate::middleware::init_middleware::{InitAuth, InitAuthMiddleware};
 use actix_cors::Cors;
 use actix_web::http::header;
 use actix_web::middleware::Logger;
@@ -40,6 +41,7 @@ pub async fn web_start() -> std::io::Result<()> {
                 //主要api的service
                 web::scope(&*GLOBAL_ENV_CONFIG.api_scope.clone())
                     .app_data(web::Data::new(states.clone()))
+                    .wrap(InitAuth) //初始化判断
                     .wrap(JWTAuth) //身份验证
                     .wrap(
                         //跨域支持
