@@ -3,8 +3,8 @@ use crate::entity::prelude::Users;
 use crate::entity::users;
 use actix_web::{post, web, HttpResponse};
 use brave_utils::common::{generation_random_number, is_valid_email};
-use brave_utils::jwt::jwt::Claims;
 use brave_utils::jwt::jwt::GLOB_JOT;
+use brave_utils::jwt::jwt::{Claims, UserData};
 use jsonwebtoken::get_current_timestamp;
 use sea_orm::ActiveValue::Set;
 use sea_orm::{ActiveModelTrait, ColumnTrait, EntityTrait, QueryFilter};
@@ -80,7 +80,7 @@ pub async fn login(data: web::Data<AppState>, user_info: web::Json<UserInfo>) ->
                     sub: GLOBAL_YAML_CONFIG.jwt.get_sub(),
                     exp: get_current_timestamp() + GLOBAL_YAML_CONFIG.jwt.get_exp_time(),
                     auth: user.user_authority.clone(),
-                    code: None,
+                    data: None,
                 };
                 let token = GLOB_JOT.generate_token(&claims);
 
@@ -89,7 +89,7 @@ pub async fn login(data: web::Data<AppState>, user_info: web::Json<UserInfo>) ->
                     sub: GLOBAL_YAML_CONFIG.jwt.get_sub(),
                     exp: get_current_timestamp() + GLOBAL_YAML_CONFIG.jwt.get_ref_time(),
                     auth: user.user_authority,
-                    code: None,
+                    data: None,
                 };
                 let ref_token = GLOB_JOT.generate_token(&claims);
 
@@ -135,9 +135,10 @@ pub async fn register(data: web::Data<AppState>, info: web::Json<RegisterInfo>) 
                         .blake
                         .generate_with_salt(&info.verify_code);
 
-                    let code = data.code.unwrap();
+                    let code = data.data.clone().unwrap().code;
+                    let email = data.data.clone().unwrap().email;
                     //判断验证码是否正确
-                    if verify_code == code {
+                    if verify_code == code && email == info.email.clone() {
                         /*保存数据到数据库*/
                         /*对密码加密*/
                         let pwd = GLOBAL_YAML_CONFIG.blake.generate_with_salt(&info.password);
@@ -205,9 +206,10 @@ pub async fn forget(data: web::Data<AppState>, info: web::Json<ForgetInfo>) -> H
                         .blake
                         .generate_with_salt(&info.verify_code);
 
-                    let code = data.code.unwrap();
+                    let code = data.data.clone().unwrap().code;
+                    let email = data.data.clone().unwrap().email;
                     //判断验证码是否正确
-                    if verify_code == code {
+                    if verify_code == code && email == info.email.clone() {
                         /*对密码加密*/
                         let pwd = GLOBAL_YAML_CONFIG.blake.generate_with_salt(&info.new_pwd);
                         /*修改数据库数据*/
@@ -266,7 +268,10 @@ pub async fn sendmail(mail: web::Json<MailInfo>) -> HttpResponse {
                         exp: get_current_timestamp() + 300,
                         //由于对权限的控制，这个生成的token是无法用在登陆
                         auth: "Have no authority".to_string(),
-                        code: Some(num_code),
+                        data: Some(UserData {
+                            code: num_code,
+                            email: mail.email.clone().to_string(),
+                        }),
                     };
                     let code = GLOB_JOT.generate_token(&claims);
 

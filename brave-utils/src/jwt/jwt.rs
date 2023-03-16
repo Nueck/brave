@@ -16,7 +16,14 @@ pub struct Claims {
     pub sub: String,
     pub exp: u64,
     pub auth: String,
-    pub code: Option<String>,
+    pub data: Option<UserData>,
+}
+
+//用户传来的数据
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub struct UserData {
+    pub code: String,
+    pub email: String,
 }
 
 //用于存放需要验证的信息
