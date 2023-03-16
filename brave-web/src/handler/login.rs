@@ -108,24 +108,21 @@ pub async fn register(data: web::Data<AppState>, info: web::Json<RegisterInfo>) 
     /*判断邮箱地址是否存在或在用户名*/
     let db = &data.conn;
     match Users::find()
-        .filter(users::Column::UserEmail.contains(&info.email))
+        .filter(
+            users::Column::UserEmail
+                .contains(&info.email)
+                .or(users::Column::UserName.contains(&info.username)),
+        )
         .one(db)
         .await
         .expect("Could not find Users -- Login")
-        .is_some()
-        || Users::find()
-            .filter(users::Column::UserName.contains(&info.username))
-            .one(db)
-            .await
-            .expect("Could not find Users -- Login")
-            .is_some()
     {
-        true => {
+        Some(_) => {
             /*用户存在则不能注册*/
             const MSG: &str = "User presence";
             HttpResponse::Ok().json(serde_json::json!({"status": "error", "message": MSG }))
         }
-        false => {
+        None => {
             /*用户不存在的时候注册*/
             /*验证验证码是否正确*/
             match GLOB_JOT.validation_to_claim(&info.code) {
