@@ -1,16 +1,12 @@
 use std::future::{ready, Ready};
 use std::task::{Context, Poll};
 
-use crate::config::{InitStatus, GLOBAL_YAML_CONFIG};
-use actix_web::error::{ErrorNetworkAuthenticationRequired, ErrorUnauthorized};
-use actix_web::http::header;
+use crate::config::InitStatus;
+use actix_web::error::ErrorUnauthorized;
 use actix_web::{
     dev::{Service, ServiceRequest, ServiceResponse, Transform},
-    Error, HttpMessage,
+    Error,
 };
-use brave_utils::error::AuthError;
-use brave_utils::jwt::jwt::TokenMsg;
-use brave_utils::jwt::jwt::GLOB_JOT;
 use futures_util::future::LocalBoxFuture;
 
 pub struct InitAuth;
