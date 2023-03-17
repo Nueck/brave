@@ -22,6 +22,11 @@ pub fn generation_random_number() -> u32 {
     rng.gen_range(10000..=99999)
 }
 
+/*判断文件路径是否是html*/
+pub fn is_html_path(path: &str) -> bool {
+    path.ends_with(".html")
+}
+
 #[cfg(test)]
 mod common_tests {
     use super::*;

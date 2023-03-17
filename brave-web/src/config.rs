@@ -91,7 +91,6 @@ impl InitStatus {
         // 获取 home 目录
         let mut config_path = dirs::config_dir().expect("Failed to get config directory");
 
-        // 添加myapp文件夹到路径
         config_path.push("brave");
         // 创建brave文件夹（如果不存在）
         if !config_path.exists() {

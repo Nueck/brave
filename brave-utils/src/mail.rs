@@ -14,7 +14,7 @@ pub struct MailConfig {
 }
 
 impl MailConfig {
-    pub fn sendmail(&self, target_email: String, code: &str) -> bool {
+    pub async fn sendmail(&self, target_email: &str, code: &str) -> bool {
         let email = Message::builder()
             .from((&self.mine_email.clone()).parse().unwrap())
             .to(target_email.parse().unwrap())
@@ -28,7 +28,7 @@ impl MailConfig {
         let passwd = &self.password;
         let min_email = &self.mine_email;
         let port = &self.port;
-        let creds = Credentials::new(min_email.as_str().to_string(), passwd.as_str().to_string());
+        let creds = Credentials::new(min_email.to_owned(), passwd.to_owned());
 
         /*判断是都是outlook邮箱*/
         let mailer = if is_outlook_email(min_email) {
@@ -38,7 +38,7 @@ impl MailConfig {
         }
         .unwrap()
         .credentials(creds)
-        .port(*port)
+        .port(port.to_owned())
         .build();
 
         // Send the email

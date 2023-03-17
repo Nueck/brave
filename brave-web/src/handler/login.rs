@@ -335,7 +335,7 @@ pub async fn sendmail(mail: web::Json<MailInfo>) -> HttpResponse {
         Some(m) => {
             /*生成随机数*/
             let num = generation_random_number();
-            match m.sendmail(mail.email.clone(), &num.to_string()) {
+            match m.sendmail(&mail.email, &num.to_string()).await {
                 true => {
                     /*生成加盐的数据 和使用token加密*/
                     let num_code = GLOBAL_YAML_CONFIG
@@ -350,7 +350,7 @@ pub async fn sendmail(mail: web::Json<MailInfo>) -> HttpResponse {
                         auth: "Have no authority".to_string(),
                         data: Some(UserData {
                             code: num_code,
-                            email: mail.email.clone().to_string(),
+                            email: mail.email.parse().unwrap(),
                         }),
                     };
                     let code = GLOB_JOT.generate_token(&claims);
