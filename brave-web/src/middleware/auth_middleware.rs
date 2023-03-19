@@ -144,5 +144,5 @@ fn is_need_verification(path: &str) -> bool {
 }
 
 fn refresh_api(path: &str) -> bool {
-    !(path == "/api/updateToken")
+    path == "/api/updateToken"
 }
