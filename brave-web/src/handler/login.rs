@@ -88,6 +88,7 @@ pub async fn login(data: web::Data<AppState>, user_info: web::Json<UserInfo>) ->
                     exp: get_current_timestamp() + GLOBAL_YAML_CONFIG.jwt.get_exp_time(),
                     auth: user.user_authority.clone(),
                     data: None,
+                    refresh: false,
                 };
                 let token = GLOB_JOT.generate_token(&claims);
 
@@ -97,6 +98,7 @@ pub async fn login(data: web::Data<AppState>, user_info: web::Json<UserInfo>) ->
                     exp: get_current_timestamp() + GLOBAL_YAML_CONFIG.jwt.get_ref_time(),
                     auth: user.user_authority.clone(),
                     data: None,
+                    refresh: true,
                 };
                 let ref_token = GLOB_JOT.generate_token(&claims);
 
@@ -153,6 +155,7 @@ pub async fn email_login(
                             exp: get_current_timestamp() + GLOBAL_YAML_CONFIG.jwt.get_exp_time(),
                             auth: user.user_authority.clone(),
                             data: None,
+                            refresh: false,
                         };
                         let token = GLOB_JOT.generate_token(&claims);
 
@@ -162,6 +165,7 @@ pub async fn email_login(
                             exp: get_current_timestamp() + GLOBAL_YAML_CONFIG.jwt.get_ref_time(),
                             auth: user.user_authority.clone(),
                             data: None,
+                            refresh: true,
                         };
                         let ref_token = GLOB_JOT.generate_token(&claims);
 
@@ -352,6 +356,7 @@ pub async fn sendmail(mail: web::Json<MailInfo>) -> HttpResponse {
                             code: num_code,
                             email: mail.email.parse().unwrap(),
                         }),
+                        refresh: false,
                     };
                     let code = GLOB_JOT.generate_token(&claims);
 

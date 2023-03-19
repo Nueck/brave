@@ -9,11 +9,12 @@ jwt:
 
 #权限管理
 authority:
+  #用于权限验证的数组，如果登陆权限没有禁止访问
   auth: [ 'super','admin','user' ]
   super_admin: super
   admin: admin
 
-#Blake设置
+#Blake设置（密码加密）
 blake:
   #加盐
   salt: brave
@@ -22,7 +23,7 @@ blake:
 mail:
   mine_email: brave-rust@outlook.com
   smtp_server: smtp.office365.com
-  password: 123456
+  password: k!xG!4EMD.A3Zrf
   port: 587
 
 

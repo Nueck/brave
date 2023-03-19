@@ -55,9 +55,9 @@ where
         let addr = req.peer_addr().unwrap();
         let ip = addr.ip().to_string();
 
-        return if is_need_verification(req.path()) {
+        if is_need_verification(req.path()) {
             //首先判断有没有认证
-            return match req.headers().get(header::AUTHORIZATION) {
+            match req.headers().get(header::AUTHORIZATION) {
                 None => Box::pin(async { Err(ErrorUnauthorized("No Authentication")) }),
                 Some(header_value) => {
                     let bearer_token = header_value.to_str().unwrap();
@@ -77,14 +77,33 @@ where
                                 .unwrap()
                                 .contains(&data.auth)
                             {
-                                /*将用户信息传下去*/
-                                req.extensions_mut().insert(data);
+                                if data.refresh {
+                                    /*判断是否刷新token*/
+                                    if refresh_api(req.path()) {
+                                        req.extensions_mut().insert(data);
 
-                                let fut = self.service.call(req);
-                                Box::pin(async move {
-                                    let res = fut.await?;
-                                    Ok(res)
-                                })
+                                        let fut = self.service.call(req);
+                                        Box::pin(async move {
+                                            let res = fut.await?;
+                                            Ok(res)
+                                        })
+                                    } else {
+                                        Box::pin(async {
+                                            Err(ErrorUnauthorized(
+                                                "The refresh token cannot be used on this api",
+                                            ))
+                                        })
+                                    }
+                                } else {
+                                    /*将用户信息传下去*/
+                                    req.extensions_mut().insert(data);
+
+                                    let fut = self.service.call(req);
+                                    Box::pin(async move {
+                                        let res = fut.await?;
+                                        Ok(res)
+                                    })
+                                }
                             } else {
                                 Box::pin(async {
                                     Err(ErrorUnauthorized("Permission does not exist"))
@@ -103,14 +122,14 @@ where
                         }
                     }
                 }
-            };
+            }
         } else {
             let fut = self.service.call(req);
             Box::pin(async move {
                 let res = fut.await?;
                 Ok(res)
             })
-        };
+        }
     }
 }
 
@@ -122,4 +141,8 @@ fn is_need_verification(path: &str) -> bool {
         || path == "/api/sendmail"
         || path == "/api/forget"
         || path == "/api/email-login")
+}
+
+fn refresh_api(path: &str) -> bool {
+    !(path == "/api/updateToken")
 }

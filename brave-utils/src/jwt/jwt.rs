@@ -17,6 +17,7 @@ pub struct Claims {
     pub exp: u64,
     pub auth: String,
     pub data: Option<UserData>,
+    pub refresh: bool,
 }
 
 //用户传来的数据
@@ -36,6 +37,7 @@ pub struct TokenMsg {
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct TokenData {
     pub auth: String,
+    pub refresh: bool,
 }
 
 //用于存放的编码和解码密钥
@@ -102,6 +104,7 @@ impl Jot {
         //验证成功
         Ok(TokenData {
             auth: token_data.claims.auth,
+            refresh: token_data.claims.refresh,
         })
     }
 
@@ -141,7 +144,8 @@ mod tests {
             sub: "blog".to_string(),
             exp: get_current_timestamp() + JWTConfig::global().get_exp_time(),
             auth: "super".to_string(),
-            code: None,
+            data: None,
+            refresh: false,
         };
 
         let token = jot.generate_token(&claims);
