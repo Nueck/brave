@@ -1,3 +1,7 @@
+use crate::handler::init::init_config;
+use crate::handler::login::login_config;
+use crate::handler::token::token_config;
+use crate::handler::user::user_config;
 use actix_web::web;
 
 mod init;
@@ -6,14 +10,8 @@ mod token;
 mod user;
 
 pub fn config_init(cfg: &mut web::ServiceConfig) {
-    cfg.service(init::init_status)
-        .service(init::init)
-        .service(token::token_checker_handler)
-        .service(token::update_token_handler) //用于身份验证的
-        .service(login::login)
-        .service(login::email_login)
-        .service(login::forget)
-        .service(login::register)
-        .service(login::sendmail)
-        .service(user::get_users);
+    cfg.configure(init_config)
+        .configure(token_config)
+        .configure(login_config)
+        .configure(user_config);
 }

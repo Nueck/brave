@@ -19,7 +19,7 @@ pub fn is_outlook_email(email: &str) -> bool {
 /*生成随机数*/
 pub fn generation_random_number() -> u32 {
     let mut rng = rand::thread_rng();
-    rng.gen_range(10000..=99999)
+    rng.gen_range(100000..=999999)
 }
 
 /*判断文件路径是否是html*/

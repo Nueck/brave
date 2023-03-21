@@ -15,11 +15,15 @@ pub struct InitInfo {
     pub address: String,
 }
 
+pub fn init_config(cfg: &mut web::ServiceConfig) {
+    cfg.service(init_status).service(init);
+}
+
 /*
 * 初始化超级管理员的
 */
 #[post("/init")]
-pub async fn init(data: web::Data<AppState>, info: web::Json<InitInfo>) -> HttpResponse {
+async fn init(data: web::Data<AppState>, info: web::Json<InitInfo>) -> HttpResponse {
     /*判断系统是否初始化*/
     if !InitStatus::global().is_init {
         /*对密码加密*/
@@ -27,13 +31,13 @@ pub async fn init(data: web::Data<AppState>, info: web::Json<InitInfo>) -> HttpR
         //初始化数据
         let user = users::ActiveModel {
             user_name: Set((&info.username.as_str()).parse().unwrap()),
-            user_authority: Set(GLOBAL_YAML_CONFIG
+            authority: Set(GLOBAL_YAML_CONFIG
                 .authority
                 .get_authority_config()
                 .super_admin
                 .unwrap()),
-            user_email: Set((&info.email.as_str()).parse().unwrap()),
-            user_address: Set((&info.address.as_str()).parse().unwrap()),
+            email: Set((&info.email.as_str()).parse().unwrap()),
+            address: Set((&info.address.as_str()).parse().unwrap()),
             pwd_hash: Set(pwd),
             ..Default::default()
         };
@@ -45,24 +49,24 @@ pub async fn init(data: web::Data<AppState>, info: web::Json<InitInfo>) -> HttpR
                 /*设置初始化状态为true*/
                 InitStatus::set(InitStatus { is_init: true });
                 const MSG: &str = "Successful initialization";
-                HttpResponse::Ok().json(serde_json::json!({"status": "success", "message": MSG }))
+                HttpResponse::Ok().json(serde_json::json!({"state": "success", "message": MSG }))
             }
             Err(err) => {
                 log::error!("Initialization failure : {err:?}");
                 const MSG: &str = "Initialization failure";
-                HttpResponse::Ok().json(serde_json::json!({"status": "error", "message": MSG }))
+                HttpResponse::Ok().json(serde_json::json!({"state": "error", "message": MSG }))
             }
         }
     } else {
         const MSG: &str = "Already initialized";
-        HttpResponse::Ok().json(serde_json::json!({"status": "error", "message": MSG }))
+        HttpResponse::Ok().json(serde_json::json!({"state": "error", "message": MSG }))
     }
 }
 
 /*判断系统是否初始化*/
 #[post("/init-status")]
-pub async fn init_status() -> impl Responder {
+async fn init_status() -> impl Responder {
     /*判断系统是否初始化*/
     let bool = InitStatus::global().is_init;
-    HttpResponse::Ok().json(json!({ "status": bool }))
+    HttpResponse::Ok().json(json!({ "state": bool }))
 }

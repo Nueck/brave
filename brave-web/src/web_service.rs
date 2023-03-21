@@ -2,9 +2,8 @@ use crate::config::{AppState, EnvConfig, InitStatus, GLOBAL_ENV_CONFIG, GLOBAL_Y
 use crate::middleware::auth_middleware::JWTAuth;
 use crate::middleware::init_middleware::InitAuth;
 use actix_cors::Cors;
-use actix_web::http::header;
 use actix_web::middleware::Logger;
-use actix_web::{web, App, HttpServer};
+use actix_web::{http, web, App, HttpServer};
 use brave_utils::jwt::config::JWTConfig;
 
 #[actix_rt::main]
@@ -36,6 +35,17 @@ pub async fn web_start() -> std::io::Result<()> {
 
     //开启web服务
     HttpServer::new(move || {
+        //api的跨域问题
+        let cors = Cors::default()
+            .allowed_origin("http://localhost:3200")
+            .allowed_methods(vec!["GET", "POST"])
+            .allowed_headers(vec![
+                http::header::AUTHORIZATION,
+                http::header::ACCEPT,
+                http::header::CONTENT_TYPE,
+            ])
+            .max_age(3600);
+
         App::new()
             .service(
                 //主要api的service
@@ -43,39 +53,12 @@ pub async fn web_start() -> std::io::Result<()> {
                     .app_data(web::Data::new(states.clone()))
                     .wrap(JWTAuth) //身份验证
                     .wrap(InitAuth) //初始化判断
-                    .wrap(
-                        //跨域支持
-                        Cors::default()
-                            .allowed_origin(&*EnvConfig::get_api_string())
-                            .allowed_methods(vec!["GET", "POST"])
-                            .allowed_headers(vec![header::AUTHORIZATION, header::ACCEPT])
-                            .allowed_header(header::CONTENT_TYPE)
-                            .supports_credentials()
-                            .max_age(3600),
-                    )
+                    .wrap(cors)
                     .wrap(Logger::default()) //api的日志
                     .configure(super::handler::config_init), //服务配置
             )
             .service(
                 web::scope(&GLOBAL_ENV_CONFIG.web_scope) //博客方面的加载
-                    // .wrap_fn(|sreq, srv| { //用于跳转https
-                    //     let host = sreq.connection_info().host().to_owned();
-                    //     let uri = sreq.uri().to_owned();
-                    //     let url = format!("https://{host}{uri}");
-                    //
-                    //     if sreq.connection_info().scheme() == "https" {
-                    //         Either::Left(srv.call(sreq).map(|res| res))
-                    //     } else {
-                    //         println!(
-                    //             "An http request has arrived here, i will redirect it to use https"
-                    //         );
-                    //         return Either::Right(future::ready(Ok(sreq.into_response(
-                    //             HttpResponse::MovedPermanently()
-                    //                 .append_header((http::header::LOCATION, url))
-                    //                 .finish(),
-                    //         ))));
-                    //     }
-                    // })
                     .wrap(
                         Cors::default()
                             .allow_any_header()

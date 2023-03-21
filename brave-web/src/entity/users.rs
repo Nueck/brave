@@ -8,19 +8,40 @@ pub struct Model {
     #[sea_orm(primary_key)]
     pub user_id: i32,
     pub user_name: String,
-    pub user_authority: String,
+    pub authority: String,
     #[sea_orm(column_type = "Text", nullable)]
-    pub user_phone: Option<String>,
-    pub user_email: String,
+    pub phone: Option<String>,
+    pub email: String,
     #[sea_orm(column_type = "Text")]
-    pub user_address: String,
+    pub address: String,
     pub create_time: DateTime,
-    pub article_num: i32,
-    pub album_num: i32,
+    pub article_num: i64,
+    pub album_num: i64,
     pub pwd_hash: String,
+    pub user_status: i16,
+    pub visit_count: i64,
+    pub read_count: i64,
+    pub messages_count: i64,
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]
-pub enum Relation {}
+pub enum Relation {
+    #[sea_orm(has_many = "super::article::Entity")]
+    Article,
+    #[sea_orm(has_many = "super::article_tag::Entity")]
+    ArticleTag,
+}
+
+impl Related<super::article::Entity> for Entity {
+    fn to() -> RelationDef {
+        Relation::Article.def()
+    }
+}
+
+impl Related<super::article_tag::Entity> for Entity {
+    fn to() -> RelationDef {
+        Relation::ArticleTag.def()
+    }
+}
 
 impl ActiveModelBehavior for ActiveModel {}

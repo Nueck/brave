@@ -13,6 +13,7 @@ pub static GLOB_JOT: Lazy<Jot> = Lazy::new(|| Jot::new());
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Claims {
+    pub aud: String,
     pub sub: String,
     pub exp: u64,
     pub auth: String,
@@ -36,6 +37,7 @@ pub struct TokenMsg {
 /*用于存放token解析后的数据*/
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct TokenData {
+    pub aud: String,
     pub auth: String,
     pub refresh: bool,
 }
@@ -103,6 +105,7 @@ impl Jot {
         }
         //验证成功
         Ok(TokenData {
+            aud: token_data.claims.aud,
             auth: token_data.claims.auth,
             refresh: token_data.claims.refresh,
         })
@@ -141,6 +144,7 @@ mod tests {
 
         let jot = Jot::new();
         let claims = Claims {
+            aud: "blog".to_string(),
             sub: "blog".to_string(),
             exp: get_current_timestamp() + JWTConfig::global().get_exp_time(),
             auth: "super".to_string(),

@@ -2,7 +2,7 @@
 jwt:
   #过期时间七天(秒)
   exp_time: 604800
-  #验证主题
+  #验证主题(是被验证的是否当前服务的)
   sub: brave
   #（red_time）30天
   ref_time: 2592000
@@ -25,6 +25,7 @@ mail:
   smtp_server: smtp.office365.com
   password: k!xG!4EMD.A3Zrf
   port: 587
+
 
 
 
