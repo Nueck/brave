@@ -2,7 +2,7 @@ use std::future::{ready, Ready};
 use std::task::{Context, Poll};
 
 use crate::config::InitStatus;
-use actix_web::error::{ErrorServiceUnavailable, ErrorUnauthorized};
+use actix_web::error::ErrorServiceUnavailable;
 use actix_web::{
     dev::{Service, ServiceRequest, ServiceResponse, Transform},
     Error,

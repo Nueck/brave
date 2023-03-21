@@ -85,7 +85,7 @@ async fn login(data: web::Data<AppState>, user_info: web::Json<UserInfo>) -> Htt
     {
         None => {
             const MSG: &str = "User does not exist";
-            HttpResponse::Ok().json(serde_json::json!({"state": "nonexistence", "message": MSG }))
+            HttpResponse::Ok().json(serde_json::json!({"state": "error", "message": MSG }))
         }
         Some(user) => {
             /*进行密码比对*/
@@ -140,7 +140,7 @@ async fn email_login(data: web::Data<AppState>, info: web::Json<EmailLoginInfo>)
     {
         None => {
             const MSG: &str = "User does not exist";
-            HttpResponse::Ok().json(serde_json::json!({"state": "nonexistence", "message": MSG }))
+            HttpResponse::Ok().json(serde_json::json!({"state": "error", "message": MSG }))
         }
         Some(user) => {
             /*验证验证码是否正确*/
@@ -188,7 +188,7 @@ async fn email_login(data: web::Data<AppState>, info: web::Json<EmailLoginInfo>)
                 }
 
                 Err(_) => {
-                    const MSG: &str = "Error in sending data";
+                    const MSG: &str = "Verification code error";
                     HttpResponse::Ok().json(serde_json::json!({"state": "error", "message": MSG }))
                 }
             }
@@ -213,7 +213,7 @@ async fn register(data: web::Data<AppState>, info: web::Json<RegisterInfo>) -> H
     {
         Some(_) => {
             /*用户存在则不能注册*/
-            const MSG: &str = "User presence";
+            const MSG: &str = "User or Email already exists";
             HttpResponse::Ok().json(serde_json::json!({"state": "error", "message": MSG }))
         }
         None => {
@@ -347,14 +347,13 @@ async fn sendmail(mail: web::Json<MailInfo>) -> HttpResponse {
             match &mail.email {
                 None => {
                     const MSG: &str = "Mailbox is nonexistence";
-                    HttpResponse::Unauthorized()
-                        .json(serde_json::json!({"state": "error", "message": MSG }))
+                    HttpResponse::Ok().json(serde_json::json!({"state": "error", "message": MSG }))
                 }
                 Some(email) => {
                     /*生成随机数*/
                     if email.is_empty() {
                         const MSG: &str = "Mailbox is empty";
-                        return HttpResponse::Unauthorized()
+                        return HttpResponse::Ok()
                             .json(serde_json::json!({"state": "error", "message": MSG }));
                     }
 
