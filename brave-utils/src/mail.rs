@@ -14,14 +14,14 @@ pub struct MailConfig {
 }
 
 impl MailConfig {
-    pub async fn sendmail(&self, target_email: &str, code: &str) -> bool {
+    pub async fn sendmail(&self, target_email: String, code: &str) -> bool {
         let email = Message::builder()
             .from((&self.mine_email.clone()).parse().unwrap())
             .to(target_email.parse().unwrap())
             .subject("Brave验证码")
             .header(ContentType::TEXT_PLAIN)
             .body(String::from(
-                "你的验证码是".to_owned() + &code + "  有效时间5分钟",
+                "你的验证码是".to_owned() + code + "  有效时间5分钟",
             ))
             .unwrap();
 

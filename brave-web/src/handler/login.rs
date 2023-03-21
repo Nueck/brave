@@ -25,7 +25,7 @@ pub struct EmailLoginInfo {
 
 #[derive(Deserialize)]
 pub struct MailInfo {
-    pub email: String,
+    pub email: Option<String>,
 }
 
 #[derive(Deserialize)]
@@ -344,36 +344,53 @@ async fn sendmail(mail: web::Json<MailInfo>) -> HttpResponse {
             HttpResponse::Ok().json(serde_json::json!({"state": "error", "message": MSG }))
         }
         Some(m) => {
-            /*生成随机数*/
-            let num = generation_random_number();
-            match m.sendmail(&mail.email, &num.to_string()).await {
-                true => {
-                    /*生成加盐的数据 和使用token加密*/
-                    let num_code = GLOBAL_YAML_CONFIG
-                        .blake
-                        .generate_with_salt(&num.to_string());
-
-                    let claims = Claims {
-                        aud: "email".to_string(),
-                        sub: GLOBAL_YAML_CONFIG.jwt.get_sub(),
-                        //验证码时间有效5分钟
-                        exp: get_current_timestamp() + 300,
-                        //由于对权限的控制，这个生成的token是无法用在登陆
-                        auth: "Have no authority".to_string(),
-                        data: Some(UserData {
-                            code: num_code,
-                            email: mail.email.parse().unwrap(),
-                        }),
-                        refresh: false,
-                    };
-                    let code = GLOB_JOT.generate_token(&claims);
-
-                    HttpResponse::Ok()
-                        .json(serde_json::json!({"state": "success", "data":{"code": code}  }))
+            match &mail.email {
+                None => {
+                    const MSG: &str = "Mailbox is nonexistence";
+                    HttpResponse::Unauthorized()
+                        .json(serde_json::json!({"state": "error", "message": MSG }))
                 }
-                false => {
-                    const MSG: &str = "Email sending failure";
-                    HttpResponse::Ok().json(serde_json::json!({"state": "error", "message": MSG }))
+                Some(email) => {
+                    /*生成随机数*/
+                    if email.is_empty() {
+                        const MSG: &str = "Mailbox is empty";
+                        return HttpResponse::Unauthorized()
+                            .json(serde_json::json!({"state": "error", "message": MSG }));
+                    }
+
+                    let num = generation_random_number();
+                    match m.sendmail(email.to_string(), &num.to_string()).await {
+                        true => {
+                            /*生成加盐的数据 和使用token加密*/
+                            let num_code = GLOBAL_YAML_CONFIG
+                                .blake
+                                .generate_with_salt(&num.to_string());
+
+                            let claims = Claims {
+                                aud: "email".to_string(),
+                                sub: GLOBAL_YAML_CONFIG.jwt.get_sub(),
+                                //验证码时间有效5分钟
+                                exp: get_current_timestamp() + 300,
+                                //由于对权限的控制，这个生成的token是无法用在登陆
+                                auth: "Have no authority".to_string(),
+                                data: Some(UserData {
+                                    code: num_code,
+                                    email: email.to_string(),
+                                }),
+                                refresh: false,
+                            };
+                            let code = GLOB_JOT.generate_token(&claims);
+
+                            HttpResponse::Ok().json(
+                                serde_json::json!({"state": "success", "data":{"code": code}  }),
+                            )
+                        }
+                        false => {
+                            const MSG: &str = "Email sending failure";
+                            HttpResponse::Ok()
+                                .json(serde_json::json!({"state": "error", "message": MSG }))
+                        }
+                    }
                 }
             }
         }

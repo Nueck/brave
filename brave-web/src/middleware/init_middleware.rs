@@ -2,7 +2,7 @@ use std::future::{ready, Ready};
 use std::task::{Context, Poll};
 
 use crate::config::InitStatus;
-use actix_web::error::ErrorUnauthorized;
+use actix_web::error::{ErrorServiceUnavailable, ErrorUnauthorized};
 use actix_web::{
     dev::{Service, ServiceRequest, ServiceResponse, Transform},
     Error,
@@ -56,7 +56,11 @@ where
                     Ok(res)
                 })
             } else {
-                Box::pin(async { Err(ErrorUnauthorized("Need to initialize")) })
+                Box::pin(async {
+                    const MSG: &str = "The service was not initialized";
+                    let json = serde_json::json!({"state": "error", "message": MSG });
+                    Err(ErrorServiceUnavailable(json))
+                })
             }
         } else {
             let fut = self.service.call(req);

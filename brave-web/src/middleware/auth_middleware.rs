@@ -2,7 +2,7 @@ use std::future::{ready, Ready};
 use std::task::{Context, Poll};
 
 use crate::config::GLOBAL_YAML_CONFIG;
-use actix_web::error::ErrorUnauthorized;
+use actix_web::error::{ErrorNetworkAuthenticationRequired, ErrorUnauthorized};
 use actix_web::http::header;
 use actix_web::{
     dev::{Service, ServiceRequest, ServiceResponse, Transform},
@@ -58,7 +58,11 @@ where
         if is_need_verification(req.path()) {
             //首先判断有没有认证
             match req.headers().get(header::AUTHORIZATION) {
-                None => Box::pin(async { Err(ErrorUnauthorized("No Authentication")) }),
+                None => Box::pin(async {
+                    const MSG: &str = "No Authentication Header";
+                    let json = serde_json::json!({"state": "error", "message": MSG });
+                    Err(ErrorNetworkAuthenticationRequired(json))
+                }),
                 Some(header_value) => {
                     let bearer_token = header_value.to_str().unwrap();
 
@@ -89,9 +93,10 @@ where
                                         })
                                     } else {
                                         Box::pin(async {
-                                            Err(ErrorUnauthorized(
-                                                "The refresh token cannot be used on this api",
-                                            ))
+                                            const MSG: &str =
+                                                "The refresh token cannot be used on this api";
+                                            let json = serde_json::json!({"state": "error", "message": MSG });
+                                            Err(ErrorUnauthorized(json))
                                         })
                                     }
                                 } else {
@@ -106,18 +111,27 @@ where
                                 }
                             } else {
                                 Box::pin(async {
-                                    Err(ErrorUnauthorized("Permission does not exist"))
+                                    const MSG: &str = "Permission does not exist";
+                                    let json =
+                                        serde_json::json!({"state": "error", "message": MSG });
+                                    Err(ErrorUnauthorized(json))
                                 })
                             }
                         }
                         Err(err) => {
                             return match err {
                                 AuthError::VerifyError => Box::pin(async {
-                                    Err(ErrorUnauthorized("Authentication failure"))
+                                    const MSG: &str = "Authentication failure";
+                                    let json =
+                                        serde_json::json!({"state": "error", "message": MSG });
+                                    Err(ErrorUnauthorized(json))
                                 }),
-                                AuthError::ExpirationError => {
-                                    Box::pin(async { Err(ErrorUnauthorized("Token Expired")) })
-                                }
+                                AuthError::ExpirationError => Box::pin(async {
+                                    const MSG: &str = "Token Expired";
+                                    let json =
+                                        serde_json::json!({"state": "error", "message": MSG });
+                                    Err(ErrorUnauthorized(json))
+                                }),
                             };
                         }
                     }
