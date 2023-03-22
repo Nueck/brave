@@ -8,19 +8,19 @@
     <n-card :bordered="false" size="large" class="z-4 !w-auto rounded-5px op-95px shadow-sm">
       <div class="w-300px sm:w-360px">
         <header class="flex-y-center justify-between">
-          <n-gradient-text type="primary" :size="28">{{ title }}</n-gradient-text>
+          <n-gradient-text style="user-select: none" type="primary" :size="28">{{ title }}</n-gradient-text>
         </header>
         <main class="pt-24px">
           <!-- <h3 class="text-18px text-primary font-medium">{{ activeModule.label }}</h3> -->
           <div class="pt-24px">
             <transition name="fade-slide" mode="out-in" appear>
-              <component :is="activeModule.component" />
+              <component :is="activeModule.component" style="user-select: none" />
             </transition>
           </div>
         </main>
       </div>
     </n-card>
-    <login-bg :bg-img="true" :theme-color="bgThemeColor" />
+    <login-bg style="user-select: none" :bg-img="true" :theme-color="bgThemeColor" />
   </div>
 </template>
 
@@ -33,15 +33,6 @@ import { LoginBg, activeModule } from './components';
 
 const theme = useThemeStore();
 const { title } = useAppInfo();
-
-// const activeModule = computed(key => {
-//   const active: LoginModule = { ...modules[0] };
-//   const findItem = modules.find(item => item.key === key);
-//   if (findItem) {
-//     Object.assign(active, findItem);
-//   }
-//   return active;
-// });
 
 const bgThemeColor = computed(() => (theme.darkMode ? getColorPalette(theme.themeColor, 7) : theme.themeColor));
 
