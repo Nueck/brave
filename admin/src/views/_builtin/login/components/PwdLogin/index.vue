@@ -32,11 +32,10 @@ import { reactive, ref, watch } from 'vue';
 import type { FormInst, FormRules } from 'naive-ui';
 import { EnumLoginModule } from '@/enum';
 import { useAuthStore } from '@/store';
-import { useRouterPush } from '@/composables';
 import { formRules } from '@/utils';
+import { toLoginModule } from '../index';
 
 const { login, tempInfo, setTempInfoToLocal, removeTempInfoFormLocal, loginLoading } = useAuthStore();
-const { toLoginModule } = useRouterPush();
 
 const formRef = ref<HTMLElement & FormInst>();
 

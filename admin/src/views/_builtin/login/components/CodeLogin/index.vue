@@ -38,12 +38,12 @@
 import { reactive, ref } from 'vue';
 import type { FormInst } from 'naive-ui';
 import { useAuthStore } from '@/store';
-import { useRouterPush } from '@/composables';
 import { useSmsCode } from '@/hooks';
 import { formRules, getImgCodeRule } from '@/utils';
+import { toLoginModule } from '../index';
 
 const auth = useAuthStore();
-const { toLoginModule } = useRouterPush();
+
 const { label, isCounting, loading: smsLoading, tokenCode, getEmailCode } = useSmsCode();
 
 const formRef = ref<HTMLElement & FormInst>();

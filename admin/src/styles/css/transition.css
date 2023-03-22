@@ -15,11 +15,11 @@
 }
 .fade-slide-enter-from {
   opacity: 0;
-  transform: translateX(-30px);
+  transform: translateX(-20px);
 }
 .fade-slide-leave-to {
   opacity: 0;
-  transform: translateX(30px);
+  transform: translateX(20px);
 }
 
 /* fade-bottom */

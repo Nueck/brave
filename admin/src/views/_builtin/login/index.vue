@@ -5,7 +5,7 @@
       class="absolute left-48px top-24px z-3 text-20px"
       @update:dark="theme.setDarkMode"
     />
-    <n-card :bordered="false" size="large" class="z-4 !w-auto rounded-10px shadow-sm">
+    <n-card :bordered="false" size="large" class="z-4 !w-auto rounded-5px op-95px shadow-sm">
       <div class="w-300px sm:w-360px">
         <header class="flex-y-center justify-between">
           <n-gradient-text type="primary" :size="28">{{ title }}</n-gradient-text>
@@ -20,50 +20,28 @@
         </main>
       </div>
     </n-card>
-    <login-bg :theme-color="bgThemeColor" />
+    <login-bg :bg-img="true" :theme-color="bgThemeColor" />
   </div>
 </template>
 
 <script setup lang="ts">
 import { computed } from 'vue';
-import type { Component } from 'vue';
-import { EnumLoginModule } from '@/enum';
 import { useThemeStore } from '@/store';
 import { useAppInfo } from '@/composables';
 import { getColorPalette, mixColor } from '@/utils';
-import { CodeLogin, LoginBg, PwdLogin, Register, ResetPwd } from './components';
-
-interface Props {
-  /** 登录模块分类 */
-  module: EnumType.LoginModuleKey;
-}
-
-const props = defineProps<Props>();
+import { LoginBg, activeModule } from './components';
 
 const theme = useThemeStore();
 const { title } = useAppInfo();
 
-interface LoginModule {
-  key: EnumType.LoginModuleKey;
-  label: EnumLoginModule;
-  component: Component;
-}
-
-const modules: LoginModule[] = [
-  { key: 'pwd-login', label: EnumLoginModule['pwd-login'], component: PwdLogin },
-  { key: 'code-login', label: EnumLoginModule['code-login'], component: CodeLogin },
-  { key: 'register', label: EnumLoginModule.register, component: Register },
-  { key: 'reset-pwd', label: EnumLoginModule['reset-pwd'], component: ResetPwd }
-];
-
-const activeModule = computed(() => {
-  const active: LoginModule = { ...modules[0] };
-  const findItem = modules.find(item => item.key === props.module);
-  if (findItem) {
-    Object.assign(active, findItem);
-  }
-  return active;
-});
+// const activeModule = computed(key => {
+//   const active: LoginModule = { ...modules[0] };
+//   const findItem = modules.find(item => item.key === key);
+//   if (findItem) {
+//     Object.assign(active, findItem);
+//   }
+//   return active;
+// });
 
 const bgThemeColor = computed(() => (theme.darkMode ? getColorPalette(theme.themeColor, 7) : theme.themeColor));
 

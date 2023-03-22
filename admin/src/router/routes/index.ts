@@ -1,4 +1,4 @@
-import { getLoginModuleRegExp } from '@/utils';
+// import { getLoginModuleRegExp } from '@/utils';
 
 /** 根路由: / */
 export const ROOT_ROUTE: AuthRoute.Route = {
@@ -17,15 +17,9 @@ export const constantRoutes: AuthRoute.Route[] = [
     name: 'login',
     path: '/login',
     component: 'self',
-    props: route => {
-      const moduleType = (route.params.module as EnumType.LoginModuleKey) || 'pwd-login';
-      return {
-        module: moduleType
-      };
-    },
     meta: {
       title: '登录',
-      dynamicPath: `/login/:module(${getLoginModuleRegExp()})?`,
+      // dynamicPath: `/login/:module(${getLoginModuleRegExp()})?`,
       singleLayout: 'blank'
     }
   },

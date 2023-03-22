@@ -32,14 +32,14 @@
 <script lang="ts" setup>
 import { reactive, ref, toRefs } from 'vue';
 import type { FormInst, FormRules } from 'naive-ui';
-import { useRouterPush } from '@/composables';
 import { useSmsCode } from '@/hooks';
 import { formRules, getConfirmPwdRule } from '@/utils';
 import { fetchRegister } from '~/src/service';
 import { useAuthStore } from '~/src/store';
+import { toLoginModule } from '../index';
 
 const { setTempInfoToLocal, removeTempInfoFormLocal } = useAuthStore();
-const { toLoginModule } = useRouterPush();
+
 const { label, isCounting, loading: smsLoading, getEmailCode, tokenCode } = useSmsCode();
 
 const formRef = ref<HTMLElement & FormInst>();
