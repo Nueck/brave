@@ -1,4 +1,5 @@
-use crate::config::{AppState, GLOBAL_YAML_CONFIG};
+use crate::config::app::AppState;
+use crate::config::GLOBAL_YAML_CONFIG;
 use crate::entity::prelude::Users;
 use crate::entity::users;
 use actix_web::error::ErrorUnauthorized;
