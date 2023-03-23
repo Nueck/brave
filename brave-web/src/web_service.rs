@@ -1,4 +1,3 @@
-use crate::admin::admin_config;
 use crate::config::app::AppState;
 use crate::config::env::EnvConfig;
 use crate::config::init::InitStatus;
@@ -17,6 +16,8 @@ pub async fn web_start() -> std::io::Result<()> {
 
     //初始化配置文件
     InitStatus::new(None);
+    //数据库连接的一些
+    let states = AppState::new().await;
 
     //初始化jwt配置
     JWTConfig::new(GLOBAL_YAML_CONFIG.jwt.clone());
@@ -47,9 +48,6 @@ pub async fn web_start() -> std::io::Result<()> {
         &GLOBAL_ENV_CONFIG.api_scope
     );
 
-    //数据库连接的一些
-    let states = AppState::new().await;
-
     //开启web服务
     HttpServer::new(move || {
         //api的跨域问题
@@ -65,39 +63,18 @@ pub async fn web_start() -> std::io::Result<()> {
             .max_age(3600);
 
         App::new()
+            .configure(super::home::home_config) //首页显示
             .service(
-                web::scope("/") //首页加载
-                    .wrap(
-                        Cors::default()
-                            .allow_any_header()
-                            .allowed_methods(vec!["GET"]) //只允许GET
-                            .allow_any_origin() //允许任何来源
-                            .max_age(3600),
-                    )
-                    .configure(super::admin::admin_config),
-            )
-            .service(
-                //主要api的service
-                web::scope(&*GLOBAL_ENV_CONFIG.api_scope)
+                web::scope(&GLOBAL_ENV_CONFIG.api_scope)
                     .app_data(web::Data::new(states.clone()))
                     .wrap(JWTAuth) //身份验证
                     .wrap(InitAuth) //初始化判断
                     .wrap(cors)
                     .wrap(Logger::default()) //api的日志
-                    .configure(super::handler::config_init), //服务配置
-            )
-            .service(
-                web::scope(&GLOBAL_ENV_CONFIG.blog_scope) //博客方面的加载
-                    .wrap(
-                        Cors::default()
-                            .allow_any_header()
-                            .allowed_methods(vec!["GET"]) //只允许GET
-                            .allow_any_origin() //允许任何来源
-                            .max_age(3600),
-                    )
-                    .configure(super::blog::blog_config),
-            )
-            .configure(admin_config)
+                    .configure(super::api::api_config), //api的日志
+            ) //api配置
+            .configure(super::blog::blog_config) //博客显示
+            .configure(super::admin::admin_config) //后台管理
     })
     .bind(EnvConfig::get_api_string())?
     .run()

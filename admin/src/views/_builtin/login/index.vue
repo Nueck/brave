@@ -20,7 +20,7 @@
         </main>
       </div>
     </n-card>
-    <login-bg style="user-select: none" :bg-img="false" :theme-color="bgThemeColor" />
+    <login-bg style="user-select: none" :bg-img="true" :theme-color="bgThemeColor" />
   </div>
 </template>
 

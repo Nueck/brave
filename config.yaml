@@ -23,7 +23,7 @@ blake:
 mail:
   mine_email: brave-rust@outlook.com
   smtp_server: smtp.office365.com
-  password: aJxgopMLgmE33E
+  password: ""
   port: 587
 
 

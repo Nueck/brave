@@ -19,7 +19,7 @@ pub struct GConfig {
 impl GConfig {
     pub(crate) fn open_yaml() -> Self {
         // 读取yaml数据
-        let f_yaml = File::open("config.yaml").expect("Could not open file.");
+        let f_yaml = File::open("myenv.yaml").expect("Could not open file.");
         // serde_yaml 解析字符串为 User 对象
         serde_yaml::from_reader(f_yaml).expect("Could not read values.")
     }
