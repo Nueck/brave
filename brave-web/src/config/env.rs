@@ -9,7 +9,8 @@ pub struct EnvConfig {
     pub api_add: String,
     pub api_port: i16,
     pub api_scope: String,
-    pub web_scope: String,
+    pub blog_scope: String,
+    pub admin_scope: String,
     pub pg: PGConfig,
 }
 

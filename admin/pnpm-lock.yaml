@@ -12,6 +12,7 @@ specifiers:
   '@soybeanjs/vue-admin-tab': ^1.0.5
   '@types/bmapgl': ^0.0.5
   '@types/crypto-js': ^4.1.1
+  '@types/lodash-es': ^4.17.7
   '@types/marked': ^4.0.8
   '@types/node': 18.13.0
   '@types/qs': ^6.9.7
@@ -108,6 +109,7 @@ devDependencies:
   '@soybeanjs/vite-plugin-vue-page-route': 0.0.5
   '@types/bmapgl': 0.0.5
   '@types/crypto-js': 4.1.1
+  '@types/lodash-es': 4.17.7
   '@types/node': 18.13.0
   '@types/qs': 6.9.7
   '@types/ua-parser-js': 0.7.36
@@ -2402,11 +2404,9 @@ packages:
     resolution: {integrity: sha512-z0ptr6UI10VlU6l5MYhGwS4mC8DZyYer2mCoyysZtSF7p26zOX8UpbrV0YpNYLGS8K4PUFIyEr62IMFFjveSiQ==}
     dependencies:
       '@types/lodash': 4.14.191
-    dev: false
 
   /@types/lodash/4.14.191:
     resolution: {integrity: sha512-BdZ5BCCvho3EIXw6wUCXHe7rS53AIDPLE+JzwgT+OsJk53oBfbSmZZ7CX4VaRoN78N+TJpFi9QPlfIVNmJYWxQ==}
-    dev: false
 
   /@types/marked/4.0.8:
     resolution: {integrity: sha512-HVNzMT5QlWCOdeuBsgXP8EZzKUf0+AXzN+sLmjvaB3ZlLqO+e4u0uXrdw9ub69wBKFs+c6/pA4r9sy6cCDvImw==}

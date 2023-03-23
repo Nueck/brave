@@ -1,3 +1,4 @@
+use crate::admin::admin_config;
 use crate::config::app::AppState;
 use crate::config::env::EnvConfig;
 use crate::config::init::InitStatus;
@@ -20,17 +21,30 @@ pub async fn web_start() -> std::io::Result<()> {
     //初始化jwt配置
     JWTConfig::new(GLOBAL_YAML_CONFIG.jwt.clone());
 
+    //home
+    println!(
+        "Home service start: http://{}/",
+        EnvConfig::get_api_string(),
+    );
+
+    //admin
+    println!(
+        "Admin service start: http://{}/{}/",
+        EnvConfig::get_api_string(),
+        &GLOBAL_ENV_CONFIG.admin_scope
+    );
+
     //blog
     println!(
         "Blog service start: http://{}/{}/",
         EnvConfig::get_api_string(),
-        GLOBAL_ENV_CONFIG.web_scope
+        &GLOBAL_ENV_CONFIG.blog_scope
     );
     //api
     println!(
         "API service start: http://{}/{}/",
         EnvConfig::get_api_string(),
-        GLOBAL_ENV_CONFIG.api_scope
+        &GLOBAL_ENV_CONFIG.api_scope
     );
 
     //数据库连接的一些
@@ -39,8 +53,9 @@ pub async fn web_start() -> std::io::Result<()> {
     //开启web服务
     HttpServer::new(move || {
         //api的跨域问题
+        /*TODO:暂时所有源都可以通过后期更改*/
         let cors = Cors::default()
-            .allowed_origin("http://localhost:3200")
+            .allow_any_origin()
             .allowed_methods(vec!["GET", "POST"])
             .allowed_headers(vec![
                 http::header::AUTHORIZATION,
@@ -51,8 +66,19 @@ pub async fn web_start() -> std::io::Result<()> {
 
         App::new()
             .service(
+                web::scope("/") //首页加载
+                    .wrap(
+                        Cors::default()
+                            .allow_any_header()
+                            .allowed_methods(vec!["GET"]) //只允许GET
+                            .allow_any_origin() //允许任何来源
+                            .max_age(3600),
+                    )
+                    .configure(super::admin::admin_config),
+            )
+            .service(
                 //主要api的service
-                web::scope(&*GLOBAL_ENV_CONFIG.api_scope.clone())
+                web::scope(&*GLOBAL_ENV_CONFIG.api_scope)
                     .app_data(web::Data::new(states.clone()))
                     .wrap(JWTAuth) //身份验证
                     .wrap(InitAuth) //初始化判断
@@ -61,7 +87,7 @@ pub async fn web_start() -> std::io::Result<()> {
                     .configure(super::handler::config_init), //服务配置
             )
             .service(
-                web::scope(&GLOBAL_ENV_CONFIG.web_scope) //博客方面的加载
+                web::scope(&GLOBAL_ENV_CONFIG.blog_scope) //博客方面的加载
                     .wrap(
                         Cors::default()
                             .allow_any_header()
@@ -69,8 +95,9 @@ pub async fn web_start() -> std::io::Result<()> {
                             .allow_any_origin() //允许任何来源
                             .max_age(3600),
                     )
-                    .configure(super::blog::web_config_init),
+                    .configure(super::blog::blog_config),
             )
+            .configure(admin_config)
     })
     .bind(EnvConfig::get_api_string())?
     .run()

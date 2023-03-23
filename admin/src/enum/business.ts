@@ -8,7 +8,7 @@ export enum EnumUserRole {
 /** 登录模块 */
 export enum EnumLoginModule {
   'pwd-login' = '账密登录',
-  'code-login' = '邮箱验证码登录',
+  'code-login' = '验证码登录',
   'register' = '注册',
   'reset-pwd' = '重置密码'
 }

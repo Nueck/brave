@@ -118,22 +118,18 @@ where
                                 })
                             }
                         }
-                        Err(err) => {
-                            return match err {
-                                AuthError::VerifyError => Box::pin(async {
-                                    const MSG: &str = "Authentication failure";
-                                    let json =
-                                        serde_json::json!({"state": "error", "message": MSG });
-                                    Err(ErrorUnauthorized(json))
-                                }),
-                                AuthError::ExpirationError => Box::pin(async {
-                                    const MSG: &str = "Token Expired";
-                                    let json =
-                                        serde_json::json!({"state": "error", "message": MSG });
-                                    Err(ErrorUnauthorized(json))
-                                }),
-                            };
-                        }
+                        Err(err) => match err {
+                            AuthError::VerifyError => Box::pin(async {
+                                const MSG: &str = "Authentication failure";
+                                let json = serde_json::json!({"state": "error", "message": MSG });
+                                Err(ErrorUnauthorized(json))
+                            }),
+                            AuthError::ExpirationError => Box::pin(async {
+                                const MSG: &str = "Token Expired";
+                                let json = serde_json::json!({"state": "error", "message": MSG });
+                                Err(ErrorUnauthorized(json))
+                            }),
+                        },
                     }
                 }
             }

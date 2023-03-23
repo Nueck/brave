@@ -6,10 +6,10 @@
           <icon-ic-round-plus class="mr-4px text-20px" />
           新增
         </n-button>
-        <!-- <n-button type="error">
+        <n-button type="error">
           <icon-ic-round-delete class="mr-4px text-20px" />
           删除
-        </n-button> -->
+        </n-button>
       </n-space>
       <n-space align="center" :size="15">
         <n-button size="small" type="primary" @click="getTableData">
@@ -142,10 +142,10 @@ const columns: Ref<DataTableColumns<UserManagement.User>> = ref([
     render: row => {
       return (
         <NSpace justify={'center'}>
-          <NButton type="primary" ghost size={'small'} onClick={() => handleEditTable(row.id)}>
+          <NButton type="primary" ghost size={'small'} onClick={() => handleEditTable(row.userId)}>
             编辑
           </NButton>
-          <NPopconfirm onPositiveClick={() => handleDeleteTable(row.id)}>
+          <NPopconfirm onPositiveClick={() => handleDeleteTable(row.userId)}>
             {{
               default: () => '确认删除',
               trigger: () => (
@@ -179,7 +179,7 @@ function handleAddTable() {
 }
 
 function handleEditTable(rowId: string) {
-  const findItem = tableData.value.find(item => item.id === rowId);
+  const findItem = tableData.value.find(item => item.userId === rowId);
   if (findItem) {
     setEditData(findItem);
   }
