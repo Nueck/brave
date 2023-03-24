@@ -2,7 +2,7 @@
 
 use crate::config::app::AppState;
 use crate::config::init::InitStatus;
-use crate::config::GLOBAL_YAML_CONFIG;
+use crate::config::GLOBAL_CONFIG;
 use crate::entity::users;
 use actix_web::{post, web, HttpResponse, Responder};
 use sea_orm::ActiveValue::Set;
@@ -32,11 +32,11 @@ async fn init(data: web::Data<AppState>, info: web::Json<InitInfo>) -> HttpRespo
     if !InitStatus::global().is_init {
         let db = &data.conn;
         /*对密码加密*/
-        let pwd = GLOBAL_YAML_CONFIG.blake.generate_with_salt(&info.password);
+        let pwd = GLOBAL_CONFIG.blake.generate_with_salt(&info.password);
         //初始化数据
         let user = users::ActiveModel {
             user_name: Set((&info.username.as_str()).parse().unwrap()),
-            authority: Set(GLOBAL_YAML_CONFIG
+            authority: Set(GLOBAL_CONFIG
                 .authority
                 .get_authority_config()
                 .super_admin

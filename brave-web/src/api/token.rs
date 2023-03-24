@@ -1,4 +1,4 @@
-use crate::config::GLOBAL_YAML_CONFIG;
+use crate::config::GLOBAL_CONFIG;
 use actix_web::{post, web, HttpResponse, Responder};
 use brave_utils::jwt::jwt::{Claims, TokenData, GLOB_JOT};
 use jsonwebtoken::get_current_timestamp;
@@ -24,8 +24,8 @@ async fn update_token_handler(token: web::ReqData<TokenData>) -> impl Responder 
         //短时间的token
         let claims = Claims {
             aud: aud.to_owned(),
-            sub: GLOBAL_YAML_CONFIG.jwt.get_sub(),
-            exp: get_current_timestamp() + GLOBAL_YAML_CONFIG.jwt.get_exp_time(),
+            sub: GLOBAL_CONFIG.jwt.get_sub(),
+            exp: get_current_timestamp() + GLOBAL_CONFIG.jwt.get_exp_time(),
             auth: auth.to_string(),
             data: None,
             refresh: false,
@@ -35,8 +35,8 @@ async fn update_token_handler(token: web::ReqData<TokenData>) -> impl Responder 
         //长时间的token
         let claims = Claims {
             aud: aud.to_owned(),
-            sub: GLOBAL_YAML_CONFIG.jwt.get_sub(),
-            exp: get_current_timestamp() + GLOBAL_YAML_CONFIG.jwt.get_ref_time(),
+            sub: GLOBAL_CONFIG.jwt.get_sub(),
+            exp: get_current_timestamp() + GLOBAL_CONFIG.jwt.get_ref_time(),
             auth: auth.to_string(),
             data: None,
             refresh: true,

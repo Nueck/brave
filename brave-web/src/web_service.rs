@@ -1,7 +1,7 @@
 use crate::config::app::AppState;
-use crate::config::env::EnvConfig;
 use crate::config::init::InitStatus;
-use crate::config::{GLOBAL_ENV_CONFIG, GLOBAL_YAML_CONFIG};
+use crate::config::interface::Interface;
+use crate::config::GLOBAL_CONFIG;
 use crate::middleware::auth_middleware::JWTAuth;
 use crate::middleware::init_middleware::InitAuth;
 use actix_cors::Cors;
@@ -14,38 +14,39 @@ pub async fn web_start() -> std::io::Result<()> {
     //初始化日志
     super::log::init_log();
 
-    //初始化配置文件
-    InitStatus::new(None);
     //数据库连接的一些
     let states = AppState::new().await;
 
+    //初始化配置文件
+    InitStatus::new(None);
+
     //初始化jwt配置
-    JWTConfig::new(GLOBAL_YAML_CONFIG.jwt.clone());
+    JWTConfig::new(GLOBAL_CONFIG.jwt.clone());
 
     //home
     println!(
         "Home service start: http://{}/",
-        EnvConfig::get_api_string(),
+        Interface::get_api_string()
     );
 
     //admin
     println!(
         "Admin service start: http://{}/{}/",
-        EnvConfig::get_api_string(),
-        &GLOBAL_ENV_CONFIG.admin_scope
+        Interface::get_api_string(),
+        &GLOBAL_CONFIG.interface.admin_scope
     );
 
     //blog
     println!(
         "Blog service start: http://{}/{}/",
-        EnvConfig::get_api_string(),
-        &GLOBAL_ENV_CONFIG.blog_scope
+        Interface::get_api_string(),
+        &GLOBAL_CONFIG.interface.blog_scope
     );
     //api
     println!(
         "API service start: http://{}/{}/",
-        EnvConfig::get_api_string(),
-        &GLOBAL_ENV_CONFIG.api_scope
+        Interface::get_api_string(),
+        &GLOBAL_CONFIG.interface.api_scope
     );
 
     //开启web服务
@@ -64,7 +65,7 @@ pub async fn web_start() -> std::io::Result<()> {
 
         App::new()
             .service(
-                web::scope(&GLOBAL_ENV_CONFIG.api_scope)
+                web::scope(&GLOBAL_CONFIG.interface.api_scope)
                     .app_data(web::Data::new(states.clone()))
                     .wrap(JWTAuth) //身份验证
                     .wrap(InitAuth) //初始化判断
@@ -76,7 +77,7 @@ pub async fn web_start() -> std::io::Result<()> {
             .configure(super::blog::blog_config) //博客显示
             .configure(super::home::home_config) //首页显示
     })
-    .bind(EnvConfig::get_api_string())?
+    .bind(Interface::get_api_string())?
     .run()
     .await
 }

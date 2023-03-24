@@ -1,5 +1,5 @@
 use crate::config::app::AppState;
-use crate::config::GLOBAL_YAML_CONFIG;
+use crate::config::GLOBAL_CONFIG;
 use crate::entity::prelude::Users;
 use crate::entity::users;
 use actix_web::{post, web, HttpResponse};
@@ -63,9 +63,7 @@ async fn login(data: web::Data<AppState>, user_info: web::Json<UserInfo>) -> Htt
      * 登陆获取,
      * 对密码加密
      */
-    let pwd = GLOBAL_YAML_CONFIG
-        .blake
-        .generate_with_salt(&user_info.password);
+    let pwd = GLOBAL_CONFIG.blake.generate_with_salt(&user_info.password);
 
     let db = &data.conn;
     /*
@@ -94,8 +92,8 @@ async fn login(data: web::Data<AppState>, user_info: web::Json<UserInfo>) -> Htt
                 //短时间的token
                 let claims = Claims {
                     aud: user.user_name.clone(),
-                    sub: GLOBAL_YAML_CONFIG.jwt.get_sub(),
-                    exp: get_current_timestamp() + GLOBAL_YAML_CONFIG.jwt.get_exp_time(),
+                    sub: GLOBAL_CONFIG.jwt.get_sub(),
+                    exp: get_current_timestamp() + GLOBAL_CONFIG.jwt.get_exp_time(),
                     auth: user.authority.clone(),
                     data: None,
                     refresh: false,
@@ -105,8 +103,8 @@ async fn login(data: web::Data<AppState>, user_info: web::Json<UserInfo>) -> Htt
                 //长时间的token
                 let claims = Claims {
                     aud: user.user_name.clone(),
-                    sub: GLOBAL_YAML_CONFIG.jwt.get_sub(),
-                    exp: get_current_timestamp() + GLOBAL_YAML_CONFIG.jwt.get_ref_time(),
+                    sub: GLOBAL_CONFIG.jwt.get_sub(),
+                    exp: get_current_timestamp() + GLOBAL_CONFIG.jwt.get_ref_time(),
                     auth: user.authority.clone(),
                     data: None,
                     refresh: true,
@@ -148,9 +146,7 @@ async fn email_login(data: web::Data<AppState>, info: web::Json<EmailLoginInfo>)
             match GLOB_JOT.validation_to_claim(&info.code) {
                 Ok(data) => {
                     //对需要验证的code的加盐
-                    let verify_code = GLOBAL_YAML_CONFIG
-                        .blake
-                        .generate_with_salt(&info.verify_code);
+                    let verify_code = GLOBAL_CONFIG.blake.generate_with_salt(&info.verify_code);
 
                     let code = data.data.clone().unwrap().code;
                     let email = data.data.clone().unwrap().email;
@@ -159,8 +155,8 @@ async fn email_login(data: web::Data<AppState>, info: web::Json<EmailLoginInfo>)
                         //短时间的token
                         let claims = Claims {
                             aud: user.user_name.clone(),
-                            sub: GLOBAL_YAML_CONFIG.jwt.get_sub(),
-                            exp: get_current_timestamp() + GLOBAL_YAML_CONFIG.jwt.get_exp_time(),
+                            sub: GLOBAL_CONFIG.jwt.get_sub(),
+                            exp: get_current_timestamp() + GLOBAL_CONFIG.jwt.get_exp_time(),
                             auth: user.authority.clone(),
                             data: None,
                             refresh: false,
@@ -170,8 +166,8 @@ async fn email_login(data: web::Data<AppState>, info: web::Json<EmailLoginInfo>)
                         //长时间的token
                         let claims = Claims {
                             aud: user.user_name.clone(),
-                            sub: GLOBAL_YAML_CONFIG.jwt.get_sub(),
-                            exp: get_current_timestamp() + GLOBAL_YAML_CONFIG.jwt.get_ref_time(),
+                            sub: GLOBAL_CONFIG.jwt.get_sub(),
+                            exp: get_current_timestamp() + GLOBAL_CONFIG.jwt.get_ref_time(),
                             auth: user.authority.clone(),
                             data: None,
                             refresh: true,
@@ -223,9 +219,7 @@ async fn register(data: web::Data<AppState>, info: web::Json<RegisterInfo>) -> H
             match GLOB_JOT.validation_to_claim(&info.code) {
                 Ok(data) => {
                     //对需要验证的code的加盐
-                    let verify_code = GLOBAL_YAML_CONFIG
-                        .blake
-                        .generate_with_salt(&info.verify_code);
+                    let verify_code = GLOBAL_CONFIG.blake.generate_with_salt(&info.verify_code);
 
                     let code = data.data.clone().unwrap().code;
                     let email = data.data.clone().unwrap().email;
@@ -233,7 +227,7 @@ async fn register(data: web::Data<AppState>, info: web::Json<RegisterInfo>) -> H
                     if verify_code == code && email == info.email.clone() {
                         /*保存数据到数据库*/
                         /*对密码加密*/
-                        let pwd = GLOBAL_YAML_CONFIG.blake.generate_with_salt(&info.password);
+                        let pwd = GLOBAL_CONFIG.blake.generate_with_salt(&info.password);
                         //初始化数据
                         let user = users::ActiveModel {
                             user_name: Set((&info.username.as_str()).parse().unwrap()),
@@ -294,16 +288,14 @@ async fn forget(data: web::Data<AppState>, info: web::Json<ForgetInfo>) -> HttpR
             match GLOB_JOT.validation_to_claim(&info.code) {
                 Ok(data) => {
                     //对需要验证的code的加盐
-                    let verify_code = GLOBAL_YAML_CONFIG
-                        .blake
-                        .generate_with_salt(&info.verify_code);
+                    let verify_code = GLOBAL_CONFIG.blake.generate_with_salt(&info.verify_code);
 
                     let code = data.data.clone().unwrap().code;
                     let email = data.data.clone().unwrap().email;
                     //判断验证码是否正确
                     if verify_code == code && email == info.email.clone() {
                         /*对密码加密*/
-                        let pwd = GLOBAL_YAML_CONFIG.blake.generate_with_salt(&info.new_pwd);
+                        let pwd = GLOBAL_CONFIG.blake.generate_with_salt(&info.new_pwd);
                         /*修改数据库数据*/
                         let mut user: users::ActiveModel = user.into();
                         user.pwd_hash = Set(pwd);
@@ -339,7 +331,7 @@ async fn forget(data: web::Data<AppState>, info: web::Json<ForgetInfo>) -> HttpR
 #[post("/sendmail")]
 async fn sendmail(mail: web::Json<MailInfo>) -> HttpResponse {
     /*将随机数发送到相应的邮箱*/
-    match &GLOBAL_YAML_CONFIG.mail {
+    match &GLOBAL_CONFIG.mail {
         None => {
             const MSG: &str = "The server does not support email sending";
             HttpResponse::Ok().json(serde_json::json!({"state": "error", "message": MSG }))
@@ -362,13 +354,11 @@ async fn sendmail(mail: web::Json<MailInfo>) -> HttpResponse {
                     match m.sendmail(email.to_string(), &num.to_string()).await {
                         true => {
                             /*生成加盐的数据 和使用token加密*/
-                            let num_code = GLOBAL_YAML_CONFIG
-                                .blake
-                                .generate_with_salt(&num.to_string());
+                            let num_code = GLOBAL_CONFIG.blake.generate_with_salt(&num.to_string());
 
                             let claims = Claims {
                                 aud: "email".to_string(),
-                                sub: GLOBAL_YAML_CONFIG.jwt.get_sub(),
+                                sub: GLOBAL_CONFIG.jwt.get_sub(),
                                 //验证码时间有效5分钟
                                 exp: get_current_timestamp() + 300,
                                 //由于对权限的控制，这个生成的token是无法用在登陆

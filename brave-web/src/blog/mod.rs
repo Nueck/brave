@@ -1,13 +1,13 @@
 mod page;
 
-use crate::config::GLOBAL_ENV_CONFIG;
+use crate::config::GLOBAL_CONFIG;
 use actix_cors::Cors;
 use actix_web::web;
 
 //用于blog的页面加载
 pub fn blog_config(cfg: &mut web::ServiceConfig) {
     cfg.service(
-        web::scope(&GLOBAL_ENV_CONFIG.blog_scope) //博客方面的加载
+        web::scope(&GLOBAL_CONFIG.interface.blog_scope) //博客方面的加载
             .wrap(
                 Cors::default()
                     .allow_any_header()

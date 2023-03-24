@@ -1,7 +1,7 @@
 use std::future::{ready, Ready};
 use std::task::{Context, Poll};
 
-use crate::config::GLOBAL_YAML_CONFIG;
+use crate::config::GLOBAL_CONFIG;
 use actix_web::error::{ErrorNetworkAuthenticationRequired, ErrorUnauthorized};
 use actix_web::http::header;
 use actix_web::{
@@ -74,7 +74,7 @@ where
                     match GLOB_JOT.validation_token(&token_msg) {
                         Ok(data) => {
                             /*判断用户权限是否存在*/
-                            if GLOBAL_YAML_CONFIG
+                            if GLOBAL_CONFIG
                                 .authority
                                 .auth
                                 .clone()

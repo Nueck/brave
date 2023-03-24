@@ -1,4 +1,4 @@
-use crate::config::GLOBAL_ENV_CONFIG;
+use crate::config::GLOBAL_CONFIG;
 use actix_files::{Files, NamedFile};
 use actix_web::dev::{fn_service, ServiceRequest, ServiceResponse};
 use actix_web::web;
@@ -6,7 +6,7 @@ use actix_web::web;
 /*用于后台管理配置的*/
 pub fn admin_config(cfg: &mut web::ServiceConfig) {
     cfg.service(
-        web::scope(&GLOBAL_ENV_CONFIG.admin_scope).service(
+        web::scope(&GLOBAL_CONFIG.interface.admin_scope).service(
             Files::new("/", "./admin/dist")
                 .index_file("index.html")
                 .disable_content_disposition()

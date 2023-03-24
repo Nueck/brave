@@ -13,11 +13,12 @@ pub mod env;
 mod error;
 pub mod global;
 pub mod init;
+pub mod interface;
 
-//设置全局变量
+pub static GLOB_INIT: OnceCell<Mutex<InitStatus>> = OnceCell::new();
+
+pub static GLOBAL_CONFIG: Lazy<GConfig> = Lazy::new(|| GConfig::open_yaml());
+
 pub static GLOBAL_ENV_CONFIG: Lazy<EnvConfig> = Lazy::new(|| EnvConfig::get_env());
-pub static GLOBAL_YAML_CONFIG: Lazy<GConfig> = Lazy::new(|| GConfig::open_yaml());
 
 pub static GLOBAL_ADMIN_STATUS: Lazy<AdminState> = Lazy::new(|| AdminState::new());
-//全局的服务器信息
-pub static GLOB_INIT: OnceCell<Mutex<InitStatus>> = OnceCell::new();

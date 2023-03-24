@@ -1,5 +1,5 @@
 use crate::config::app::AppState;
-use crate::config::GLOBAL_YAML_CONFIG;
+use crate::config::GLOBAL_CONFIG;
 use crate::entity::prelude::Users;
 use crate::entity::users;
 use actix_web::error::ErrorUnauthorized;
@@ -20,7 +20,7 @@ async fn get_users(data: web::Data<AppState>, token: web::ReqData<TokenData>) ->
 
     //只有是超级管理员才能访问
     if auth
-        == GLOBAL_YAML_CONFIG
+        == GLOBAL_CONFIG
             .authority
             .get_authority_config()
             .super_admin

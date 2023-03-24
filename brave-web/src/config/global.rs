@@ -1,4 +1,5 @@
 use crate::config::authority::AuthorityConfig;
+use crate::config::interface::Interface;
 use brave_utils::blake3::Blake3Config;
 use brave_utils::jwt::config::JWTConfig;
 use brave_utils::mail::MailConfig;
@@ -8,6 +9,7 @@ use std::fs::File;
 //创建yaml配置文件的结构体
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]
 pub struct GConfig {
+    pub interface: Interface,
     pub core_url: Option<String>,
     pub core_post_url: Option<String>,
     pub jwt: JWTConfig,
