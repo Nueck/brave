@@ -1,4 +1,5 @@
 import { createApp } from 'vue';
+import { storeToRefs } from 'pinia';
 import App from './App.vue';
 import AppLoading from './components/common/AppLoading.vue';
 import { setupDirectives } from './directives';
@@ -18,7 +19,7 @@ async function setupApp() {
   const app = createApp(App);
 
   // store plugin: pinia
-  setupStore(app);
+  await setupStore(app);
 
   // vue custom directives
   setupDirectives(app);
@@ -27,12 +28,6 @@ async function setupApp() {
   await setupRouter(app);
 
   setupI18n(app);
-
-  /* 处理初始化状态 */
-  /* 初始化系统配置 */
-  const { initStatusStore } = useInitStore();
-
-  await initStatusStore();
 
   // mount app
   app.mount('#app');

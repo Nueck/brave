@@ -16,8 +16,9 @@ export const useInitStore = defineStore('init-store', {
 
       if (data?.isInit) {
         this.initStatus = true;
+      } else {
+        this.initStatus = false;
       }
-      this.initStatus = false;
     }
   }
 });

@@ -28,7 +28,6 @@ import type { FormInst, FormRules } from 'naive-ui';
 import { formRules, getConfirmPwdRule } from '@/utils';
 import { fetchInit } from '~/src/service';
 import { useAuthStore, useInitStore } from '~/src/store';
-import { router } from '~/src/router';
 const auth = useAuthStore();
 const init = useInitStore();
 
@@ -53,20 +52,18 @@ const agreement = ref(false);
 
 async function handleSubmit() {
   await formRef.value?.validate();
-
   const info: Init.InitInfo = {
     username: model.username,
     email: model.email,
     password: model.pwd,
     address: model.address
   };
-
   const { data } = await fetchInit(info);
   /* 将数据获取 */
   if (data) {
-    await auth.login(info.username, info.password);
     /* 获取重新初始化状态 */
     await init.initStatusStore();
+    await auth.login(info.username, info.password);
     /* 删除系统路由 */
     setTimeout(() => {
       window.$message?.success('初始化成功!');

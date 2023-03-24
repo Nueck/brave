@@ -88,6 +88,16 @@ export const useRouteStore = defineStore('route-store', {
       const constantRouteNames = getConstantRouteNames(constantRoutes);
       return constantRouteNames.includes(name) && name !== NOT_FOUND_PAGE_NAME;
     },
+
+    /**
+     * 是否是有效的系统初始化路由
+     * @param name 路由名称
+     */
+    isValidInitRoute(name: AuthRoute.AllRouteKey) {
+      const NOT_FOUND_PAGE_NAME: AuthRoute.NotFoundRouteKey = 'not-found';
+      const initRouteNames = getConstantRouteNames(initRoute);
+      return initRouteNames.includes(name) && name !== NOT_FOUND_PAGE_NAME;
+    },
     /**
      * 处理权限路由
      * @param routes - 权限路由
@@ -179,8 +189,12 @@ export const useRouteStore = defineStore('route-store', {
       vueRoutes.forEach(route => {
         router.addRoute(route);
       });
+
+      console.log(router);
+
       // 添加系统路由到系统中
       const initRouteName = getCacheRoutes(vueRoutes);
+
       initRouteName.forEach(name => {
         const index = this.cacheRoutes.indexOf(name);
         if (index === -1) {
@@ -193,6 +207,7 @@ export const useRouteStore = defineStore('route-store', {
       routes.forEach(route => {
         const name = (route.name || 'root') as AuthRoute.AllRouteKey;
         if (this.isInitRoute(name)) {
+          console.log(name);
           router.removeRoute(name);
         }
       });

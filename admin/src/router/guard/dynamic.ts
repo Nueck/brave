@@ -3,6 +3,7 @@ import { storeToRefs } from 'pinia';
 import { routeName } from '@/router';
 import { useInitStore, useRouteStore } from '@/store';
 import { localStg } from '@/utils';
+import { initRoute } from './../routes/index';
 
 /**
  * 动态路由
@@ -19,20 +20,23 @@ export async function createDynamicRouteGuard(
 
   // 初始化权限路由
   if (!route.isInitAuthRoute) {
-    /* 获取初始化状态 */
-
-    if (!initStatus) {
-      /* 未初始化的时候添加系统初始化路由 */
-      route.addInitRoute();
-    } else {
-      /* 初始化成功的时候删除系统初始化路由 */
+    /* 根据是否初始化设置路由 */
+    if (initStatus.value) {
       route.removeInitRoutes();
+    } else {
+      route.addInitRoute();
     }
 
     // 未初始化跳到初始化界面
-    if (!initStatus) {
-      // 未初始化情况下直接回到初始化页
-      next({ name: routeName('init') });
+    if (!initStatus.value) {
+      // 未初始化情况下直接回到初始化页~
+      const toName = to.name as AuthRoute.AllRouteKey;
+      if ((route.isValidConstantRoute(toName) || route.isValidInitRoute(toName)) && !to.meta.requiresAuth) {
+        next();
+      } else {
+        next({ name: routeName('init') });
+      }
+      return false;
     } else if (!isLogin) {
       const toName = to.name as AuthRoute.AllRouteKey;
       if (route.isValidConstantRoute(toName) && !to.meta.requiresAuth) {
@@ -57,7 +61,7 @@ export async function createDynamicRouteGuard(
   }
 
   /* 初始化后路由后删除系统路由 */
-  if (initStatus) {
+  if (initStatus.value) {
     route.removeInitRoutes();
   }
 
