@@ -19,7 +19,6 @@ export const constantRoutes: AuthRoute.Route[] = [
     component: 'self',
     meta: {
       title: '登录',
-      // dynamicPath: `/login/:module(${getLoginModuleRegExp()})?`,
       singleLayout: 'blank'
     }
   },
@@ -70,3 +69,15 @@ export const constantRoutes: AuthRoute.Route[] = [
     }
   }
 ];
+
+/* 初始化路由 */
+
+export const initRouter: AuthRoute.Route = {
+  name: 'init',
+  path: '/init',
+  component: 'self',
+  meta: {
+    title: '初始化',
+    singleLayout: 'blank'
+  }
+};

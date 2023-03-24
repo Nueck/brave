@@ -12,3 +12,8 @@ export enum EnumLoginModule {
   'register' = '注册',
   'reset-pwd' = '重置密码'
 }
+
+/** 初始化模块 */
+export enum EnumInitModule {
+  'user' = '用户配置'
+}

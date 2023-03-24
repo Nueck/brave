@@ -66,7 +66,7 @@ export const useAuthStore = defineStore('auth-store', {
       const route = useRouteStore();
       const { toLoginRedirect } = useRouterPush(false);
 
-      const loginSuccess = await this.loginByToken(backendToken);
+      const loginSuccess = await this.handleUserToken(backendToken);
 
       if (loginSuccess) {
         await route.initAuthRoute();
@@ -94,7 +94,7 @@ export const useAuthStore = defineStore('auth-store', {
      * 处理返回的token
      * @param backendToken - 返回的token
      */
-    async loginByToken(backendToken: ApiAuth.Token) {
+    async handleUserToken(backendToken: ApiAuth.Token) {
       // 先把token存储到缓存中(后面接口的请求头需要token)
       const { token, refreshToken } = backendToken;
       localStg.set('token', token);

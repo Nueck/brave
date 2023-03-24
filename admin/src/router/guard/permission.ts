@@ -2,6 +2,7 @@ import type { NavigationGuardNext, RouteLocationNormalized } from 'vue-router';
 import { routeName } from '@/router';
 import { useAuthStore } from '@/store';
 import { exeStrategyActions, localStg } from '@/utils';
+import { useInitStore } from '~/src/store/modules/init';
 import { createDynamicRouteGuard } from './dynamic';
 
 /** 处理路由页面的权限 */
@@ -22,12 +23,19 @@ export async function createPermissionGuard(
   }
 
   const auth = useAuthStore();
+  const { initStatus } = useInitStore();
   const isLogin = Boolean(localStg.get('token'));
   const permissions = to.meta.permissions || [];
   const needLogin = Boolean(to.meta?.requiresAuth) || Boolean(permissions.length);
   const hasPermission = !permissions.length || permissions.includes(auth.userInfo.userRole);
 
   const actions: Common.StrategyAction[] = [
+    [
+      initStatus && to.name === routeName('init') && isLogin,
+      () => {
+        next({ name: routeName('root') });
+      }
+    ],
     // 已登录状态跳转登录页，跳转至首页
     [
       isLogin && to.name === routeName('login'),

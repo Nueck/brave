@@ -2,6 +2,7 @@ import type { NavigationGuardNext, RouteLocationNormalized } from 'vue-router';
 import { routeName } from '@/router';
 import { useRouteStore } from '@/store';
 import { localStg } from '@/utils';
+import { useInitStore } from '~/src/store/modules/init';
 
 /**
  * 动态路由
@@ -11,13 +12,31 @@ export async function createDynamicRouteGuard(
   _from: RouteLocationNormalized,
   next: NavigationGuardNext
 ) {
+  const { initStatus, initStatusStore } = useInitStore();
   const route = useRouteStore();
   const isLogin = Boolean(localStg.get('token'));
 
   // 初始化权限路由
   if (!route.isInitAuthRoute) {
-    // 未登录情况下直接回到登录页，登录成功后再加载权限路由
-    if (!isLogin) {
+    /* 先加载初始化状态 */
+    let isInit = initStatus;
+    /* 获取初始化状态 */
+    if (!isInit) {
+      isInit = await initStatusStore();
+    }
+
+    // 未初始化跳到初始化界面
+    if (!isInit) {
+      // 未初始化情况下直接回到初始化页，初始化成功后再加载权限路由
+      const toName = to.name as AuthRoute.AllRouteKey;
+      if (route.isValidConstantRoute(toName) && !to.meta.requiresAuth) {
+        next();
+      } else {
+        const redirect = to.fullPath;
+        next({ name: routeName('init'), query: { redirect } });
+      }
+      return false;
+    } else if (!isLogin) {
       const toName = to.name as AuthRoute.AllRouteKey;
       if (route.isValidConstantRoute(toName) && !to.meta.requiresAuth) {
         next();

@@ -10,7 +10,6 @@ import { setupI18n } from './locales';
 async function setupApp() {
   // import assets: js、css
   setupAssets();
-
   // app loading
   const appLoading = createApp(AppLoading);
 
@@ -19,7 +18,7 @@ async function setupApp() {
   const app = createApp(App);
 
   // store plugin: pinia
-  setupStore(app);
+  await setupStore(app);
 
   // vue custom directives
   setupDirectives(app);

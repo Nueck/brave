@@ -8,7 +8,7 @@
     <n-card :bordered="false" size="large" class="z-4 !w-auto rounded-5px op-95px shadow-sm">
       <div class="w-300px sm:w-360px">
         <header class="flex-y-center justify-between">
-          <n-gradient-text style="user-select: none" type="primary" :size="28">{{ title }}</n-gradient-text>
+          <n-gradient-text style="user-select: none" type="primary" :size="28">系统初始化</n-gradient-text>
         </header>
         <main class="pt-24px">
           <h3 style="user-select: none" class="text-18px text-primary font-medium">{{ activeModule.label }}</h3>
@@ -20,19 +20,19 @@
         </main>
       </div>
     </n-card>
-    <login-bg :bg-img="true" :theme-color="bgThemeColor" />
+    <bg style="user-select: none" :bg-img="true" :theme-color="bgThemeColor" />
   </div>
 </template>
 
 <script setup lang="ts">
 import { computed } from 'vue';
 import { useThemeStore } from '@/store';
-import { useAppInfo } from '@/composables';
+// import { useAppInfo } from '@/composables';
 import { getColorPalette, mixColor } from '@/utils';
-import { LoginBg, activeModule } from './components';
+import { Bg, activeModule } from './components';
 
 const theme = useThemeStore();
-const { title } = useAppInfo();
+// const { title } = useAppInfo();
 
 const bgThemeColor = computed(() => (theme.darkMode ? getColorPalette(theme.themeColor, 7) : theme.themeColor));
 

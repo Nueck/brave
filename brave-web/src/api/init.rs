@@ -5,10 +5,11 @@ use crate::config::init::InitStatus;
 use crate::config::GLOBAL_CONFIG;
 use crate::entity::users;
 use actix_web::{post, web, HttpResponse, Responder};
+use brave_utils::jwt::jwt::{Claims, GLOB_JOT};
+use jsonwebtoken::get_current_timestamp;
 use sea_orm::ActiveValue::Set;
 use sea_orm::EntityTrait;
 use serde::Deserialize;
-use serde_json::json;
 
 /*初始化的用户信息*/
 #[derive(Clone, Deserialize)]
@@ -52,12 +53,16 @@ async fn init(data: web::Data<AppState>, info: web::Json<InitInfo>) -> HttpRespo
                 /*设置初始化状态为true*/
                 InitStatus::set(InitStatus {
                     is_init: true,
-                    username: Some(user.user_name.unwrap()),
-                    email: Some(user.email.unwrap()),
-                    address: Some(user.address.unwrap()),
+                    username: Some(user.user_name.clone().unwrap()),
+                    email: Some(user.email.clone().unwrap()),
+                    address: Some(user.address.clone().unwrap()),
                 });
+
                 const MSG: &str = "Successful initialization";
-                HttpResponse::Ok().json(serde_json::json!({"state": "success", "message": MSG }))
+                let json =
+                    serde_json::json!({"state": "success", "data":{"isInit":true} ,"message": MSG});
+
+                HttpResponse::Ok().json(json)
             }
             Err(err) => {
                 log::error!("Initialization failure : {err:?}");
@@ -77,7 +82,9 @@ async fn init_status() -> impl Responder {
     /*判断系统是否初始化*/
     let bool = InitStatus::global().is_init;
     if bool {
-        return HttpResponse::Ok().json(json!({ "state": "success" }));
+        const MSG: &str = "Already initialized";
+        return HttpResponse::Ok()
+            .json(serde_json::json!({ "state": "success","data":{"isInit":true},"message": MSG }));
     }
-    HttpResponse::Ok().json(json!({ "state": "error" }))
+    HttpResponse::Ok().json(serde_json::json!({ "state": "error"}))
 }

@@ -77,7 +77,7 @@ async function handleSubmit() {
       toLoginModule('pwd-login');
     }, 500);
   } else {
-    window.$message?.success('修改密码失败!');
+    window.$message?.error('修改密码失败!');
   }
 }
 </script>
