@@ -63,7 +63,6 @@ pub async fn web_start() -> std::io::Result<()> {
             .max_age(3600);
 
         App::new()
-            .configure(super::home::home_config) //首页显示
             .service(
                 web::scope(&GLOBAL_ENV_CONFIG.api_scope)
                     .app_data(web::Data::new(states.clone()))
@@ -73,8 +72,9 @@ pub async fn web_start() -> std::io::Result<()> {
                     .wrap(Logger::default()) //api的日志
                     .configure(super::api::api_config), //api的日志
             ) //api配置
-            .configure(super::blog::blog_config) //博客显示
             .configure(super::admin::admin_config) //后台管理
+            .configure(super::blog::blog_config) //博客显示
+            .configure(super::home::home_config) //首页显示
     })
     .bind(EnvConfig::get_api_string())?
     .run()
