@@ -43,7 +43,7 @@ async fn init(data: web::Data<AppState>, info: web::Json<InitInfo>) -> HttpRespo
                 .super_admin
                 .unwrap()),
             email: Set((&info.email.as_str()).parse().unwrap()),
-            address: Set((&info.address.as_str()).parse().unwrap()),
+            address: Set((&info.username.as_str()).parse().unwrap()),
             pwd_hash: Set(pwd),
             ..Default::default()
         };
