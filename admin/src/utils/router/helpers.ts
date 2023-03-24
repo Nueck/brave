@@ -1,5 +1,5 @@
 /**
- * 获取所有固定路由的名称集合
+ * 获取所有固定路由的名称集合 可以同时利用在init上
  * @param routes - 固定路由
  */
 export function getConstantRouteNames(routes: AuthRoute.Route[]) {

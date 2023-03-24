@@ -16,6 +16,7 @@ import {
 } from '@/utils';
 import { useAuthStore } from '../auth';
 import { useTabStore } from '../tab';
+import { initRoute } from './../../../router/routes/index';
 
 interface RouteState {
   /**
@@ -68,6 +69,15 @@ export const useRouteStore = defineStore('route-store', {
     isConstantRoute(name: AuthRoute.AllRouteKey) {
       const constantRouteNames = getConstantRouteNames(constantRoutes);
       return constantRouteNames.includes(name);
+    },
+
+    /**
+     * 是否是初始化路由
+     * @param name 路由名称
+     */
+    isInitRoute(name: AuthRoute.AllRouteKey) {
+      const initRouteNames = getConstantRouteNames(initRoute);
+      return initRouteNames.includes(name);
     },
     /**
      * 是否是有效的固定路由
@@ -162,6 +172,30 @@ export const useRouteStore = defineStore('route-store', {
       if (index === -1) {
         this.cacheRoutes.push(name);
       }
+    },
+    /** 添加系统路由 */
+    addInitRoute() {
+      const vueRoutes = transformAuthRouteToVueRoutes(initRoute);
+      vueRoutes.forEach(route => {
+        router.addRoute(route);
+      });
+      // 添加系统路由到系统中
+      const initRouteName = getCacheRoutes(vueRoutes);
+      initRouteName.forEach(name => {
+        const index = this.cacheRoutes.indexOf(name);
+        if (index === -1) {
+          this.cacheRoutes.push(name);
+        }
+      });
+    },
+    removeInitRoutes() {
+      const routes = router.getRoutes();
+      routes.forEach(route => {
+        const name = (route.name || 'root') as AuthRoute.AllRouteKey;
+        if (this.isInitRoute(name)) {
+          router.removeRoute(name);
+        }
+      });
     }
   }
 });

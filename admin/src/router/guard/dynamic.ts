@@ -22,7 +22,12 @@ export async function createDynamicRouteGuard(
     let isInit = initStatus;
     /* 获取初始化状态 */
     if (!isInit) {
+      /* 未初始化的时候添加系统设置路由 */
+      route.addInitRoute();
       isInit = await initStatusStore();
+    } else {
+      /* 未初始化成功的时候删除系统设置路由 */
+      route.removeInitRoutes();
     }
 
     // 未初始化跳到初始化界面

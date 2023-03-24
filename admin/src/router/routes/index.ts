@@ -72,12 +72,14 @@ export const constantRoutes: AuthRoute.Route[] = [
 
 /* 初始化路由 */
 
-export const initRouter: AuthRoute.Route = {
-  name: 'init',
-  path: '/init',
-  component: 'self',
-  meta: {
-    title: '初始化',
-    singleLayout: 'blank'
+export const initRoute: AuthRoute.Route[] = [
+  {
+    name: 'init',
+    path: '/init',
+    component: 'self',
+    meta: {
+      title: '初始化',
+      singleLayout: 'blank'
+    }
   }
-};
+];
