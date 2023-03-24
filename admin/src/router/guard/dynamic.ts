@@ -1,8 +1,8 @@
 import type { NavigationGuardNext, RouteLocationNormalized } from 'vue-router';
+import { storeToRefs } from 'pinia';
 import { routeName } from '@/router';
-import { useRouteStore } from '@/store';
+import { useInitStore, useRouteStore } from '@/store';
 import { localStg } from '@/utils';
-import { useInitStore } from '~/src/store/modules/init';
 
 /**
  * 动态路由
@@ -12,35 +12,27 @@ export async function createDynamicRouteGuard(
   _from: RouteLocationNormalized,
   next: NavigationGuardNext
 ) {
-  const { initStatus, initStatusStore } = useInitStore();
   const route = useRouteStore();
   const isLogin = Boolean(localStg.get('token'));
+  const init = useInitStore();
+  const { initStatus } = storeToRefs(init);
 
   // 初始化权限路由
   if (!route.isInitAuthRoute) {
-    /* 先加载初始化状态 */
-    let isInit = initStatus;
     /* 获取初始化状态 */
-    if (!isInit) {
-      /* 未初始化的时候添加系统设置路由 */
+
+    if (!initStatus) {
+      /* 未初始化的时候添加系统初始化路由 */
       route.addInitRoute();
-      isInit = await initStatusStore();
     } else {
-      /* 未初始化成功的时候删除系统设置路由 */
+      /* 初始化成功的时候删除系统初始化路由 */
       route.removeInitRoutes();
     }
 
     // 未初始化跳到初始化界面
-    if (!isInit) {
-      // 未初始化情况下直接回到初始化页，初始化成功后再加载权限路由
-      const toName = to.name as AuthRoute.AllRouteKey;
-      if (route.isValidConstantRoute(toName) && !to.meta.requiresAuth) {
-        next();
-      } else {
-        const redirect = to.fullPath;
-        next({ name: routeName('init'), query: { redirect } });
-      }
-      return false;
+    if (!initStatus) {
+      // 未初始化情况下直接回到初始化页
+      next({ name: routeName('init') });
     } else if (!isLogin) {
       const toName = to.name as AuthRoute.AllRouteKey;
       if (route.isValidConstantRoute(toName) && !to.meta.requiresAuth) {
@@ -62,6 +54,11 @@ export async function createDynamicRouteGuard(
       next({ path, replace: true, query: to.query, hash: to.hash });
       return false;
     }
+  }
+
+  /* 初始化后路由后删除系统路由 */
+  if (initStatus) {
+    route.removeInitRoutes();
   }
 
   // 权限路由已经加载，仍然未找到，重定向到404
