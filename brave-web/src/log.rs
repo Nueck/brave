@@ -11,7 +11,7 @@ pub fn init_log() {
     fast_log::init(
         Config::new()
             .console()
-            .file("log/cako-rust.log")
+            .file("log/brave-rust.log")
             .level(LevelFilter::Debug)
             .chan_len(Some(100000)),
     )
