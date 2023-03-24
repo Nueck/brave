@@ -28,6 +28,7 @@ import type { FormInst, FormRules } from 'naive-ui';
 import { formRules, getConfirmPwdRule } from '@/utils';
 import { fetchInit } from '~/src/service';
 import { useAuthStore, useInitStore } from '~/src/store';
+import { router } from '~/src/router';
 const auth = useAuthStore();
 const init = useInitStore();
 
@@ -64,8 +65,9 @@ async function handleSubmit() {
   /* 将数据获取 */
   if (data) {
     await auth.login(info.username, info.password);
+    /* 获取重新初始化状态 */
     await init.initStatusStore();
-
+    /* 删除系统路由 */
     setTimeout(() => {
       window.$message?.success('初始化成功!');
     }, 500);

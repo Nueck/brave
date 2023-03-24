@@ -10,17 +10,14 @@ export const useInitStore = defineStore('init-store', {
   state: (): InitState => ({
     initStatus: false
   }),
-  getters: {},
   actions: {
     async initStatusStore() {
       const { data } = await fetchInitStatus();
 
       if (data?.isInit) {
         this.initStatus = true;
-        return true;
       }
       this.initStatus = false;
-      return false;
     }
   }
 });
