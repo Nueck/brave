@@ -22,7 +22,7 @@ impl Interface {
     //用于获取需要重定向的位置
     pub fn redirect_init_add() -> String {
         format!(
-            "{}:{}/{}/init",
+            "http://{}:{}/{}/login",
             GLOBAL_CONFIG.interface.api_add,
             GLOBAL_CONFIG.interface.api_port,
             GLOBAL_CONFIG.interface.admin_scope
