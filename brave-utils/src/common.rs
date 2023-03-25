@@ -27,6 +27,12 @@ pub fn is_html_path(path: &str) -> bool {
     path.ends_with(".html")
 }
 
+/*判断一个string是否一个网站*/
+pub fn is_web_path(path: &str) -> bool {
+    let re = Regex::new(r"(https?)://[-A-Za-z0-9+&@#/%?=~_|!:,.;]+[-A-Za-z0-9+&@#/%=~_|]").unwrap();
+    re.is_match(path)
+}
+
 #[cfg(test)]
 mod common_tests {
     use super::*;
@@ -34,5 +40,11 @@ mod common_tests {
     #[test]
     fn common_test1() {
         println!("{}", generation_random_number())
+    }
+
+    #[test]
+    fn common_test2() {
+        let str = "http://www.qweqwe.cn";
+        println!("{}", is_web_path(&str))
     }
 }

@@ -20,8 +20,8 @@
         </main>
       </div>
     </n-card>
-    <login-bg :bg-img="true" :theme-color="bgThemeColor" />
   </div>
+  <login-bg :bg-img="true" :theme-color="bgThemeColor" />
 </template>
 
 <script setup lang="ts">
