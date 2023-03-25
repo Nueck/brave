@@ -3,25 +3,15 @@ use crate::middleware::init_middleware::InitAuth;
 use actix_cors::Cors;
 use actix_web::middleware::Logger;
 use actix_web::{http, web, App, HttpServer};
-use brave_config::app::AppState;
-use brave_config::init::InitStatus;
 use brave_config::interface::Interface;
-use brave_config::GLOBAL_CONFIG;
-use brave_utils::jwt::config::JWTConfig;
+use brave_config::{config_init, GLOBAL_CONFIG};
 
 #[actix_rt::main]
 pub async fn web_start() -> std::io::Result<()> {
     //初始化日志
     super::log::init_log();
-
-    //数据库连接的
-    let states = AppState::new().await;
-
-    //初始化配置文件
-    InitStatus::new(None);
-
-    //初始化jwt配置
-    JWTConfig::new(GLOBAL_CONFIG.jwt.clone());
+    /*配置初始化*/
+    let states = config_init().await;
 
     //home
     println!(
