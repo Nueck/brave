@@ -1,11 +1,10 @@
 import { createApp } from 'vue';
-import { storeToRefs } from 'pinia';
 import App from './App.vue';
 import AppLoading from './components/common/AppLoading.vue';
 import { setupDirectives } from './directives';
 import { setupRouter } from './router';
 import { setupAssets } from './plugins';
-import { setupStore, useInitStore } from './store';
+import { setupStore } from './store';
 import { setupI18n } from './locales';
 
 async function setupApp() {

@@ -1,5 +1,5 @@
 import type { App } from 'vue';
-import { createPinia, storeToRefs } from 'pinia';
+import { createPinia } from 'pinia';
 import { resetSetupStore } from './plugins';
 import { useInitStore } from './modules';
 

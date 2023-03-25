@@ -3,7 +3,6 @@ import { storeToRefs } from 'pinia';
 import { routeName } from '@/router';
 import { useInitStore, useRouteStore } from '@/store';
 import { localStg } from '@/utils';
-import { initRoute } from './../routes/index';
 
 /**
  * 动态路由
@@ -42,8 +41,7 @@ export async function createDynamicRouteGuard(
       if (route.isValidConstantRoute(toName) && !to.meta.requiresAuth) {
         next();
       } else {
-        const redirect = to.fullPath;
-        next({ name: routeName('login'), query: { redirect } });
+        next({ name: routeName('login') });
       }
       return false;
     }
