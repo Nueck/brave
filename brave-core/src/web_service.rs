@@ -56,6 +56,7 @@ pub async fn web_start() -> std::io::Result<()> {
 
         App::new()
             .wrap(Logger::default()) //日志
+            .configure(brave_admin::admin_config) //后台管理
             .service(
                 web::scope(&GLOBAL_CONFIG.interface.api_scope)
                     .app_data(web::Data::new(states.clone()))
@@ -63,9 +64,8 @@ pub async fn web_start() -> std::io::Result<()> {
                     .wrap(InitAuth) //初始化判断
                     .wrap(cors)
                     .wrap(HeadCheck) //用于浏览器过滤
-                    .configure(brave_api::api_config), //api的日志
+                    .configure(brave_api::api_post_config), //api的日志
             ) //api配置
-            .configure(brave_admin::admin_config) //后台管理
             .service(
                 web::scope(&GLOBAL_CONFIG.interface.blog_scope) //博客方面的加载
                     .app_data(web::Data::new(states.clone()))

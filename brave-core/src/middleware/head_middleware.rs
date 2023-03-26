@@ -4,7 +4,7 @@ use actix_web::http::header;
 use actix_web::{
     body::EitherBody,
     dev::{self, Service, ServiceRequest, ServiceResponse, Transform},
-    Error, HttpResponse,
+    http, Error, HttpResponse,
 };
 use brave_config::init::InitStatus;
 use brave_config::interface::Interface;
@@ -46,17 +46,9 @@ where
     dev::forward_ready!(service);
 
     fn call(&self, request: ServiceRequest) -> Self::Future {
-        let headers = request.headers();
-
         //添加head的认证
-        let from_browser = match headers.get("User-Agent") {
-            None => true,
-            Some(content) => {
-                let _head_str = content.to_str().expect("User-Agent TO str error");
-                // head_str.contains("Mozilla")
-                false
-            }
-        };
+        /*加可以通过的get请求url*/
+        let from_browser = request.method() == http::Method::GET;
 
         if from_browser {
             let (request, _pl) = request.into_parts();

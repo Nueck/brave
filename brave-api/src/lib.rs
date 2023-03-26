@@ -10,9 +10,11 @@ mod token;
 mod user;
 mod utils;
 
-pub fn api_config(cfg: &mut web::ServiceConfig) {
+pub fn api_post_config(cfg: &mut web::ServiceConfig) {
     cfg.configure(init_config)
         .configure(token_config)
         .configure(login_config)
         .configure(user_config);
 }
+
+pub fn api_get_config(_cfg: &mut web::ServiceConfig) {}
