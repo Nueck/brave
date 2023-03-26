@@ -42,7 +42,7 @@ pub async fn web_start() -> std::io::Result<()> {
     //开启web服务
     HttpServer::new(move || {
         //api的跨域问题
-        /*TODO:暂时所有源都可以通过后期更改*/
+        /*TODO:暂时所有源都可以通过,后期更改*/
         let cors = Cors::default()
             .allow_any_origin()
             .allowed_methods(vec!["GET", "POST"])
@@ -54,17 +54,28 @@ pub async fn web_start() -> std::io::Result<()> {
             .max_age(3600);
 
         App::new()
+            .wrap(Logger::default()) //日志
             .service(
                 web::scope(&GLOBAL_CONFIG.interface.api_scope)
                     .app_data(web::Data::new(states.clone()))
                     .wrap(JWTAuth) //身份验证
                     .wrap(InitAuth) //初始化判断
                     .wrap(cors)
-                    .wrap(Logger::default()) //api的日志
                     .configure(brave_api::api_config), //api的日志
             ) //api配置
             .configure(brave_admin::admin_config) //后台管理
-            .configure(brave_blog::blog_config) //博客显示
+            .service(
+                web::scope(&GLOBAL_CONFIG.interface.blog_scope) //博客方面的加载
+                    .app_data(web::Data::new(states.clone()))
+                    .wrap(
+                        Cors::default()
+                            .allow_any_header()
+                            .allowed_methods(vec!["GET"]) //只允许GET
+                            .allow_any_origin() //允许任何来源
+                            .max_age(3600),
+                    )
+                    .configure(brave_blog::blog_config), //博客显示
+            )
             .configure(brave_home::home_config) //首页显示
     })
     .bind(Interface::get_api_string())?

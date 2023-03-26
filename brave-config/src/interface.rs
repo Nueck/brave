@@ -1,3 +1,4 @@
+use crate::init::InitStatus;
 use crate::GLOBAL_CONFIG;
 use serde::{Deserialize, Serialize};
 
@@ -44,6 +45,28 @@ impl Interface {
             GLOBAL_CONFIG.interface.api_add,
             GLOBAL_CONFIG.interface.api_port,
             GLOBAL_CONFIG.interface.admin_scope
+        )
+    }
+
+    /*用户blog*/
+    pub fn redirect_admin_home() -> String {
+        format!(
+            "http://{}:{}/{}/{}/home",
+            GLOBAL_CONFIG.interface.api_add,
+            GLOBAL_CONFIG.interface.api_port,
+            GLOBAL_CONFIG.interface.blog_scope,
+            &InitStatus::global().username.clone().unwrap(),
+        )
+    }
+
+    /*用户blog*/
+    pub fn redirect_user_blog_home(name: &str) -> String {
+        format!(
+            "http://{}:{}/{}/{}/home",
+            GLOBAL_CONFIG.interface.api_add,
+            GLOBAL_CONFIG.interface.api_port,
+            GLOBAL_CONFIG.interface.blog_scope,
+            name,
         )
     }
 }
