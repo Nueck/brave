@@ -144,15 +144,15 @@ where
 }
 
 fn is_need_verification(path: &str) -> bool {
-    !(path == "/api/init"
-        || path == "/api/init-status"
-        || path == "/api/login"
-        || path == "/api/register"
-        || path == "/api/sendmail"
-        || path == "/api/forget"
-        || path == "/api/email-login")
+    !(path == format!("/{}/init", GLOBAL_CONFIG.interface.api_scope)
+        || path == format!("/{}/init-status", GLOBAL_CONFIG.interface.api_scope)
+        || path == format!("/{}/login", GLOBAL_CONFIG.interface.api_scope)
+        || path == format!("/{}/register", GLOBAL_CONFIG.interface.api_scope)
+        || path == format!("/{}/sendmail", GLOBAL_CONFIG.interface.api_scope)
+        || path == format!("/{}/forget", GLOBAL_CONFIG.interface.api_scope)
+        || path == format!("/{}/email-login", GLOBAL_CONFIG.interface.api_scope))
 }
 
 fn refresh_api(path: &str) -> bool {
-    path == "/api/updateToken"
+    path == format!("/{}/updateToken", GLOBAL_CONFIG.interface.api_scope)
 }
