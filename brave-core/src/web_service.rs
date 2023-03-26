@@ -6,6 +6,7 @@ use actix_web::middleware::Logger;
 use actix_web::{http, web, App, HttpServer};
 use brave_config::interface::Interface;
 use brave_config::{config_init, GLOBAL_CONFIG};
+use brave_home::home_config;
 
 #[actix_rt::main]
 pub async fn web_start() -> std::io::Result<()> {
@@ -55,11 +56,11 @@ pub async fn web_start() -> std::io::Result<()> {
             .max_age(3600);
 
         App::new()
+            .app_data(web::Data::new(states.clone())) //数据库
             .wrap(Logger::default()) //日志
             .configure(brave_admin::admin_config) //后台管理
             .service(
                 web::scope(&GLOBAL_CONFIG.interface.api_scope)
-                    .app_data(web::Data::new(states.clone()))
                     .wrap(JWTAuth) //身份验证
                     .wrap(InitAuth) //初始化判断
                     .wrap(cors)
@@ -68,7 +69,6 @@ pub async fn web_start() -> std::io::Result<()> {
             ) //api配置
             .service(
                 web::scope(&GLOBAL_CONFIG.interface.blog_scope) //博客方面的加载
-                    .app_data(web::Data::new(states.clone()))
                     .wrap(
                         Cors::default()
                             .allow_any_header()
@@ -78,7 +78,7 @@ pub async fn web_start() -> std::io::Result<()> {
                     )
                     .configure(brave_blog::blog_config), //博客显示
             )
-            .configure(brave_home::home_config) //首页显示
+            .configure(home_config)
     })
     .bind(Interface::get_api_string())?
     .run()
