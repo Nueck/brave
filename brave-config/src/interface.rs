@@ -84,4 +84,15 @@ impl Interface {
             name,
         )
     }
+
+    /*用户blog*/
+    pub fn redirect_admin_blog() -> String {
+        format!(
+            "http://{}:{}/{}/{}/home",
+            GLOBAL_CONFIG.interface.service_add,
+            GLOBAL_CONFIG.interface.service_port,
+            GLOBAL_CONFIG.interface.blog_scope,
+            &InitStatus::global().username.clone().unwrap(),
+        )
+    }
 }
