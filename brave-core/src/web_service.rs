@@ -1,4 +1,5 @@
 use crate::middleware::auth_middleware::JWTAuth;
+use crate::middleware::head_middleware::HeadCheck;
 use crate::middleware::init_middleware::InitAuth;
 use actix_cors::Cors;
 use actix_web::middleware::Logger;
@@ -44,7 +45,7 @@ pub async fn web_start() -> std::io::Result<()> {
         //api的跨域问题
         /*TODO:暂时所有源都可以通过,后期更改*/
         let cors = Cors::default()
-            .allow_any_origin()
+            .allowed_origin(Interface::get_server_uri().as_str())
             .allowed_methods(vec!["GET", "POST"])
             .allowed_headers(vec![
                 http::header::AUTHORIZATION,
@@ -61,6 +62,7 @@ pub async fn web_start() -> std::io::Result<()> {
                     .wrap(JWTAuth) //身份验证
                     .wrap(InitAuth) //初始化判断
                     .wrap(cors)
+                    .wrap(HeadCheck) //用于浏览器过滤
                     .configure(brave_api::api_config), //api的日志
             ) //api配置
             .configure(brave_admin::admin_config) //后台管理

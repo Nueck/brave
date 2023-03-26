@@ -1,3 +1,4 @@
+use crate::utils::common::is_invalid_user_name;
 use actix_web::{post, web, HttpResponse};
 use brave_config::app::AppState;
 use brave_config::GLOBAL_CONFIG;
@@ -198,6 +199,13 @@ async fn email_login(data: web::Data<AppState>, info: web::Json<EmailLoginInfo>)
 async fn register(data: web::Data<AppState>, info: web::Json<RegisterInfo>) -> HttpResponse {
     /*判断邮箱地址是否存在或在用户名*/
     let db = &data.conn;
+
+    //判断用户是否存在于接口名上
+    if is_invalid_user_name(&info.username) {
+        const MSG: &str = "The user name cannot be created";
+        return HttpResponse::Ok().json(serde_json::json!({"state": "error", "message": MSG }));
+    }
+
     match Users::find()
         .filter(
             users::Column::Email
@@ -214,7 +222,6 @@ async fn register(data: web::Data<AppState>, info: web::Json<RegisterInfo>) -> H
             HttpResponse::Ok().json(serde_json::json!({"state": "error", "message": MSG }))
         }
         None => {
-            /*用户不存在的时候注册*/
             /*验证验证码是否正确*/
             match GLOB_JOT.validation_to_claim(&info.code) {
                 Ok(data) => {

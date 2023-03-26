@@ -5,8 +5,8 @@ use serde::{Deserialize, Serialize};
 //创建.env的结构体
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]
 pub struct Interface {
-    pub api_add: String,
-    pub api_port: i16,
+    pub service_add: String,
+    pub service_port: i16,
     pub api_scope: String,
     pub blog_scope: String,
     pub admin_scope: String,
@@ -16,7 +16,14 @@ impl Interface {
     pub fn get_api_string() -> String {
         format!(
             "{}:{}",
-            GLOBAL_CONFIG.interface.api_add, GLOBAL_CONFIG.interface.api_port
+            GLOBAL_CONFIG.interface.service_add, GLOBAL_CONFIG.interface.service_port
+        )
+    }
+
+    pub fn get_server_uri() -> String {
+        format!(
+            "http://{}:{}",
+            GLOBAL_CONFIG.interface.service_add, GLOBAL_CONFIG.interface.service_port
         )
     }
 
@@ -24,7 +31,7 @@ impl Interface {
     pub fn get_current_address() -> String {
         format!(
             "{}:{}",
-            GLOBAL_CONFIG.interface.api_add, GLOBAL_CONFIG.interface.api_port
+            GLOBAL_CONFIG.interface.service_add, GLOBAL_CONFIG.interface.service_port
         )
     }
 
@@ -32,7 +39,7 @@ impl Interface {
     pub fn redirect_home() -> String {
         format!(
             "http://{}:{}/",
-            GLOBAL_CONFIG.interface.api_add, GLOBAL_CONFIG.interface.api_port,
+            GLOBAL_CONFIG.interface.service_add, GLOBAL_CONFIG.interface.service_port,
         )
     }
 
@@ -41,8 +48,8 @@ impl Interface {
     pub fn redirect_login_address() -> String {
         format!(
             "http://{}:{}/{}/login",
-            GLOBAL_CONFIG.interface.api_add,
-            GLOBAL_CONFIG.interface.api_port,
+            GLOBAL_CONFIG.interface.service_add,
+            GLOBAL_CONFIG.interface.service_port,
             GLOBAL_CONFIG.interface.admin_scope
         )
     }
@@ -50,8 +57,8 @@ impl Interface {
     pub fn redirect_init_address() -> String {
         format!(
             "http://{}:{}/{}/init",
-            GLOBAL_CONFIG.interface.api_add,
-            GLOBAL_CONFIG.interface.api_port,
+            GLOBAL_CONFIG.interface.service_add,
+            GLOBAL_CONFIG.interface.service_port,
             GLOBAL_CONFIG.interface.admin_scope
         )
     }
@@ -60,8 +67,8 @@ impl Interface {
     pub fn redirect_admin_home() -> String {
         format!(
             "http://{}:{}/{}/{}/home",
-            GLOBAL_CONFIG.interface.api_add,
-            GLOBAL_CONFIG.interface.api_port,
+            GLOBAL_CONFIG.interface.service_add,
+            GLOBAL_CONFIG.interface.service_port,
             GLOBAL_CONFIG.interface.blog_scope,
             &InitStatus::global().username.clone().unwrap(),
         )
@@ -71,8 +78,8 @@ impl Interface {
     pub fn redirect_user_blog_home(name: &str) -> String {
         format!(
             "http://{}:{}/{}/{}/home",
-            GLOBAL_CONFIG.interface.api_add,
-            GLOBAL_CONFIG.interface.api_port,
+            GLOBAL_CONFIG.interface.service_add,
+            GLOBAL_CONFIG.interface.service_port,
             GLOBAL_CONFIG.interface.blog_scope,
             name,
         )

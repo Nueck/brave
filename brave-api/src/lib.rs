@@ -8,6 +8,7 @@ mod init;
 mod login;
 mod token;
 mod user;
+mod utils;
 
 pub fn api_config(cfg: &mut web::ServiceConfig) {
     cfg.configure(init_config)

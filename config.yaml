@@ -1,7 +1,7 @@
 #app interface设置
 interface:
-  api_add: localhost
-  api_port: 2078
+  service_add: localhost
+  service_port: 2078
   api_scope: api
   blog_scope: blog
   admin_scope: are-you
