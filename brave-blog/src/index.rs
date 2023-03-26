@@ -10,7 +10,6 @@ use sea_orm::{ColumnTrait, EntityTrait, QueryFilter};
 use std::path::PathBuf;
 
 /*用于页面的加载*/
-#[get("/")]
 pub async fn main_page() -> Result<impl Responder> {
     let admin_blog_add = Interface::redirect_admin_home();
     Ok(HttpResponse::Found()

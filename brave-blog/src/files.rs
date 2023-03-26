@@ -17,7 +17,7 @@ pub async fn file_load(path: Path<(String, String)>, req: HttpRequest) -> Result
     path_buf.push(filename.to_string());
 
     /*判断是否存在文件*/
-    match NamedFile::open(&path_buf) {
+    match NamedFile::open_async(&path_buf).await {
         Ok(content) => Ok(content.into_response(&req)),
         Err(_) => {
             /*如果没有文件存在就用户重定向*/
