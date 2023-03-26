@@ -1,8 +1,9 @@
 mod index;
 
-use actix_files::{Files, NamedFile};
+use actix_files::Files;
 use actix_web::dev::{fn_service, ServiceRequest, ServiceResponse};
-use actix_web::web;
+use actix_web::http::header;
+use actix_web::{web, HttpResponse};
 
 /*用于首页显示配置的*/
 pub fn home_config(cfg: &mut web::ServiceConfig) {
@@ -11,9 +12,12 @@ pub fn home_config(cfg: &mut web::ServiceConfig) {
             .index_file("index.html")
             .default_handler(fn_service(|req: ServiceRequest| async {
                 let (req, _) = req.into_parts();
-                let file = NamedFile::open_async("./templates/index.html").await?;
-                let res = file.into_response(&req);
-                Ok(ServiceResponse::new(req, res))
+                Ok(ServiceResponse::new(
+                    req,
+                    HttpResponse::Found()
+                        .append_header((header::LOCATION, "/"))
+                        .finish(),
+                ))
             }))
             .prefer_utf8(true),
     );

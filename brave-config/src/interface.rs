@@ -28,6 +28,14 @@ impl Interface {
         )
     }
 
+    /*重新定向到主页上去*/
+    pub fn redirect_home() -> String {
+        format!(
+            "http://{}:{}/",
+            GLOBAL_CONFIG.interface.api_add, GLOBAL_CONFIG.interface.api_port,
+        )
+    }
+
     //用于获取需要重定向的位置
     /*登陆*/
     pub fn redirect_login_address() -> String {

@@ -29,9 +29,9 @@ pub async fn index_page(data: web::Data<AppState>, name: Path<String>) -> Result
         .expect("Could not find Users -- file load blog")
     {
         None => {
-            let admin_home = Interface::redirect_admin_home();
+            let home = Interface::redirect_home();
             Ok(HttpResponse::Found()
-                .append_header((header::LOCATION, admin_home))
+                .append_header((header::LOCATION, home))
                 .finish())
         }
         Some(_) => {
@@ -60,9 +60,9 @@ pub async fn home_page(
         .expect("Could not find Users -- file load blog")
     {
         None => {
-            let admin_home = Interface::redirect_admin_home();
+            let home = Interface::redirect_home();
             Ok(HttpResponse::Found()
-                .append_header((header::LOCATION, admin_home))
+                .append_header((header::LOCATION, home))
                 .finish())
         }
         Some(_) => {
@@ -73,9 +73,9 @@ pub async fn home_page(
             match NamedFile::open(path_buf) {
                 Ok(content) => Ok(content.into_response(&req)),
                 Err(_) => {
-                    let admin_home = Interface::redirect_admin_home();
+                    let home = Interface::redirect_home();
                     Ok(HttpResponse::Found()
-                        .append_header((header::LOCATION, admin_home))
+                        .append_header((header::LOCATION, home))
                         .finish())
                 }
             }

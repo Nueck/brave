@@ -13,7 +13,7 @@ members = [".", "brave-core", "brave-api", "brave-config", "brave-db", "brave-ut
 
 [dependencies]
 #主要的web服务
-brave-web = { path = "brave-core" }
+brave-core = { path = "brave-core" }
 
 
 
