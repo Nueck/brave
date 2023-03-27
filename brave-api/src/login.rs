@@ -5,6 +5,7 @@ use brave_config::GLOBAL_CONFIG;
 use brave_db::entity::prelude::Users;
 use brave_db::entity::users;
 use brave_utils::common::{generation_random_number, is_valid_email};
+use brave_utils::fs::gen_symlink_default_skin;
 use brave_utils::jwt::jwt::GLOB_JOT;
 use brave_utils::jwt::jwt::{Claims, UserData};
 use jsonwebtoken::get_current_timestamp;
@@ -245,18 +246,22 @@ async fn register(data: web::Data<AppState>, info: web::Json<RegisterInfo>) -> H
                             ..Default::default() // all other attributes are `NotSet`
                         };
 
-                        match users::Entity::insert(user).exec(db).await {
-                            Ok(_) => {
-                                const MSG: &str = "Successful registration";
-                                HttpResponse::Ok()
-                                    .json(serde_json::json!({"state": "success", "message": MSG }))
-                            }
+                        let insert_status = match users::Entity::insert(user).exec(db).await {
+                            Ok(_) => gen_symlink_default_skin(&info.username), //此时我们将进行链接处理 使用默认皮肤
                             Err(err) => {
-                                log::error!("Registration failure : {err:?}");
-                                const MSG: &str = "Registration failure";
-                                HttpResponse::Ok()
-                                    .json(serde_json::json!({"state": "error", "message": MSG }))
+                                log::error!("Registration failure : {err:?}"); //打印错误日志
+                                false
                             }
+                        };
+
+                        if insert_status {
+                            const MSG: &str = "Successful registration";
+                            HttpResponse::Ok()
+                                .json(serde_json::json!({"state": "success", "message": MSG }))
+                        } else {
+                            const MSG: &str = "Registration failure";
+                            HttpResponse::Ok()
+                                .json(serde_json::json!({"state": "error", "message": MSG }))
                         }
                     } else {
                         const MSG: &str = "Verification code error";
