@@ -17,7 +17,6 @@ pub async fn main_page() -> Result<impl Responder> {
         .finish())
 }
 
-#[get("/{name}")]
 pub async fn index_page(data: web::Data<AppState>, name: Path<String>) -> Result<impl Responder> {
     /*判断数据库中是否有这个用户*/
     let db = &data.conn;
