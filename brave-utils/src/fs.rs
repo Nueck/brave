@@ -1,4 +1,3 @@
-use std::fs::remove_file;
 use std::path::{Path, PathBuf};
 use std::process::Command;
 

@@ -38,7 +38,10 @@ async fn index() -> Result<impl Responder> {
 
 /*增加地址的趣味性*/
 #[get("/{name}")]
-async fn home_index(name: web::Path<String>, data: web::Data<AppState>) -> Result<impl Responder> {
+pub async fn home_index(
+    name: web::Path<String>,
+    data: web::Data<AppState>,
+) -> Result<impl Responder> {
     /*根据初始化状态*/
     if InitStatus::global().is_init {
         //修复/blog下不重定向的问题
