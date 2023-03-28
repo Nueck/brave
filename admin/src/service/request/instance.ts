@@ -1,5 +1,7 @@
 import axios from 'axios';
 import type { AxiosError, AxiosInstance, AxiosRequestConfig } from 'axios';
+import { useRouteStore } from '@/store';
+import { useRouterPush } from '@/composables';
 import {
   localStg,
   handleAxiosError,
@@ -77,13 +79,19 @@ export default class CustomAxiosInstance {
       },
       async (axiosError: AxiosError) => {
         // 如何未授权更新接口
-        if (axiosError.response?.status === 401) {
+        if (axiosError.response?.status === 401 || axiosError.response?.status === 0) {
           /* 如果未授权尝试重新请求token */
           const config = await handleRefreshToken(axiosError.config);
           if (config) {
             return this.instance.request(config);
           }
+
+          const { toLogin } = useRouterPush(false);
+          const { resetRouteStore } = useRouteStore();
+          resetRouteStore();
+          toLogin();
         }
+
         const error = handleAxiosError(axiosError);
         return handleServiceResult(error, null, null);
       }

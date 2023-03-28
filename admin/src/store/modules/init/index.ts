@@ -8,7 +8,7 @@ interface InitState {
 
 export const useInitStore = defineStore('init-store', {
   state: (): InitState => ({
-    initStatus: false
+    initStatus: true
   }),
   actions: {
     async initStatusStore() {
