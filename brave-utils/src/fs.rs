@@ -11,18 +11,15 @@ pub fn gen_symlink_default_skin(name: &str) -> bool {
     link_dir.push("./page");
     link_dir.push(name.to_string());
 
-    let output = Command::new("ln")
+    Command::new("ln")
         .args(&[
             "-s",
             target_dir.to_str().unwrap(),
             "-r",
             link_dir.to_str().unwrap(),
         ])
-        .output();
-
-    //如果有输出则没有创建成功
-    if output.expect("REASON").stderr.is_empty() {
-        return true;
-    }
-    false
+        .output()
+        .expect("REASON")
+        .stderr
+        .is_empty()
 }
