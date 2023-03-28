@@ -9,7 +9,7 @@ repository = "https://github.com/Nueck/brave/"
 publish = false
 
 [workspace]
-members = [".", "brave-core", "brave-api", "brave-config", "brave-db", "brave-utils", "brave-admin", "brave-blog", "brave-home"]
+members = [".", "brave-core", "brave-data", "brave-config", "brave-db", "brave-utils", "brave-admin", "brave-blog", "brave-home"]
 
 [dependencies]
 #主要的web服务

@@ -12,9 +12,10 @@ publish = false
 brave-utils = { path = "../brave-utils" }
 brave-config = { path = "../brave-config" }
 brave-home = { path = "../brave-home" }
+brave-db = { path = "../brave-db" }
 brave-admin = { path = "../brave-admin" }
 brave-blog = { path = "../brave-blog" }
-brave-api = { path = "../brave-api" }
+brave-data = { path = "../brave-data" }
 actix-web = "4.2.1"
 actix-files = "0.6.2"
 actix-rt = "2.8.0"
@@ -24,10 +25,14 @@ futures = "0.3.26"
 futures-util = "0.3.26"
 serde = { version = "1.0.137", features = ["derive"] }
 serde_json = "1.0.93"
+serde_yaml = "0.9"
 log = "0.4.17"
-may = "0.3.41"
 fast_log = "1.5.53"
 dotenvy = "0.15.6"
+may = "0.3.41"
+sea-orm = { version = "0.11.0", features = ["sqlx-postgres", "runtime-actix-native-tls", "macros"] }
+derive_more = "0.99.17"
+jsonwebtoken = "8.3.0"
 
 
 

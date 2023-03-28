@@ -47,7 +47,8 @@ pub async fn web_start() -> std::io::Result<()> {
         /*TODO:暂时所有源都可以通过,后期更改*/
         let cors = Cors::default()
             .allowed_origin(Interface::get_server_uri().as_str())
-            .allowed_methods(vec!["GET", "POST"])
+            .allow_any_origin()
+            .allowed_methods(vec!["GET", "POST", "OPTIONS"])
             .allowed_headers(vec![
                 http::header::AUTHORIZATION,
                 http::header::ACCEPT,
@@ -65,7 +66,7 @@ pub async fn web_start() -> std::io::Result<()> {
                     .wrap(InitAuth) //初始化判断
                     .wrap(cors)
                     .wrap(HeadCheck) //用于浏览器过滤
-                    .configure(brave_api::api_post_config), //api的日志
+                    .configure(super::api::api_post_config), //api的日志
             ) //api配置
             .service(
                 web::scope(&GLOBAL_CONFIG.interface.blog_scope) //博客方面的加载
