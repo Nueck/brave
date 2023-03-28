@@ -1,21 +1,22 @@
 use actix_web::error::ErrorUnauthorized;
 use actix_web::{post, web, HttpResponse, Responder};
 use brave_config::app::AppState;
+use brave_config::interface::Interface;
 use brave_config::GLOBAL_CONFIG;
 use brave_db::entity::prelude::Users;
 use brave_db::entity::users;
-use brave_utils::jwt::jwt::TokenData;
+use brave_utils::jwt::jwt::UserDataInfo;
 use sea_orm::{ColumnTrait, EntityTrait, QueryFilter};
 
 pub fn user_config(cfg: &mut web::ServiceConfig) {
     cfg.service(get_users)
         .service(get_user_info)
-        .service(get_user_article_info);
+        .service(get_user_data_info);
 }
 
 /*全表查询*/
 #[post("/getUsers")]
-async fn get_users(data: web::Data<AppState>, token: web::ReqData<TokenData>) -> impl Responder {
+async fn get_users(data: web::Data<AppState>, token: web::ReqData<UserDataInfo>) -> impl Responder {
     let auth = token.auth.clone();
 
     //只有是超级管理员才能访问
@@ -39,10 +40,10 @@ async fn get_users(data: web::Data<AppState>, token: web::ReqData<TokenData>) ->
 }
 
 /*获取用户的文章总信息*/
-#[post("/getUserAllArticleInfo")]
-async fn get_user_article_info(
+#[post("/getUserDataInfo")]
+async fn get_user_data_info(
     data: web::Data<AppState>,
-    token: web::ReqData<TokenData>,
+    token: web::ReqData<UserDataInfo>,
 ) -> impl Responder {
     let db = &data.conn;
     match Users::find()
@@ -59,17 +60,17 @@ async fn get_user_article_info(
         }
         Some(user) => {
             let article = user.article_num;
-            let album = user.album_num;
+            let messages = user.messages_count;
             let read = user.read_count;
             let visit = user.visit_count;
 
             let json = serde_json::json!({
                 "state": "success",
                 "data":{
-                    "articleCount":article,
-                    "albumNUm":album,
+                    "articleNum":article,
                     "readCount":read,
-                    "visitCount":visit
+                    "visitCount":visit,
+                    "messagesCount":messages
                 }
             });
 
@@ -82,7 +83,7 @@ async fn get_user_article_info(
 #[post("/getUserInfo")]
 async fn get_user_info(
     data: web::Data<AppState>,
-    token: web::ReqData<TokenData>,
+    token: web::ReqData<UserDataInfo>,
 ) -> impl Responder {
     let db = &data.conn;
 
@@ -102,13 +103,15 @@ async fn get_user_info(
             let id = user.user_id;
             let username = user.user_name;
             let user_role = user.authority;
+            let url = Interface::redirect_user_blog_home(&username);
 
             let json = serde_json::json!({
                 "state": "success",
                 "data":{
                     "userId":id ,
                     "userName":username,
-                    "userRole":user_role
+                    "userRole":user_role,
+                    "userHomeUrl":url
                 }
             });
 

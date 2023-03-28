@@ -8,6 +8,8 @@ repository = "https://github.com/Nueck/brave/"
 #发布禁止
 publish = false
 
+
+
 [dependencies]
 brave-utils = { path = "../brave-utils" }
 brave-config = { path = "../brave-config" }

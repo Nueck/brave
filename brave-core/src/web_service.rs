@@ -2,8 +2,10 @@ use crate::middleware::auth_middleware::JWTAuth;
 use crate::middleware::head_middleware::HeadCheck;
 use crate::middleware::init_middleware::InitAuth;
 use actix_cors::Cors;
+#[allow(unused_imports)]
+use actix_web::http;
 use actix_web::middleware::Logger;
-use actix_web::{http, web, App, HttpServer};
+use actix_web::{web, App, HttpServer};
 use brave_config::interface::Interface;
 use brave_config::{config_init, GLOBAL_CONFIG};
 use brave_home::home_config;
@@ -45,15 +47,23 @@ pub async fn web_start() -> std::io::Result<()> {
     HttpServer::new(move || {
         //api的跨域问题
         /*TODO:暂时所有源都可以通过,后期更改*/
+
+        #[cfg(not(debug_assertions))]
         let cors = Cors::default()
             .allowed_origin(Interface::get_server_uri().as_str())
-            .allow_any_origin()
             .allowed_methods(vec!["GET", "POST", "OPTIONS"])
             .allowed_headers(vec![
                 http::header::AUTHORIZATION,
                 http::header::ACCEPT,
                 http::header::CONTENT_TYPE,
             ])
+            .max_age(3600);
+
+        #[cfg(debug_assertions)]
+        let cors = Cors::default()
+            .allow_any_origin()
+            .allow_any_header()
+            .allow_any_method()
             .max_age(3600);
 
         App::new()
