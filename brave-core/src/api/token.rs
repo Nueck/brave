@@ -1,6 +1,6 @@
 use actix_web::{post, web, HttpResponse, Responder};
 use brave_config::GLOBAL_CONFIG;
-use brave_utils::jwt::jwt::{Claims, TokenData, GLOB_JOT};
+use brave_utils::jwt::jwt::{Claims, UserDataInfo, GLOB_JOT};
 use jsonwebtoken::get_current_timestamp;
 
 pub fn token_config(cfg: &mut web::ServiceConfig) {
@@ -15,14 +15,16 @@ async fn token_checker_handler() -> impl Responder {
 }
 
 #[post("/updateToken")]
-async fn update_token_handler(token: web::ReqData<TokenData>) -> impl Responder {
+async fn update_token_handler(token: web::ReqData<UserDataInfo>) -> impl Responder {
     let refresh = &token.refresh;
     let auth = &token.auth;
     let aud = &token.auth;
+    let id = &token.id;
 
     if refresh.to_owned() {
         //短时间的token
         let claims = Claims {
+            id: id.to_owned(),
             aud: aud.to_owned(),
             sub: GLOBAL_CONFIG.jwt.get_sub(),
             exp: get_current_timestamp() + GLOBAL_CONFIG.jwt.get_exp_time(),
@@ -34,6 +36,7 @@ async fn update_token_handler(token: web::ReqData<TokenData>) -> impl Responder 
 
         //长时间的token
         let claims = Claims {
+            id: id.to_owned(),
             aud: aud.to_owned(),
             sub: GLOBAL_CONFIG.jwt.get_sub(),
             exp: get_current_timestamp() + GLOBAL_CONFIG.jwt.get_ref_time(),

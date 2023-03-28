@@ -13,6 +13,7 @@ pub static GLOB_JOT: Lazy<Jot> = Lazy::new(|| Jot::new());
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Claims {
+    pub id: i32,
     pub aud: String,
     pub sub: String,
     pub exp: u64,
@@ -36,7 +37,8 @@ pub struct TokenMsg {
 
 /*用于存放token解析后的数据*/
 #[derive(Clone, Debug, Serialize, Deserialize)]
-pub struct TokenData {
+pub struct UserDataInfo {
+    pub id: i32,
     pub aud: String,
     pub auth: String,
     pub refresh: bool,
@@ -72,7 +74,7 @@ impl Jot {
         .unwrap()
     }
 
-    pub fn validation_token(&self, token_msg: &TokenMsg) -> Result<TokenData, AuthError> {
+    pub fn validation_token(&self, token_msg: &TokenMsg) -> Result<UserDataInfo, AuthError> {
         let validation = Validation::new(Algorithm::EdDSA);
         let token_data = match decode::<Claims>(&token_msg.token, &self.decoding_key, &validation) {
             Ok(c) => c,
@@ -104,7 +106,8 @@ impl Jot {
             return Err(AuthError::VerifyError);
         }
         //验证成功
-        Ok(TokenData {
+        Ok(UserDataInfo {
+            id: token_data.claims.id,
             aud: token_data.claims.aud,
             auth: token_data.claims.auth,
             refresh: token_data.claims.refresh,
@@ -144,6 +147,7 @@ mod tests {
 
         let jot = Jot::new();
         let claims = Claims {
+            id: 0,
             aud: "blog".to_string(),
             sub: "blog".to_string(),
             exp: get_current_timestamp() + JWTConfig::global().get_exp_time(),

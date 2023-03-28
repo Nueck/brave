@@ -93,6 +93,7 @@ async fn login(data: web::Data<AppState>, user_info: web::Json<UserInfo>) -> Htt
             if pwd == user.pwd_hash {
                 //短时间的token
                 let claims = Claims {
+                    id: user.user_id.clone(),
                     aud: user.user_name.clone(),
                     sub: GLOBAL_CONFIG.jwt.get_sub(),
                     exp: get_current_timestamp() + GLOBAL_CONFIG.jwt.get_exp_time(),
@@ -104,6 +105,7 @@ async fn login(data: web::Data<AppState>, user_info: web::Json<UserInfo>) -> Htt
 
                 //长时间的token
                 let claims = Claims {
+                    id: user.user_id.clone(),
                     aud: user.user_name.clone(),
                     sub: GLOBAL_CONFIG.jwt.get_sub(),
                     exp: get_current_timestamp() + GLOBAL_CONFIG.jwt.get_ref_time(),
@@ -156,6 +158,7 @@ async fn email_login(data: web::Data<AppState>, info: web::Json<EmailLoginInfo>)
                     if verify_code == code && email == info.email.clone() {
                         //短时间的token
                         let claims = Claims {
+                            id: user.user_id.clone(),
                             aud: user.user_name.clone(),
                             sub: GLOBAL_CONFIG.jwt.get_sub(),
                             exp: get_current_timestamp() + GLOBAL_CONFIG.jwt.get_exp_time(),
@@ -167,6 +170,7 @@ async fn email_login(data: web::Data<AppState>, info: web::Json<EmailLoginInfo>)
 
                         //长时间的token
                         let claims = Claims {
+                            id: user.user_id.clone(),
                             aud: user.user_name.clone(),
                             sub: GLOBAL_CONFIG.jwt.get_sub(),
                             exp: get_current_timestamp() + GLOBAL_CONFIG.jwt.get_ref_time(),
@@ -369,6 +373,7 @@ async fn sendmail(mail: web::Json<MailInfo>) -> HttpResponse {
                             let num_code = GLOBAL_CONFIG.blake.generate_with_salt(&num.to_string());
 
                             let claims = Claims {
+                                id: 0,
                                 aud: "email".to_string(),
                                 sub: GLOBAL_CONFIG.jwt.get_sub(),
                                 //验证码时间有效5分钟
