@@ -79,7 +79,7 @@ export default class CustomAxiosInstance {
       },
       async (axiosError: AxiosError) => {
         // 如何未授权更新接口
-        if (axiosError.response?.status === 401 || axiosError.response?.status === 0) {
+        if (axiosError.response?.status === 401) {
           /* 如果未授权尝试重新请求token */
           const config = await handleRefreshToken(axiosError.config);
           if (config) {
