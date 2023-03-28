@@ -20,6 +20,11 @@ const { iconRender } = useIconRender();
 
 const options: DropdownOption[] = [
   {
+    label: '我的博客',
+    key: 'user-blog',
+    icon: iconRender({ icon: 'material-symbols:near-me' })
+  },
+  {
     label: '用户中心',
     key: 'user-center',
     icon: iconRender({ icon: 'carbon:user-avatar' })
@@ -35,7 +40,7 @@ const options: DropdownOption[] = [
   }
 ];
 
-type DropdownKey = 'user-center' | 'logout';
+type DropdownKey = 'user-center' | 'logout' | 'user-blog';
 
 function handleDropdown(optionKey: string) {
   const key = optionKey as DropdownKey;
@@ -49,6 +54,9 @@ function handleDropdown(optionKey: string) {
         auth.resetAuthStore();
       }
     });
+  }
+  if (key === 'user-blog') {
+    window.open(auth.userInfo.userHomeUrl, '_blank');
   }
 }
 </script>
