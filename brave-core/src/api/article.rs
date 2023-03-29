@@ -23,7 +23,11 @@ async fn get_articles_info(
     let id = &token.id;
 
     //获取数据库中文章信息
-    match Article::find_by_id(id.clone().to_owned()).all(db).await {
+    match Article::find()
+        .filter(article::Column::UserId.eq(id.clone().to_owned()))
+        .all(db)
+        .await
+    {
         Ok(table) => {
             #[derive(Clone, Deserialize, Serialize)]
             struct ArticleData {

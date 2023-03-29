@@ -56,8 +56,9 @@ import type { UploadFileInfo } from 'naive-ui';
 import MdEditor from 'md-editor-v3';
 import { routeName } from '@/router';
 import { useRouterPush } from '@/composables';
-import 'md-editor-v3/lib/style.css';
 import { fetchArticleEditData } from '~/src/service/api/article';
+import 'md-editor-v3/lib/style.css';
+
 const route = useRoute();
 const { routerPush } = useRouterPush();
 
@@ -67,14 +68,13 @@ const subtitle = ref('');
 const radioValue = ref('Markdown');
 const fileList = ref<UploadFileInfo[]>([]);
 
-const status = ref(false);
+const status = ref(true);
 if (route.query.tableId) {
   const id = Number(route.query.tableId);
   if (id) {
     fetchArticleEditData(id)
       .then(value => {
         const { data } = value;
-
         if (data) {
           text.value = data.content;
           title.value = data.title;
@@ -87,7 +87,7 @@ if (route.query.tableId) {
             url: data.img_url
           });
 
-          status.value = true;
+          status.value = false;
         }
       })
       .catch(() => {
