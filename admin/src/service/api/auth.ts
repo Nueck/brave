@@ -11,6 +11,13 @@ export function fetchLogin(username: string, password: string) {
 }
 
 /**
+ * 验证token是否有效
+ */
+export function fetchTokenValid() {
+  return basicRequest.post('/tokencheck', {});
+}
+
+/**
  * 邮箱验证码登陆
  */
 export function fetchEmailLogin(email: string, verify_code: string, code: string) {
@@ -45,27 +52,16 @@ export function fetchSendEmail(email: string) {
  * 注册
  */
 
-export function fetchRegister(info: ApiAuth.RegisterInfo) {
-  return basicRequest.post('/register', {
-    username: info.username,
-    email: info.email,
-    password: info.password,
-    verify_code: info.verify_code,
-    code: info.code
-  });
+export function fetchRegister(data: ApiAuth.RegisterInfo) {
+  return basicRequest.post('/register', data);
 }
 
 /**
  * 忘记密码
  */
 
-export function fetchForget(info: ApiAuth.ForgetInfo) {
-  return basicRequest.post('/forget', {
-    email: info.email,
-    new_pwd: info.new_pwd,
-    verify_code: info.verify_code,
-    code: info.code
-  });
+export function fetchForget(data: ApiAuth.ForgetInfo) {
+  return basicRequest.post('/forget', data);
 }
 
 /**
