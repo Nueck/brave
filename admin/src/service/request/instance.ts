@@ -1,7 +1,6 @@
 import axios from 'axios';
 import type { AxiosError, AxiosInstance, AxiosRequestConfig } from 'axios';
-import { useRouteStore } from '@/store';
-import { useRouterPush } from '@/composables';
+import { useAuthStore } from '@/store';
 import {
   localStg,
   handleAxiosError,
@@ -71,7 +70,7 @@ export default class CustomAxiosInstance {
           } else if (backend[state] === 'error') {
             /* 显示弹窗 */
             const error = handleBackendError(backend, this.backendConfig);
-            return handleServiceResult(error, null, null);
+            return handleServiceResult(error, null, backend[message]);
           }
         }
         const error = handleResponseError(response);
@@ -85,11 +84,7 @@ export default class CustomAxiosInstance {
           if (config) {
             return this.instance.request(config);
           }
-
-          const { toLogin } = useRouterPush(false);
-          const { resetRouteStore } = useRouteStore();
-          resetRouteStore();
-          toLogin();
+          useAuthStore().resetAuthStore();
         }
 
         const error = handleAxiosError(axiosError);
