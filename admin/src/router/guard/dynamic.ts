@@ -3,6 +3,7 @@ import { storeToRefs } from 'pinia';
 import { routeName } from '@/router';
 import { useInitStore, useRouteStore } from '@/store';
 import { localStg } from '@/utils';
+import { fetchTokenValid } from '~/src/service';
 
 /**
  * 动态路由
@@ -13,7 +14,21 @@ export async function createDynamicRouteGuard(
   next: NavigationGuardNext
 ) {
   const route = useRouteStore();
-  const isLogin = Boolean(localStg.get('token'));
+
+  let isLogin = false;
+
+  // 验证token
+  if (localStg.get('token')) {
+    const { error } = await fetchTokenValid();
+    if (error) {
+      isLogin = false;
+    } else {
+      isLogin = true;
+    }
+  } else {
+    isLogin = false;
+  }
+
   const init = useInitStore();
   const { initStatus } = storeToRefs(init);
 
