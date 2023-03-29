@@ -20,6 +20,7 @@ pub struct Model {
     pub img_url: Option<String>,
     #[sea_orm(column_type = "Text", nullable)]
     pub html_content: Option<String>,
+    pub subtitle: Option<String>,
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]

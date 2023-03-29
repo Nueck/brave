@@ -4,7 +4,7 @@
       <n-space class="w-full">
         <n-space class="p-l-30px">
           <n-gradient-text :size="24"> 文章管理 </n-gradient-text>
-          <n-button type="primary">
+          <n-button type="primary" @click="handleAdd">
             <icon-ic-round-plus class="mr-4px text-20px" />
             新增
           </n-button>
@@ -34,7 +34,11 @@
               :cols="4"
             >
               <n-gi v-for="(article, index) in articles.articlesData.value" :key="index">
-                <ImageOrTextCard :id="index" :img-url="article.img_url" :text="article.title"></ImageOrTextCard>
+                <ImageOrTextCard
+                  :id="article.table_id"
+                  :img-url="article.img_url"
+                  :text="article.title"
+                ></ImageOrTextCard>
               </n-gi>
             </n-grid>
           </n-layout>
@@ -47,9 +51,16 @@
 
 <script setup lang="tsx">
 import { storeToRefs } from 'pinia';
+import { useRouterPush } from '@/composables';
 import { useBlogStore } from '~/src/store';
+import { routeName } from '~/src/router';
 import { ImageOrTextCard } from './components';
+const { routerPush } = useRouterPush();
 const blog = useBlogStore();
 const articles = storeToRefs(blog);
 blog.getArticles();
+
+function handleAdd() {
+  routerPush({ name: routeName('blog_article_edit') });
+}
 </script>
