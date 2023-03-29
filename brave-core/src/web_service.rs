@@ -8,6 +8,7 @@ use actix_web::middleware::Logger;
 use actix_web::{web, App, HttpServer};
 use brave_config::interface::Interface;
 use brave_config::{config_init, GLOBAL_CONFIG};
+use brave_data::data_config;
 use brave_home::home_config;
 
 #[actix_rt::main]
@@ -89,6 +90,8 @@ pub async fn web_start() -> std::io::Result<()> {
                     )
                     .configure(brave_blog::blog_config), //博客显示
             )
+            //数据加载和上传的使用data为前缀的接口
+            .service(web::scope("data").configure(data_config))
             .configure(home_config)
     })
     .bind(Interface::get_api_string())?
