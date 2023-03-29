@@ -129,8 +129,6 @@ async fn update_article_data(
     let db = &data.conn;
     let id = &token.id;
 
-    println!("{:?}", json);
-
     match Article::find_by_id(json.table_id.clone().to_owned())
         .filter(article::Column::UserId.eq(id.clone().to_owned()))
         .one(db)

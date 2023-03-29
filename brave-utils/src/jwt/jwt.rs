@@ -81,15 +81,15 @@ impl Jot {
             Err(err) => {
                 return match *err.kind() {
                     ErrorKind::InvalidToken => {
-                        log::error!("Token is invalid - IP: {}", &token_msg.ip);
+                        log::warn!("Token is invalid - IP: {}", &token_msg.ip);
                         Err(AuthError::VerifyError)
                     }
                     ErrorKind::InvalidIssuer => {
-                        log::error!("Issuer is invalid - IP: {}", &token_msg.ip);
+                        log::warn!("Issuer is invalid - IP: {}", &token_msg.ip);
                         Err(AuthError::VerifyError)
                     }
                     _ => {
-                        log::error!(
+                        log::warn!(
                             "The token authentication is faulty. Procedure - Ip: {} -- {}",
                             &token_msg.ip,   //这里打印以下出错ip以便于调查问题
                             err.to_string()  //打印错误
