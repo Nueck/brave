@@ -17,6 +17,19 @@ declare namespace Auth {
     userName: string;
     /** 用户角色类型 */
     userRole: RoleType;
+    /** 用户的blog地址 */
+    userHomeUrl: string;
+  }
+
+  interface UserDataInfo {
+    /** 访问量 */
+    visitCount: number;
+    /** 阅读量 */
+    readCount: number;
+    /** 留言量 */
+    messagesCount: number;
+    /** 文章数 */
+    articleNum: number;
   }
 
   /* 注册信息 */

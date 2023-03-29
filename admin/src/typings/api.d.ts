@@ -11,9 +11,10 @@ declare namespace ApiAuth {
   type UserInfo = Auth.UserInfo;
   /* 注册时候的信息 */
   type RegisterInfo = Auth.RegisterInfo;
-
   /* 忘记密码信息 */
   type ForgetInfo = Auth.ForgetInfo;
+  /* 用户的数据库信息 */
+  type UserDataInfo = Auth.UserDataInfo;
 }
 
 /** 后端返回的路由相关类型 */

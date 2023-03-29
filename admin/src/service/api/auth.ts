@@ -26,6 +26,14 @@ export function fetchUserInfo() {
 }
 
 /**
+ * 获取用户数据信息
+ */
+
+export function fetchUserDataInfo() {
+  return basicRequest.post<ApiAuth.UserDataInfo>('/getUserDataInfo', {});
+}
+
+/**
  * 发送邮箱
  */
 

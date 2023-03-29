@@ -1,7 +1,7 @@
 import { unref, nextTick } from 'vue';
 import { defineStore } from 'pinia';
 import { router } from '@/router';
-import { fetchLogin, fetchUserInfo, fetchEmailLogin } from '@/service';
+import { fetchLogin, fetchUserInfo, fetchEmailLogin, fetchUserDataInfo } from '@/service';
 import { useRouterPush } from '@/composables';
 import { localStg } from '@/utils';
 import { useTabStore } from '../tab';
@@ -40,6 +40,21 @@ export const useAuthStore = defineStore('auth-store', {
     // 删除临时信息
     removeTempInfoFormLocal() {
       removeTempInfo();
+    },
+
+    /* 获取用户数据信息 */
+    async getUserDataInfo() {
+      const { data } = await fetchUserDataInfo();
+      if (data) {
+        return data;
+      }
+      const emptyInfo: ApiAuth.UserDataInfo = {
+        visitCount: 0,
+        readCount: 0,
+        messagesCount: 0,
+        articleNum: 0
+      };
+      return emptyInfo;
     },
 
     /** 重置auth状态 */
