@@ -5,12 +5,15 @@ use brave_db::entity::article;
 use brave_db::entity::article::Model;
 use brave_db::entity::prelude::Article;
 use brave_utils::jwt::jwt::UserDataInfo;
-use sea_orm::{ColumnTrait, EntityTrait, QueryFilter};
+use sea_orm::ActiveValue::Set;
+use sea_orm::{ActiveModelTrait, ColumnTrait, EntityTrait, QueryFilter, QueryOrder};
 use serde::{Deserialize, Serialize};
 
 //文章
 pub fn article_config(cfg: &mut web::ServiceConfig) {
-    cfg.service(get_articles_info).service(get_article_data);
+    cfg.service(get_articles_info)
+        .service(get_article_data)
+        .service(update_article_data);
 }
 
 //获取文章信息
@@ -25,6 +28,7 @@ async fn get_articles_info(
     //获取数据库中文章信息
     match Article::find()
         .filter(article::Column::UserId.eq(id.clone().to_owned()))
+        .order_by_desc(article::Column::ArticleId.to_owned())
         .all(db)
         .await
     {
@@ -101,6 +105,62 @@ async fn get_article_data(
             };
 
             HttpResponse::Ok().json(serde_json::json!({"state": "success", "data": data }))
+        }
+    }
+}
+
+#[derive(Debug, Clone, Deserialize, Serialize)]
+struct UpdateEditData {
+    table_id: i32,
+    title: String,
+    subtitle: String,
+    content: String,
+    img_url: String,
+    html_content: String,
+}
+
+//用于文章保存
+#[post("/updateArticleEditData")]
+async fn update_article_data(
+    data: web::Data<AppState>,
+    token: web::ReqData<UserDataInfo>,
+    json: Json<UpdateEditData>,
+) -> impl Responder {
+    let db = &data.conn;
+    let id = &token.id;
+
+    println!("{:?}", json);
+
+    match Article::find_by_id(json.table_id.clone().to_owned())
+        .filter(article::Column::UserId.eq(id.clone().to_owned()))
+        .one(db)
+        .await
+        .expect("Could not find Article -- updateArticleEditData")
+    {
+        None => {
+            const MSG: &str = "Unable to find the data";
+            HttpResponse::Ok().json(serde_json::json!({"state": "error", "message": MSG }))
+        }
+        Some(table) => {
+            let mut model: article::ActiveModel = table.into();
+            model.html_content = Set(Some(json.html_content.to_owned()));
+            model.title = Set(Some(json.title.to_owned()));
+            model.subtitle = Set(Some(json.subtitle.to_owned()));
+            model.content = Set(Some(json.content.to_owned()));
+            model.img_url = Set(Some(json.img_url.to_owned()));
+
+            //更新数据
+            match model.update(db).await {
+                Ok(_) => {
+                    const MSG: &str = "Update data successfully";
+                    HttpResponse::Ok()
+                        .json(serde_json::json!({"state": "success", "message": MSG }))
+                }
+                Err(_) => {
+                    const MSG: &str = "Failed to update data";
+                    HttpResponse::Ok().json(serde_json::json!({"state": "error", "message": MSG }))
+                }
+            }
         }
     }
 }

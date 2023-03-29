@@ -6,9 +6,10 @@
 
     <n-space vertical class="w-auto">
       <n-space vertical justify="space-between" class="w-auto">
-        <n-input v-model:value="title" size="large" maxlength="30" show-count clearable placeholder="标题"> </n-input>
+        <n-input v-model:value="contentData.title" size="large" maxlength="30" show-count clearable placeholder="标题">
+        </n-input>
         <n-input
-          v-model:value="subtitle"
+          v-model:value="contentData.subtitle"
           size="large"
           type="textarea"
           maxlength="120"
@@ -38,9 +39,9 @@
           </n-space>
         </n-radio-group>
       </n-space>
-      <md-editor v-model="text" class="w-auto" />
+      <md-editor v-model="contentData.content" :on-html-changed="handleHtmlCode" :preview="false" class="w-auto" />
       <n-space class="w-auto" justify="end">
-        <n-button type="primary" class="w-180px h-36px" @click="handleToTab">
+        <n-button type="primary" class="w-180px h-36px" @click="updateData">
           <template v-if="status">保存</template>
           <template v-else>保存编辑</template>
         </n-button>
@@ -56,29 +57,47 @@ import type { UploadFileInfo } from 'naive-ui';
 import MdEditor from 'md-editor-v3';
 import { routeName } from '@/router';
 import { useRouterPush } from '@/composables';
-import { fetchArticleEditData } from '~/src/service/api/article';
+import { fetchArticleEditData, fetchUpdateArticleEditData } from '~/src/service/api/article';
 import 'md-editor-v3/lib/style.css';
 
 const route = useRoute();
 const { routerPush } = useRouterPush();
 
-const text = ref('');
-const title = ref('');
-const subtitle = ref('');
 const radioValue = ref('Markdown');
+const songs = [
+  {
+    value: 'Markdown',
+    label: 'Markdown'
+  },
+  {
+    value: 'Rich text',
+    label: '富文本'
+  }
+];
+const updating = ref(false);
 const fileList = ref<UploadFileInfo[]>([]);
+const contentData = ref<Blog.UpdateArticleEditData>({
+  table_id: 0,
+  title: '',
+  subtitle: '',
+  img_url: '',
+  content: '',
+  html_content: ''
+});
 
 const status = ref(true);
 if (route.query.tableId) {
   const id = Number(route.query.tableId);
   if (id) {
+    contentData.value.table_id = id;
     fetchArticleEditData(id)
       .then(value => {
         const { data } = value;
         if (data) {
-          text.value = data.content;
-          title.value = data.title;
-          subtitle.value = data.subtitle;
+          contentData.value.content = data.content;
+          contentData.value.title = data.title;
+          contentData.value.subtitle = data.subtitle;
+          contentData.value.img_url = data.img_url;
 
           fileList.value.push({
             id: 'a',
@@ -96,17 +115,6 @@ if (route.query.tableId) {
   }
 }
 
-const songs = [
-  {
-    value: 'Markdown',
-    label: 'Markdown'
-  },
-  {
-    value: 'Rich text',
-    label: '富文本'
-  }
-];
-
 function handleToTab() {
   routerPush({ name: routeName('blog_article_table') });
 }
@@ -122,6 +130,26 @@ async function beforeUpload(data: { file: UploadFileInfo; fileList: UploadFileIn
   window.$message?.error('只能上传jpeg/jpg/png格式的图片文件,请重新上传');
   return false;
 }
+
+// 处理渲染好的html数据
+async function handleHtmlCode(h: string) {
+  contentData.value.html_content = h;
+}
+
+async function updateData() {
+  if (!updating.value) {
+    updating.value = true;
+    const { error } = await fetchUpdateArticleEditData(contentData.value);
+    if (!error) {
+      window.$message?.success('更新数据成功');
+    }
+    setTimeout(() => {
+      updating.value = false;
+    }, 500);
+  }
+}
+
+// 用于保存数据
 </script>
 
 <style scoped></style>

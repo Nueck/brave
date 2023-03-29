@@ -13,3 +13,10 @@ export function fetchArticles() {
 export function fetchArticleEditData(table_id: number) {
   return basicRequest.post<Blog.ArticlesEditInfo>('/getArticleEditData', { table_id });
 }
+
+/**
+ * 更新文章数据
+ */
+export function fetchUpdateArticleEditData(data: Blog.UpdateArticleEditData) {
+  return basicRequest.post('/updateArticleEditData', data);
+}

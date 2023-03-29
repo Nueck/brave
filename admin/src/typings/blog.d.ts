@@ -1,11 +1,4 @@
 declare namespace Blog {
-  /* 文章卡片的信息 */
-  type ArticlesInfo = Info.ArticlesInfo;
-  type ArticlesEditInfo = Info.ArticlesEditInfo;
-}
-
-declare namespace Info {
-  /* 接受的文章table信息 */
   interface ArticlesInfo {
     table_id: number;
     img_url: string;
@@ -17,5 +10,14 @@ declare namespace Info {
     subtitle: string;
     img_url: string;
     content: string;
+  }
+
+  interface UpdateArticleEditData {
+    title: string;
+    subtitle: string;
+    table_id: number;
+    img_url: string;
+    content: string;
+    html_content: string;
   }
 }

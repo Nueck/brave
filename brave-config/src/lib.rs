@@ -10,6 +10,7 @@ use std::sync::Mutex;
 pub mod admin;
 pub mod app;
 mod authority;
+pub mod data;
 mod db;
 pub mod env;
 mod error;
