@@ -45,6 +45,5 @@ async fn get_articles_info(
         })
         .collect::<Vec<ArticleData>>();
 
-    let json: String = serde_json::to_string(&data).unwrap();
-    HttpResponse::Ok().json(serde_json::json!({"state": "success", "data": json }))
+    HttpResponse::Ok().json(serde_json::json!({"state": "success", "data": data }))
 }

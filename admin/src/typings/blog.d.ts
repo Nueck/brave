@@ -8,4 +8,13 @@ declare namespace Blog {
     height: number;
     text: string;
   }
+  type ArticlesInfo = Info.ArticlesInfo;
+}
+
+declare namespace Info {
+  /* 接受的文章table信息 */
+  interface ArticlesInfo {
+    img_url: string;
+    title: string;
+  }
 }
