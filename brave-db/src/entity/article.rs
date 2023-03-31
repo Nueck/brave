@@ -6,7 +6,7 @@ use sea_orm::entity::prelude::*;
 #[sea_orm(table_name = "article")]
 pub struct Model {
     #[sea_orm(primary_key, unique)]
-    pub article_id: i32,
+    pub article_id: i64,
     pub user_id: i32,
     pub title: Option<String>,
     #[sea_orm(column_type = "Text", nullable)]
