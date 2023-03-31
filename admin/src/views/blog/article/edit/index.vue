@@ -41,10 +41,12 @@
       </n-space>
       <md-editor v-model="contentData.content" :on-html-changed="handleHtmlCode" :preview="false" class="w-auto" />
       <n-space class="w-auto" justify="end">
-        <n-button type="primary" class="w-180px h-36px" @click="updateData">
-          <template v-if="status">保存</template>
-          <template v-else>保存编辑</template>
-        </n-button>
+        <template v-if="status">
+          <n-button type="primary" class="w-180px h-36px" @click="saveData">保存 </n-button></template
+        >
+        <template v-else
+          ><n-button type="primary" class="w-180px h-36px" @click="updateData">保存编辑</n-button></template
+        >
       </n-space>
     </n-space>
   </n-space>
@@ -57,7 +59,7 @@ import type { UploadFileInfo } from 'naive-ui';
 import MdEditor from 'md-editor-v3';
 import { routeName } from '@/router';
 import { useRouterPush } from '@/composables';
-import { fetchArticleEditData, fetchUpdateArticleEditData } from '~/src/service/api/article';
+import { fetchArticleEditData, fetchSaveArticleEditData, fetchUpdateArticleEditData } from '~/src/service/api/article';
 import 'md-editor-v3/lib/style.css';
 
 const route = useRoute();
@@ -74,9 +76,9 @@ const songs = [
     label: '富文本'
   }
 ];
-const updating = ref(false);
+const loading = ref(false);
 const fileList = ref<UploadFileInfo[]>([]);
-const contentData = ref<Blog.UpdateArticleEditData>({
+const contentData = ref<Blog.ArticleEditData>({
   table_id: 0,
   title: '',
   subtitle: '',
@@ -136,15 +138,29 @@ async function handleHtmlCode(h: string) {
   contentData.value.html_content = h;
 }
 
+// 保存数据
+async function saveData() {
+  if (!loading.value) {
+    loading.value = true;
+    const { error } = await fetchSaveArticleEditData(contentData.value);
+    if (!error) {
+      window.$message?.success('保存数据成功');
+    }
+    setTimeout(() => {
+      loading.value = false;
+    }, 500);
+  }
+}
+
 async function updateData() {
-  if (!updating.value) {
-    updating.value = true;
+  if (!loading.value) {
+    loading.value = true;
     const { error } = await fetchUpdateArticleEditData(contentData.value);
     if (!error) {
       window.$message?.success('更新数据成功');
     }
     setTimeout(() => {
-      updating.value = false;
+      loading.value = false;
     }, 500);
   }
 }

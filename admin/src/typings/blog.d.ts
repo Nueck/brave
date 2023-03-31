@@ -12,7 +12,7 @@ declare namespace Blog {
     content: string;
   }
 
-  interface UpdateArticleEditData {
+  interface ArticleEditData {
     title: string;
     subtitle: string;
     table_id: number;

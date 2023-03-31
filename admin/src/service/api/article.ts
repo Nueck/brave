@@ -17,6 +17,13 @@ export function fetchArticleEditData(table_id: number) {
 /**
  * 更新文章数据
  */
-export function fetchUpdateArticleEditData(data: Blog.UpdateArticleEditData) {
+export function fetchUpdateArticleEditData(data: Blog.ArticleEditData) {
   return basicRequest.post('/updateArticleEditData', data);
+}
+
+/**
+ * 保存文章数据
+ */
+export function fetchSaveArticleEditData(data: Blog.ArticleEditData) {
+  return basicRequest.post('/saveArticleEditData', data);
 }
