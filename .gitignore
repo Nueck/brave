@@ -3,6 +3,7 @@
 /target/
 
 .idea/
+.vscode/
 
 /themes
 
@@ -28,6 +29,6 @@ log/
 
 public/*
 
-page/*
+page/
 
 
