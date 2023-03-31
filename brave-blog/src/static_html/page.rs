@@ -1,3 +1,4 @@
+use crate::error::page::PageError;
 use actix_web::http::header;
 use actix_web::web::{Path, Query};
 use actix_web::{get, web, HttpResponse, Responder, Result};
@@ -12,17 +13,47 @@ use serde::Deserialize;
 use std::fs;
 use std::path::PathBuf;
 
-#[derive(Deserialize)]
-pub struct PageInfo {
-    pub table_id: i64,
+//用于blog的页面加载
+pub fn blog_static_page_config(cfg: &mut web::ServiceConfig) {
+    cfg.service(page).service(page_error); // .service(index::page_handler),
 }
 
 #[get("/{name}/page")]
-pub async fn page(
+async fn page_error(data: web::Data<AppState>, name: Path<String>) -> Result<impl Responder> {
+    let db = &data.conn;
+
+    match Users::find()
+        .filter(users::Column::UserName.contains(&name))
+        .one(db)
+        .await
+        .expect("Could not find Users")
+    {
+        None => {
+            let home = Interface::redirect_home();
+            Ok(HttpResponse::Found()
+                .append_header((header::LOCATION, home))
+                .finish())
+        }
+        Some(user) => {
+            let blog = Interface::redirect_user_blog_home(user.user_name.as_str());
+            return Ok(HttpResponse::Found()
+                .append_header((header::LOCATION, blog))
+                .finish());
+        }
+    }
+}
+
+#[derive(Deserialize)]
+struct PageInfo {
+    pub table_id: Option<i64>,
+}
+
+#[get("/{name}/page")]
+async fn page(
     data: web::Data<AppState>,
     name: Path<String>,
     query: Query<PageInfo>,
-) -> Result<impl Responder> {
+) -> Result<impl Responder, PageError> {
     /*文件路径先设置在当前目录public下*/
     let db = &data.conn;
 
@@ -39,13 +70,19 @@ pub async fn page(
                 .finish())
         }
         Some(user) => {
+            if query.table_id.is_none() {
+                return Err(PageError {
+                    user_name: user.user_name.to_string(),
+                });
+            }
+
             // Article::find().filter(article::Column::UserId.eq(user.user_id)).;
             let mut path_buf = PathBuf::new();
             path_buf.push("./page");
             path_buf.push(name.to_string());
             path_buf.push("page.html");
 
-            let model = Article::find_by_id(query.table_id)
+            let model = Article::find_by_id(query.table_id.unwrap())
                 .filter(article::Column::UserId.eq(user.user_id))
                 .one(db)
                 .await
