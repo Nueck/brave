@@ -26,7 +26,7 @@ pub async fn file_load(path: Path<(String, String)>, req: HttpRequest) -> Result
 
     /*判断是否存在文件*/
     match NamedFile::open_async(&path_buf).await {
-        Ok(content) => Ok(content.into_response(&req)),
+        Ok(content) => Ok(content.use_last_modified(true).into_response(&req)),
         Err(_) => {
             /*如果没有文件存在就用户重定向*/
             let user_blog_home = Interface::redirect_user_blog_home(&name);

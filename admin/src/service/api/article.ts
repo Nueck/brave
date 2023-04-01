@@ -27,3 +27,10 @@ export function fetchUpdateArticleEditData(data: Blog.ArticleEditData) {
 export function fetchSaveArticleEditData(data: Blog.ArticleEditData) {
   return basicRequest.post('/saveArticleEditData', data);
 }
+
+/**
+ * 删除文章文章数据
+ */
+export function fetchDeleteArticleData(table_id: number) {
+  return basicRequest.post('/deleteArticleData', { table_id });
+}

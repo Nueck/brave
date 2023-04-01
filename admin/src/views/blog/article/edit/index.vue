@@ -20,10 +20,11 @@
         </n-input>
 
         <n-upload
-          action="__HTTP__://www.mocky.io/v2/5e4bafc63100007100d8b70f"
+          action="http://localhost:2078/api/upload/img"
           :default-file-list="fileList"
           list-type="image-card"
           :max="1"
+          @finish="handleFinish"
           @before-upload="beforeUpload"
         >
           上传封面</n-upload
@@ -42,10 +43,15 @@
       <md-editor v-model="contentData.content" :on-html-changed="handleHtmlCode" :preview="false" class="w-auto" />
       <n-space class="w-auto" justify="end">
         <template v-if="status">
-          <n-button type="primary" class="w-180px h-36px" @click="saveData">保存 </n-button></template
+          <n-button type="primary" class="w-180px h-36px" @click="article.saveData(contentData)"
+            >保存
+          </n-button></template
         >
         <template v-else
-          ><n-button type="primary" class="w-180px h-36px" @click="updateData">保存编辑</n-button></template
+          ><n-button type="primary" class="w-180px h-36px" @click="article.updateData(contentData)">保存编辑</n-button>
+          <n-button type="primary" class="w-180px h-36px" @click="article.deleteData(contentData.table_id)"
+            >删除</n-button
+          ></template
         >
       </n-space>
     </n-space>
@@ -59,9 +65,11 @@ import type { UploadFileInfo } from 'naive-ui';
 import MdEditor from 'md-editor-v3';
 import { routeName } from '@/router';
 import { useRouterPush } from '@/composables';
-import { fetchArticleEditData, fetchSaveArticleEditData, fetchUpdateArticleEditData } from '~/src/service/api/article';
+import { fetchArticleEditData } from '~/src/service/api/article';
 import 'md-editor-v3/lib/style.css';
+import { useArticlesStore } from '~/src/store';
 
+const article = useArticlesStore();
 const route = useRoute();
 const { routerPush } = useRouterPush();
 
@@ -76,7 +84,6 @@ const songs = [
     label: '富文本'
   }
 ];
-const loading = ref(false);
 const fileList = ref<UploadFileInfo[]>([]);
 const contentData = ref<Blog.ArticleEditData>({
   table_id: 0,
@@ -138,34 +145,13 @@ async function handleHtmlCode(h: string) {
   contentData.value.html_content = h;
 }
 
-// 保存数据
-async function saveData() {
-  if (!loading.value) {
-    loading.value = true;
-    const { error } = await fetchSaveArticleEditData(contentData.value);
-    if (!error) {
-      window.$message?.success('保存数据成功');
-    }
-    setTimeout(() => {
-      loading.value = false;
-    }, 500);
-  }
-}
-
-async function updateData() {
-  if (!loading.value) {
-    loading.value = true;
-    const { error } = await fetchUpdateArticleEditData(contentData.value);
-    if (!error) {
-      window.$message?.success('更新数据成功');
-    }
-    setTimeout(() => {
-      loading.value = false;
-    }, 500);
-  }
-}
-
-// 用于保存数据
+// 获取服务器的数据
+const handleFinish = ({ file, event }: { file: UploadFileInfo; event?: ProgressEvent }) => {
+  const data = (event?.target as XMLHttpRequest).response;
+  const json = JSON.parse(data);
+  contentData.value.img_url = json.url;
+  return file;
+};
 </script>
 
 <style scoped></style>

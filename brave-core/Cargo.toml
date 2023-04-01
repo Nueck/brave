@@ -20,9 +20,11 @@ brave-blog = { path = "../brave-blog" }
 brave-data = { path = "../brave-data" }
 actix-web = "4"
 actix-files = "0.6"
+actix-multipart = "0.6"
 actix-rt = "2"
 actix-cors = "0.6"
 actix-web-lab = "0.19"
+sanitize-filename = "0.4"
 futures = "0.3"
 futures-util = "0.3"
 serde = { version = "1", features = ["derive"] }
@@ -31,6 +33,7 @@ serde_yaml = "0.9"
 log = "0.4"
 fast_log = "1.5"
 dotenvy = "0.15"
+uuid = { version = "1", features = ["v4"] }
 may = "0.3"
 sea-orm = { version = "0.11", features = ["sqlx-postgres", "runtime-actix-native-tls", "macros"] }
 derive_more = "0.99"

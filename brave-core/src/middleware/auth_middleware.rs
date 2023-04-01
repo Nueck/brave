@@ -150,7 +150,8 @@ fn is_need_verification(path: &str) -> bool {
         || path == format!("/{}/register", GLOBAL_CONFIG.interface.api_scope)
         || path == format!("/{}/sendmail", GLOBAL_CONFIG.interface.api_scope)
         || path == format!("/{}/forget", GLOBAL_CONFIG.interface.api_scope)
-        || path == format!("/{}/email-login", GLOBAL_CONFIG.interface.api_scope))
+        || path == format!("/{}/email-login", GLOBAL_CONFIG.interface.api_scope)
+        || path == format!("/api/upload/img"))
 }
 
 fn refresh_api(path: &str) -> bool {

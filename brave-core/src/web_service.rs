@@ -92,7 +92,15 @@ pub async fn web_start() -> std::io::Result<()> {
             )
             //数据加载和上传的使用data为前缀的接口
             .service(
-                web::scope(&GLOBAL_DATA.get_data_config().data.unwrap()).configure(data_config),
+                web::scope(&GLOBAL_DATA.get_data_config().data.unwrap())
+                    .wrap(
+                        Cors::default()
+                            .allow_any_header()
+                            .allowed_methods(vec!["GET"]) //只允许GET
+                            .allow_any_origin() //允许任何来源
+                            .max_age(3600),
+                    )
+                    .configure(data_config),
             )
             .configure(home_config)
     })

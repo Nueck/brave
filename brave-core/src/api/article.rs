@@ -14,7 +14,8 @@ pub fn article_config(cfg: &mut web::ServiceConfig) {
     cfg.service(get_articles_info)
         .service(get_article_data)
         .service(update_article_data)
-        .service(save_article_data);
+        .service(save_article_data)
+        .service(delete_article_data);
 }
 
 //获取文章信息
@@ -212,6 +213,52 @@ async fn update_article_data(
                 }
                 Err(_) => {
                     const MSG: &str = "Failed to update data";
+                    HttpResponse::Ok().json(serde_json::json!({"state": "error", "message": MSG }))
+                }
+            }
+        }
+    }
+}
+
+//删除文章
+
+#[derive(Debug, Clone, Deserialize, Serialize)]
+struct DeleteData {
+    table_id: i64,
+}
+
+//用于文章更新
+#[post("/deleteArticleData")]
+async fn delete_article_data(
+    data: web::Data<AppState>,
+    token: web::ReqData<UserDataInfo>,
+    json: Json<DeleteData>,
+) -> impl Responder {
+    let db = &data.conn;
+    let id = &token.id;
+
+    match Article::find_by_id(json.table_id.clone().to_owned())
+        .filter(article::Column::UserId.eq(id.clone().to_owned()))
+        .one(db)
+        .await
+        .expect("Could not find Article -- deleteArticleEditData")
+    {
+        None => {
+            const MSG: &str = "Unable to find the data";
+            HttpResponse::Ok().json(serde_json::json!({"state": "error", "message": MSG }))
+        }
+        Some(table) => {
+            let model: article::ActiveModel = table.into();
+
+            //删除数据
+            match model.delete(db).await {
+                Ok(_) => {
+                    const MSG: &str = "Delete data successfully";
+                    HttpResponse::Ok()
+                        .json(serde_json::json!({"state": "success", "message": MSG }))
+                }
+                Err(_) => {
+                    const MSG: &str = "Failed to Delete data";
                     HttpResponse::Ok().json(serde_json::json!({"state": "error", "message": MSG }))
                 }
             }

@@ -236,7 +236,7 @@ async fn register(data: web::Data<AppState>, info: web::Json<RegisterInfo>) -> H
                     let code = data.data.clone().unwrap().code;
                     let email = data.data.clone().unwrap().email;
                     //判断验证码是否正确
-                    if verify_code == code && email == info.email.clone() {
+                    return if verify_code == code && email == info.email.clone() {
                         /*保存数据到数据库*/
                         /*对密码加密*/
                         let pwd = GLOBAL_CONFIG.blake.generate_with_salt(&info.password);
@@ -271,7 +271,7 @@ async fn register(data: web::Data<AppState>, info: web::Json<RegisterInfo>) -> H
                         const MSG: &str = "Verification code error";
                         HttpResponse::Ok()
                             .json(serde_json::json!({"state": "code error", "message": MSG }))
-                    }
+                    };
                 }
                 Err(_) => {
                     const MSG: &str = "Error in sending data";

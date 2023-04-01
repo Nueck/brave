@@ -7,6 +7,8 @@
 
 /themes
 
+/tmp
+
 templates/css
 templates/js
 templates/fonts
