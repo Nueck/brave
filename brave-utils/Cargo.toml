@@ -6,13 +6,13 @@ authors = ["Nueck <nueck@outlook.com>"]
 repository = "https://github.com/Nueck/brave/"
 
 [dependencies]
-jsonwebtoken = "8"
-log = "0.4"
-rand = "0.8"
-ring = { version = "0.16", features = ["std"] }
-base64 = "0.21"
-serde = { version = "1", features = ["derive"] }
-once_cell = "1"
-blake3 = "1"
-lettre = "0.10"
-regex = "1"
+jsonwebtoken.workspace = true
+log.workspace = true
+rand.workspace = true
+ring.workspace = true
+base64.workspace = true
+serde.workspace = true
+once_cell.workspace = true
+blake3.workspace = true
+lettre.workspace = true
+regex.workspace = true
