@@ -43,5 +43,3 @@ async fn connect_db() -> DatabaseConnection {
     };
     connect
 }
-
-/*用于添加信息到全局*/

@@ -176,7 +176,7 @@ struct UpdateEditData {
     html_content: String,
 }
 
-//用于文章更新
+///用于文章更新
 #[post("/updateArticleEditData")]
 async fn update_article_data(
     data: web::Data<AppState>,

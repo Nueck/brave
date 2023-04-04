@@ -60,7 +60,6 @@ impl PGConfig {
 
         let mut opt = ConnectOptions::new(url);
 
-        //基础设置(这里先这样写死后期可能开放出来配置)
         opt.max_connections(100)
             .min_connections(5)
             .connect_timeout(Duration::from_secs(8))

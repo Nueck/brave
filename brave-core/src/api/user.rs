@@ -1,42 +1,25 @@
 use actix_web::error::ErrorUnauthorized;
-use actix_web::{post, web, HttpResponse, Responder};
+use actix_web::{delete, post, put, web, HttpResponse, Responder};
 use brave_config::app::AppState;
 use brave_config::interface::Interface;
 use brave_config::GLOBAL_CONFIG;
 use brave_db::entity::prelude::Users;
 use brave_db::entity::users;
+use brave_db::enumeration::user_enum::UserStatusEnum;
 use brave_utils::jwt::jwt::UserDataInfo;
-use sea_orm::{ColumnTrait, EntityTrait, QueryFilter};
+use sea_orm::prelude::DateTime;
+use sea_orm::ActiveValue::Set;
+use sea_orm::{
+    ActiveModelTrait, ColumnTrait, DbErr, DeleteResult, EntityTrait, FromQueryResult, QueryFilter,
+    QuerySelect,
+};
+use serde::{Deserialize, Serialize};
 
 pub fn user_config(cfg: &mut web::ServiceConfig) {
     cfg.service(get_users)
         .service(get_user_info)
-        .service(get_user_data_info);
-}
-
-/*全表查询*/
-#[post("/getUsers")]
-async fn get_users(data: web::Data<AppState>, token: web::ReqData<UserDataInfo>) -> impl Responder {
-    let auth = token.auth.clone();
-
-    //只有是超级管理员才能访问
-    if auth
-        == GLOBAL_CONFIG
-            .authority
-            .get_authority_config()
-            .super_admin
-            .unwrap()
-    {
-        let db = &data.conn;
-        let data = Users::find()
-            .into_json()
-            .all(db)
-            .await
-            .expect("Could not find Users");
-        HttpResponse::Ok().json(serde_json::json!({"state": "success","data":data}))
-    } else {
-        ErrorUnauthorized("Lack of authority").into()
-    }
+        .service(get_user_data_info)
+        .service(delete_user);
 }
 
 /*获取用户的文章总信息*/
@@ -79,7 +62,7 @@ async fn get_user_data_info(
     }
 }
 
-/*获取用户信息*/
+///获取用户信息
 #[post("/getUserInfo")]
 async fn get_user_info(
     data: web::Data<AppState>,
@@ -117,5 +100,163 @@ async fn get_user_info(
 
             HttpResponse::Ok().json(json)
         }
+    }
+}
+
+#[deriromQueryResultve(F, Deserialize, Serialize)]
+struct UsersLists {
+    user_name: String,
+    authority: String,
+    email: String,
+    create_time: DateTime,
+}
+
+/*获取用户的一些数据*/
+#[post("/getUsers")]
+async fn get_users(data: web::Data<AppState>, token: web::ReqData<UserDataInfo>) -> impl Responder {
+    let auth = token.auth.clone();
+
+    //只有是超级管理员才能访问
+    if auth
+        == GLOBAL_CONFIG
+            .authority
+            .get_authority_config()
+            .super_admin
+            .unwrap()
+    {
+        let db = &data.conn;
+        let data = Users::find()
+            .select_only()
+            .columns([
+                users::Column::UserName,
+                users::Column::Authority,
+                users::Column::Email,
+                users::Column::CreateTime,
+            ])
+            .into_model::<UsersLists>()
+            .all(db)
+            .await
+            .expect("Could not find Users");
+
+        HttpResponse::Ok().json(serde_json::json!({"state": "success","data":data}))
+    } else {
+        ErrorUnauthorized("Lack of authority").into()
+    }
+}
+
+///注销用户数据
+#[delete("/user/{id}/soft")]
+async fn delete_user_soft(
+    data: web::Data<AppState>,
+    token: web::ReqData<UserDataInfo>,
+    query: web::Path<i32>,
+) -> impl Responder {
+    let auth = token.auth.clone();
+
+    //只有是超级管理员才能访问
+    if auth
+        == GLOBAL_CONFIG
+            .authority
+            .get_authority_config()
+            .super_admin
+            .unwrap()
+    {
+        let db = &data.conn;
+        let id = query.into_inner();
+
+        let mut data: users::ActiveModel = Users::find_by_id(id)
+            .one(db)
+            .await
+            .expect("deleteUser")
+            .unwrap()
+            .into();
+
+        //判断用户是否是管理员（禁止删除管理员）
+        if data.authority.clone().unwrap() == GLOBAL_CONFIG.authority.super_admin.clone().unwrap() {
+            const MSG: &str = "No permission to delete";
+            let json = serde_json::json!({"state": "error",  "message":MSG });
+            return HttpResponse::Ok().json(json);
+        }
+
+        data.user_status = Set(UserStatusEnum::SoftDelete as i16);
+        data.update(db).await.unwrap();
+
+        HttpResponse::Ok().json(serde_json::json!({"state": "success"}))
+    } else {
+        ErrorUnauthorized("Lack of authority").into()
+    }
+}
+
+///删除用户
+#[delete("/user/{id}")]
+async fn delete_user(
+    data: web::Data<AppState>,
+    token: web::ReqData<UserDataInfo>,
+    query: web::Path<i32>,
+) -> impl Responder {
+    let auth = token.auth.clone();
+
+    //只有是超级管理员才能访问
+    if auth
+        == GLOBAL_CONFIG
+            .authority
+            .get_authority_config()
+            .super_admin
+            .unwrap()
+    {
+        let db = &data.conn;
+        let id = query.into_inner();
+
+        //判断用户是否是管理员（禁止删除管理员）
+        if data.authority.clone().unwrap() == GLOBAL_CONFIG.authority.super_admin.clone().unwrap() {
+            const MSG: &str = "No permission to delete";
+            let json = serde_json::json!({"state": "error",  "message":MSG });
+            return HttpResponse::Ok().json(json);
+        }
+
+        //删除用户
+        match Users::delete_by_id(id).exec(db).await {
+            Ok(_) => HttpResponse::Ok().json(serde_json::json!({"state": "success"})),
+            Err(_) => HttpResponse::Ok().json(serde_json::json!({"state": "error"})),
+        }
+    } else {
+        ErrorUnauthorized("Lack of authority").into()
+    }
+}
+
+///更新用户信息
+#[put("/user/{id}")]
+async fn update_user(
+    data: web::Data<AppState>,
+    token: web::ReqData<UserDataInfo>,
+    query: web::Path<i32>,
+) -> impl Responder {
+    let auth = token.auth.clone();
+
+    //只有是超级管理员才能访问
+    if auth
+        == GLOBAL_CONFIG
+            .authority
+            .get_authority_config()
+            .super_admin
+            .unwrap()
+    {
+        let db = &data.conn;
+        let id = query.into_inner();
+
+        //判断用户是否是管理员（禁止删除管理员）
+        if data.authority.clone().unwrap() == GLOBAL_CONFIG.authority.super_admin.clone().unwrap() {
+            const MSG: &str = "No permission to delete";
+            let json = serde_json::json!({"state": "error",  "message":MSG });
+            return HttpResponse::Ok().json(json);
+        }
+
+        //删除用户
+        match Users::delete_by_id(id).exec(db).await {
+            Ok(_) => HttpResponse::Ok().json(serde_json::json!({"state": "success"})),
+            Err(_) => HttpResponse::Ok().json(serde_json::json!({"state": "error"})),
+        }
+    } else {
+        ErrorUnauthorized("Lack of authority").into()
     }
 }

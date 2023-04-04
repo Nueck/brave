@@ -46,7 +46,7 @@ pub async fn web_start() -> std::io::Result<()> {
 
     //开启web服务
     HttpServer::new(move || {
-        //api的跨域问题
+        // Api的跨域问题
         /*TODO:暂时所有源都可以通过,后期更改*/
 
         #[cfg(not(debug_assertions))]
