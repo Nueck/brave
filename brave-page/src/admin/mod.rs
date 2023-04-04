@@ -3,7 +3,7 @@ use actix_web::dev::{fn_service, ServiceRequest, ServiceResponse};
 use actix_web::web;
 use brave_config::GLOBAL_CONFIG;
 
-/*用于后台管理配置的*/
+///用于后台管理配置的
 pub fn admin_config(cfg: &mut web::ServiceConfig) {
     cfg.service(
         web::scope(&GLOBAL_CONFIG.interface.admin_scope).service(

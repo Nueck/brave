@@ -1,13 +1,11 @@
-use crate::utils::common::is_invalid_user_name;
 use actix_web::{post, web, HttpResponse};
 use brave_config::app::AppState;
+use brave_config::utils::common::{generation_random_number, is_invalid_user_name, is_valid_email};
+use brave_config::utils::fs::gen_symlink_default_skin;
+use brave_config::utils::jwt::{Claims, UserData, GLOB_JOT};
 use brave_config::GLOBAL_CONFIG;
 use brave_db::entity::prelude::Users;
 use brave_db::entity::users;
-use brave_utils::common::{generation_random_number, is_valid_email};
-use brave_utils::fs::gen_symlink_default_skin;
-use brave_utils::jwt::jwt::GLOB_JOT;
-use brave_utils::jwt::jwt::{Claims, UserData};
 use jsonwebtoken::get_current_timestamp;
 use sea_orm::ActiveValue::Set;
 use sea_orm::{ActiveModelTrait, ColumnTrait, EntityTrait, QueryFilter};

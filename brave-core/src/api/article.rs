@@ -1,10 +1,10 @@
 use actix_web::web::Json;
 use actix_web::{post, web, HttpResponse, Responder};
 use brave_config::app::AppState;
+use brave_config::utils::jwt::UserDataInfo;
 use brave_db::entity::article;
 use brave_db::entity::article::Model;
 use brave_db::entity::prelude::{Article, Users};
-use brave_utils::jwt::jwt::UserDataInfo;
 use sea_orm::ActiveValue::Set;
 use sea_orm::{ActiveModelTrait, ColumnTrait, EntityTrait, QueryFilter, QueryOrder};
 use serde::{Deserialize, Serialize};

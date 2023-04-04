@@ -4,7 +4,7 @@ use crate::data::DataConfig;
 use crate::env::EnvConfig;
 use crate::global::GConfig;
 use crate::init::InitStatus;
-use brave_utils::jwt::config::JWTConfig;
+use crate::utils::jwt::JWTConfig;
 use once_cell::sync::{Lazy, OnceCell};
 use std::sync::Mutex;
 
@@ -19,6 +19,7 @@ mod error;
 pub mod global;
 pub mod init;
 pub mod interface;
+pub mod utils;
 
 pub static GLOB_INIT: OnceCell<Mutex<InitStatus>> = OnceCell::new();
 

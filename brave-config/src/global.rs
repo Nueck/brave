@@ -1,9 +1,9 @@
 use crate::authority::AuthorityConfig;
 use crate::data::DataConfig;
 use crate::interface::Interface;
-use brave_utils::blake3::Blake3Config;
-use brave_utils::jwt::config::JWTConfig;
-use brave_utils::mail::MailConfig;
+use crate::utils::blake3::Blake3Config;
+use crate::utils::jwt::JWTConfig;
+use crate::utils::mail::MailConfig;
 use serde::{Deserialize, Serialize};
 use std::fs::File;
 

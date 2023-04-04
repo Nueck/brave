@@ -1,6 +1,6 @@
 use actix_web::{post, web, HttpResponse, Responder};
+use brave_config::utils::jwt::{Claims, UserDataInfo, GLOB_JOT};
 use brave_config::GLOBAL_CONFIG;
-use brave_utils::jwt::jwt::{Claims, UserDataInfo, GLOB_JOT};
 use jsonwebtoken::get_current_timestamp;
 
 pub fn token_config(cfg: &mut web::ServiceConfig) {

@@ -40,7 +40,7 @@ pub async fn error_page(
             let string = match fs::read_to_string(path_buf) {
                 Ok(t) => t,
                 Err(_) => {
-                    let home = Interface::redirect_home();
+                    let home = Interface::redirect_user_blog_home(&user.user_name);
                     return Ok(HttpResponse::Found()
                         .append_header((header::LOCATION, home))
                         .finish());

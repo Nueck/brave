@@ -1,5 +1,14 @@
+use crate::GLOBAL_CONFIG;
 use rand::Rng;
 use regex::Regex;
+
+//判断是否是无效的用户名
+pub fn is_invalid_user_name(user: &str) -> bool {
+    user == GLOBAL_CONFIG.interface.api_scope
+        || user == GLOBAL_CONFIG.interface.admin_scope
+        || user == GLOBAL_CONFIG.interface.blog_scope
+}
+
 /*判断是否是邮箱地址*/
 pub fn is_valid_email(email: &str) -> bool {
     let re = Regex::new(r"^([a-zA-Z0-9._%+-]+)@([a-zA-Z0-9.-]+\.[a-zA-Z]{2,})$").unwrap();

@@ -7,10 +7,9 @@ use actix_web::{
     dev::{Service, ServiceRequest, ServiceResponse, Transform},
     Error, HttpMessage,
 };
+use brave_config::utils::error::AuthError;
+use brave_config::utils::jwt::{TokenMsg, GLOB_JOT};
 use brave_config::GLOBAL_CONFIG;
-use brave_utils::error::AuthError;
-use brave_utils::jwt::jwt::TokenMsg;
-use brave_utils::jwt::jwt::GLOB_JOT;
 use futures_util::future::LocalBoxFuture;
 
 pub struct JWTAuth;

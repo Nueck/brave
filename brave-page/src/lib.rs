@@ -1,8 +1,13 @@
+pub mod admin;
 mod error;
 mod files;
+mod functionally;
 mod home;
 mod index;
+mod macros;
+mod single_page;
 mod static_html;
+mod utils;
 
 use crate::index::{index_page, main_page};
 use actix_files::Files;

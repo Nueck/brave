@@ -3,11 +3,11 @@ use actix_web::error::ErrorUnauthorized;
 use actix_web::{delete, post, put, web, HttpResponse, Responder};
 use brave_config::app::AppState;
 use brave_config::interface::Interface;
+use brave_config::utils::jwt::UserDataInfo;
 use brave_config::GLOBAL_CONFIG;
 use brave_db::entity::prelude::Users;
 use brave_db::entity::users;
 use brave_db::enumeration::user_enum::UserStatusEnum;
-use brave_utils::jwt::jwt::UserDataInfo;
 use sea_orm::prelude::DateTime;
 use sea_orm::ActiveValue::Set;
 use sea_orm::{

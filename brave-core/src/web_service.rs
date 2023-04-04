@@ -70,7 +70,7 @@ pub async fn web_start() -> std::io::Result<()> {
         App::new()
             .app_data(web::Data::new(states.clone())) //数据库
             .wrap(Logger::default()) //日志
-            .configure(brave_admin::admin_config) //后台管理
+            .configure(brave_page::admin::admin_config) //后台管理
             .service(
                 web::scope(&GLOBAL_CONFIG.interface.api_scope)
                     .wrap(JWTAuth) //身份验证

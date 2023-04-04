@@ -13,8 +13,6 @@ members = [
     "brave-config",
     "brave-db",
     "brave-db/migration",
-    "brave-utils",
-    "brave-admin",
     "brave-page",
 ]
 

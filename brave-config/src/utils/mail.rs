@@ -1,4 +1,4 @@
-use crate::common::is_outlook_email;
+use crate::utils::common::is_outlook_email;
 use lettre::message::header::ContentType;
 use lettre::transport::smtp::authentication::Credentials;
 use lettre::{Message, SmtpTransport, Transport};
