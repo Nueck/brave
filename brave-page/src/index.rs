@@ -7,15 +7,18 @@ use brave_db::entity::prelude::Users;
 use brave_db::entity::users;
 use sea_orm::{ColumnTrait, EntityTrait, QueryFilter};
 
-/*用于页面的加载*/
-pub async fn main_page() -> Result<impl Responder> {
+///用于页面的加载
+pub(crate) async fn main_page() -> Result<impl Responder> {
     let admin_blog_add = Interface::redirect_admin_home();
     Ok(HttpResponse::Found()
         .append_header((header::LOCATION, admin_blog_add))
         .finish())
 }
 
-pub async fn index_page(data: web::Data<AppState>, name: Path<String>) -> Result<impl Responder> {
+pub(crate) async fn index_page(
+    data: web::Data<AppState>,
+    name: Path<String>,
+) -> Result<impl Responder> {
     /*判断数据库中是否有这个用户*/
     let db = &data.conn;
     match Users::find()

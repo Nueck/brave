@@ -11,7 +11,7 @@ use brave_utils::jwt::jwt::{Claims, UserData};
 use jsonwebtoken::get_current_timestamp;
 use sea_orm::ActiveValue::Set;
 use sea_orm::{ActiveModelTrait, ColumnTrait, EntityTrait, QueryFilter};
-use serde::{Deserialize, Serialize};
+use serde::Deserialize;
 
 #[derive(Deserialize)]
 pub struct UserInfo {

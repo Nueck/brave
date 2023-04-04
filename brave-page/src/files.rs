@@ -8,7 +8,10 @@ use brave_config::interface::Interface;
 use std::path::PathBuf;
 
 #[get("/{name}/{filename:.*}")]
-pub async fn file_load(path: Path<(String, String)>, req: HttpRequest) -> Result<impl Responder> {
+pub(crate) async fn file_load(
+    path: Path<(String, String)>,
+    req: HttpRequest,
+) -> Result<impl Responder> {
     let (name, filename) = path.into_inner();
 
     //过滤html文件

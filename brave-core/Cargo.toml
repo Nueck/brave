@@ -11,10 +11,9 @@ repository = "https://github.com/Nueck/brave/"
 [dependencies]
 brave-utils = { path = "../brave-utils" }
 brave-config = { path = "../brave-config" }
-brave-home = { path = "../brave-home" }
 brave-db = { path = "../brave-db" }
 brave-admin = { path = "../brave-admin" }
-brave-blog = { path = "../brave-blog" }
+brave-page = { path = "../brave-page" }
 brave-data = { path = "../brave-data" }
 actix-web.workspace = true
 actix-files.workspace = true

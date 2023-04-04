@@ -10,7 +10,7 @@ mod home;
 mod page;
 
 //用于blog的页面加载
-pub fn blog_static_config(cfg: &mut web::ServiceConfig) {
+pub(crate) fn blog_static_config(cfg: &mut web::ServiceConfig) {
     cfg.service(home::home_page)
         .service(about::about_page)
         .service(error_page::error_page)

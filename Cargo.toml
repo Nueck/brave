@@ -15,8 +15,7 @@ members = [
     "brave-db/migration",
     "brave-utils",
     "brave-admin",
-    "brave-blog",
-    "brave-home"
+    "brave-page",
 ]
 
 [dependencies]

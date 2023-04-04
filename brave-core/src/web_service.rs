@@ -9,7 +9,7 @@ use actix_web::{web, App, HttpServer};
 use brave_config::interface::Interface;
 use brave_config::{config_init, GLOBAL_CONFIG, GLOBAL_DATA};
 use brave_data::data_config;
-use brave_home::home_config;
+use brave_page::home_config;
 
 #[actix_rt::main]
 pub async fn web_start() -> std::io::Result<()> {
@@ -88,7 +88,7 @@ pub async fn web_start() -> std::io::Result<()> {
                             .allow_any_origin() //允许任何来源
                             .max_age(3600),
                     )
-                    .configure(brave_blog::blog_config), //博客显示
+                    .configure(brave_page::blog_config), //博客显示
             )
             //数据加载和上传的使用data为前缀的接口
             .service(

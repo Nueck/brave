@@ -1,5 +1,5 @@
 [package]
-name = "brave-home"
+name = "brave-page"
 version = "0.1.0"
 edition = "2021"
 
@@ -9,10 +9,17 @@ edition = "2021"
 brave-utils = { path = "../brave-utils" }
 brave-db = { path = "../brave-db" }
 brave-config = { path = "../brave-config" }
+
 actix-web.workspace = true
-askama.workspace = true
-log.workspace = true
 actix-files.workspace = true
-sea-orm.workspace = true
+actix-rt.workspace = true
 actix-cors.workspace = true
+once_cell.workspace = true
+askama.workspace = true
+minijinja.workspace = true
+actix-web-lab.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+sea-orm.workspace = true
+log.workspace = true
 

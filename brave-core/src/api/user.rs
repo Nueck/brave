@@ -6,14 +6,12 @@ use brave_config::interface::Interface;
 use brave_config::GLOBAL_CONFIG;
 use brave_db::entity::prelude::Users;
 use brave_db::entity::users;
-use brave_db::entity::users::Model;
 use brave_db::enumeration::user_enum::UserStatusEnum;
 use brave_utils::jwt::jwt::UserDataInfo;
 use sea_orm::prelude::DateTime;
 use sea_orm::ActiveValue::Set;
 use sea_orm::{
-    ActiveModelTrait, ColumnTrait, DbErr, DeleteResult, EntityTrait, FromQueryResult, QueryFilter,
-    QuerySelect,
+    ActiveModelTrait, ColumnTrait, EntityTrait, FromQueryResult, QueryFilter, QuerySelect,
 };
 use serde::{Deserialize, Serialize};
 
@@ -107,7 +105,7 @@ async fn get_user_info(
     }
 }
 
-#[deriromQueryResultve(F, Deserialize, Serialize)]
+#[derive(FromQueryResult, Deserialize, Serialize)]
 struct UsersLists {
     user_name: String,
     authority: String,
@@ -211,6 +209,13 @@ async fn delete_user(
         let db = &data.conn;
         let id = query.into_inner();
 
+        let data: users::ActiveModel = Users::find_by_id(id)
+            .one(db)
+            .await
+            .expect("deleteUser")
+            .unwrap()
+            .into();
+
         //判断用户是否是管理员（禁止删除管理员）
         if data.authority.clone().unwrap() == GLOBAL_CONFIG.authority.super_admin.clone().unwrap() {
             const MSG: &str = "The administrator cannot be deleted";
@@ -264,6 +269,7 @@ async fn update_user(
         if GLOBAL_CONFIG
             .authority
             .auth
+            .clone()
             .unwrap()
             .contains(&json.authority)
         {
