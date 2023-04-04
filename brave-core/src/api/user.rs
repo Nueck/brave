@@ -1,3 +1,4 @@
+use crate::entity::user_entity::UserTableData;
 use actix_web::error::ErrorUnauthorized;
 use actix_web::{delete, post, put, web, HttpResponse, Responder};
 use brave_config::app::AppState;
@@ -5,6 +6,7 @@ use brave_config::interface::Interface;
 use brave_config::GLOBAL_CONFIG;
 use brave_db::entity::prelude::Users;
 use brave_db::entity::users;
+use brave_db::entity::users::Model;
 use brave_db::enumeration::user_enum::UserStatusEnum;
 use brave_utils::jwt::jwt::UserDataInfo;
 use sea_orm::prelude::DateTime;
@@ -19,7 +21,9 @@ pub fn user_config(cfg: &mut web::ServiceConfig) {
     cfg.service(get_users)
         .service(get_user_info)
         .service(get_user_data_info)
-        .service(delete_user);
+        .service(delete_user)
+        .service(update_user)
+        .service(delete_user_soft);
 }
 
 /*获取用户的文章总信息*/
@@ -209,7 +213,7 @@ async fn delete_user(
 
         //判断用户是否是管理员（禁止删除管理员）
         if data.authority.clone().unwrap() == GLOBAL_CONFIG.authority.super_admin.clone().unwrap() {
-            const MSG: &str = "No permission to delete";
+            const MSG: &str = "The administrator cannot be deleted";
             let json = serde_json::json!({"state": "error",  "message":MSG });
             return HttpResponse::Ok().json(json);
         }
@@ -230,6 +234,7 @@ async fn update_user(
     data: web::Data<AppState>,
     token: web::ReqData<UserDataInfo>,
     query: web::Path<i32>,
+    json: web::Json<UserTableData>,
 ) -> impl Responder {
     let auth = token.auth.clone();
 
@@ -244,17 +249,34 @@ async fn update_user(
         let db = &data.conn;
         let id = query.into_inner();
 
-        //判断用户是否是管理员（禁止删除管理员）
-        if data.authority.clone().unwrap() == GLOBAL_CONFIG.authority.super_admin.clone().unwrap() {
-            const MSG: &str = "No permission to delete";
-            let json = serde_json::json!({"state": "error",  "message":MSG });
-            return HttpResponse::Ok().json(json);
-        }
+        //更新用户
+        let mut data: users::ActiveModel = Users::find_by_id(id)
+            .one(db)
+            .await
+            .expect("deleteUser")
+            .unwrap()
+            .into();
 
-        //删除用户
-        match Users::delete_by_id(id).exec(db).await {
+        data.user_name = Set(json.user_name.to_owned());
+        data.user_status = Set(json.user_status);
+        data.email = Set(json.email.to_owned());
+
+        if GLOBAL_CONFIG
+            .authority
+            .auth
+            .unwrap()
+            .contains(&json.authority)
+        {
+            data.authority = Set(json.authority.to_owned());
+        };
+
+        match data.update(db).await {
             Ok(_) => HttpResponse::Ok().json(serde_json::json!({"state": "success"})),
-            Err(_) => HttpResponse::Ok().json(serde_json::json!({"state": "error"})),
+            Err(_) => {
+                const MSG: &str = "Update failure";
+                let json = serde_json::json!({"state": "error",  "message":MSG });
+                return HttpResponse::Ok().json(json);
+            }
         }
     } else {
         ErrorUnauthorized("Lack of authority").into()
