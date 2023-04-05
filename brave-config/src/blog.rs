@@ -3,7 +3,7 @@ use crate::GLOBAL_CONFIG;
 //生成博客的文章的id
 pub fn generate_blog_table(name: &str, table_id: &i64) -> String {
     format!(
-        "http://{}:{}/{}/{}/page?table_id={}",
+        "http://{}:{}/{}/{}/page/{}",
         GLOBAL_CONFIG.interface.service_add,
         GLOBAL_CONFIG.interface.service_port,
         GLOBAL_CONFIG.interface.blog_scope,

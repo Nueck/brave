@@ -10,6 +10,7 @@ mod single_page;
 mod static_html;
 mod utils;
 
+use crate::files::file_load_config;
 use crate::index::{index_page, main_page};
 use actix_files::Files;
 use actix_web::web;
@@ -18,6 +19,7 @@ use actix_web::web;
 pub fn home_config(cfg: &mut web::ServiceConfig) {
     cfg.configure(home::index::index_config).service(
         Files::new("/", "./templates/")
+            .redirect_to_slash_directory()
             .use_last_modified(true)
             .prefer_utf8(true),
     );
@@ -30,5 +32,5 @@ pub fn blog_config(cfg: &mut web::ServiceConfig) {
         .route("/{name}", web::get().to(index_page))
         .route("/{name}/", web::get().to(index_page))
         .configure(static_html::blog_static_config)
-        .service(files::file_load); // .service(index::page_handler),
+        .configure(file_load_config); // .service(index::page_handler),
 }

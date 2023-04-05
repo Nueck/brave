@@ -2,12 +2,16 @@
 use actix_files::NamedFile;
 use actix_web::http::header;
 use actix_web::web::Path;
-use actix_web::{get, HttpRequest, HttpResponse, Responder, Result};
+use actix_web::{web, HttpRequest, HttpResponse, Responder, Result};
 use brave_config::blog::get_blog_error;
 use brave_config::interface::Interface;
 use std::path::PathBuf;
 
-#[get("/{name}/{filename:.*}")]
+//用于blog的页面加载
+pub(crate) fn file_load_config(cfg: &mut web::ServiceConfig) {
+    cfg.route("/{name}/{filename:.*}", web::get().to(file_load));
+}
+
 pub(crate) async fn file_load(
     path: Path<(String, String)>,
     req: HttpRequest,
