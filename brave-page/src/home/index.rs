@@ -1,14 +1,9 @@
-use actix_files::NamedFile;
 use actix_web::http::header;
-use actix_web::{get, web, HttpRequest, HttpResponse, Responder, Result};
+use actix_web::{get, web, HttpResponse, Responder, Result};
 use askama::DynTemplate;
 use askama::Template;
-use brave_config::app::AppState;
 use brave_config::init::InitStatus;
 use brave_config::interface::Interface;
-use brave_db::entity::prelude::Users;
-use brave_db::entity::users;
-use sea_orm::{ColIdx, ColumnTrait, EntityTrait, QueryFilter};
 
 #[derive(Template)]
 #[template(path = "index.html")]

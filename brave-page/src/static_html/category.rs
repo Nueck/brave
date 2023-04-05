@@ -1,22 +1,17 @@
 use crate::entity::ArticlesInfo;
 use actix_web::http::header;
 use actix_web::web::{self, Path};
-use actix_web::{get, put, HttpRequest, HttpResponse, Responder, Result};
+use actix_web::{get, HttpResponse, Responder, Result};
 use brave_config::app::AppState;
 use brave_config::blog::{
     get_blog_about, get_blog_contact, get_blog_content, get_blog_error, get_blog_home,
 };
 use brave_config::interface::Interface;
-use brave_db::entity::prelude::{Article, Users};
+use brave_db::entity::article;
+use brave_db::entity::prelude::Users;
 use brave_db::entity::users;
-use brave_db::entity::{article, article_tag};
 use minijinja::{context, Environment};
-use sea_orm::prelude::Json;
-use sea_orm::{
-    ColumnTrait, DbErr, EntityTrait, JoinType, JsonValue, ModelTrait, QueryFilter, QuerySelect,
-    RelationTrait,
-};
-use serde_json::Value;
+use sea_orm::{ColumnTrait, EntityTrait, JoinType, QueryFilter, QuerySelect, RelationTrait};
 use std::fs;
 use std::path::PathBuf;
 
@@ -91,9 +86,11 @@ pub async fn category_info_page(
         .select_only()
         .columns([article::Column::Subtitle, article::Column::Title])
         .column(article::Column::HtmlContent)
-        .column_as(article::Column::ImgUrl, "bg_img_url")
+        .column_as(article::Column::ImgUrl, "bg_img")
+        .column(article::Column::Url)
         .join(JoinType::InnerJoin, article::Relation::Users.def())
         .filter(users::Column::UserName.contains(&name))
+        .filter(article::Column::Tag.contains(&category))
         .into_model::<ArticlesInfo>()
         .all(db)
         .await
