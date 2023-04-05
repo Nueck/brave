@@ -1,3 +1,4 @@
+use crate::static_html::category::category_info_page;
 use crate::static_html::page::blog_static_page_config;
 use actix_web::web;
 
@@ -16,6 +17,7 @@ pub(crate) fn blog_static_config(cfg: &mut web::ServiceConfig) {
         .service(error_page::error_page)
         .service(content::content_page)
         .service(category::category_page)
+        .service(category_info_page)
         .service(contact::contact_page)
         .configure(blog_static_page_config); // .service(index::page_handler),
 }

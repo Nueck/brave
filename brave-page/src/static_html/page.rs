@@ -107,6 +107,12 @@ async fn page(
                 "".to_string()
             };
 
+            let bg_img = if let Some(data) = model.img_url {
+                data
+            } else {
+                "".to_string()
+            };
+
             let string = fs::read_to_string(path_buf).unwrap();
 
             let mut env = Environment::new();
@@ -123,7 +129,7 @@ async fn page(
             //对数据处理一下
 
             let str = tmpl
-                .render(context! {name,personal_details,home,about,content,contact,http_content,title,subtitle})
+                .render(context! {name,personal_details,home,about,content,contact,http_content,title,subtitle,bg_img})
                 .unwrap();
             Ok(HttpResponse::Ok().body(str))
         }

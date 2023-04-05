@@ -95,4 +95,15 @@ impl Interface {
             &InitStatus::global().username.clone().unwrap(),
         )
     }
+
+    //重新定向到用户的category上去
+    pub fn redirect_user_category(name: &str) -> String {
+        format!(
+            "http://{}:{}/{}/{}/category",
+            GLOBAL_CONFIG.interface.service_add,
+            GLOBAL_CONFIG.interface.service_port,
+            GLOBAL_CONFIG.interface.blog_scope,
+            name
+        )
+    }
 }

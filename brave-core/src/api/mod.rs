@@ -9,6 +9,7 @@ use actix_web::web;
 mod article;
 mod init;
 mod login;
+mod tag;
 mod token;
 mod upload;
 mod user;
