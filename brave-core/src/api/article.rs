@@ -1,6 +1,7 @@
 use actix_web::web::Json;
 use actix_web::{post, web, HttpResponse, Responder};
 use brave_config::app::AppState;
+use brave_config::blog::generate_blog_table;
 use brave_config::utils::jwt::UserDataInfo;
 use brave_db::entity::article;
 use brave_db::entity::article::Model;
@@ -129,6 +130,7 @@ async fn save_article_data(
 ) -> impl Responder {
     let db = &data.conn;
     let id = &token.id;
+    let name = &token.aud;
 
     match Users::find_by_id(id.clone().to_owned())
         .one(db)
@@ -152,10 +154,23 @@ async fn save_article_data(
 
             //更新数据
             match model.insert(db).await {
-                Ok(_) => {
-                    const MSG: &str = "Save data successfully";
-                    HttpResponse::Ok()
-                        .json(serde_json::json!({"state": "success", "message": MSG }))
+                Ok(table) => {
+                    let mut model: article::ActiveModel = table.into();
+                    let id = model.article_id.clone().unwrap();
+                    model.url = Set(Some(generate_blog_table(&name, &id)));
+
+                    match model.update(db).await {
+                        Ok(_) => {
+                            const MSG: &str = "Save data successfully";
+                            HttpResponse::Ok()
+                                .json(serde_json::json!({"state": "success", "message": MSG }))
+                        }
+                        Err(_) => {
+                            const MSG: &str = "Failed to Save data url";
+                            HttpResponse::Ok()
+                                .json(serde_json::json!({"state": "error", "message": MSG }))
+                        }
+                    }
                 }
                 Err(_) => {
                     const MSG: &str = "Failed to Save data";
