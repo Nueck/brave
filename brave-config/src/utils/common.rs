@@ -7,6 +7,10 @@ pub fn is_invalid_user_name(user: &str) -> bool {
     user == GLOBAL_CONFIG.interface.api_scope
         || user == GLOBAL_CONFIG.interface.admin_scope
         || user == GLOBAL_CONFIG.interface.blog_scope
+        || user == "css"
+        || user == "js"
+        || user == "img"
+        || user == "fonts"
 }
 
 /*判断是否是邮箱地址*/
@@ -25,13 +29,13 @@ pub fn is_outlook_email(email: &str) -> bool {
     domain == "outlook.com"
 }
 
-/*生成随机数*/
+///生成随机数
 pub fn generation_random_number() -> u32 {
     let mut rng = rand::thread_rng();
     rng.gen_range(100000..=999999)
 }
 
-/*判断文件路径是否是html*/
+///判断文件路径是否是html
 pub fn is_html_path(path: &str) -> bool {
     path.ends_with(".html")
 }
