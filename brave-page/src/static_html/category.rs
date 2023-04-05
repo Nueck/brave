@@ -1,4 +1,5 @@
 use crate::entity::ArticlesInfo;
+use crate::files::file_load;
 use actix_web::http::header;
 use actix_web::web::{self, Path};
 use actix_web::{get, HttpResponse, Responder, Result};
@@ -14,6 +15,12 @@ use minijinja::{context, Environment};
 use sea_orm::{ColumnTrait, EntityTrait, JoinType, QueryFilter, QuerySelect, RelationTrait};
 use std::fs;
 use std::path::PathBuf;
+
+pub(crate) fn blog_static_category_config(cfg: &mut web::ServiceConfig) {
+    cfg.service(category_page)
+        .service(category_info_page)
+        .route("/{name}/category/{filename:.*}", web::get().to(file_load));
+}
 
 //用于分类和内容显示
 #[get("/{name}/category")]
