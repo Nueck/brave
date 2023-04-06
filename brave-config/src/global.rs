@@ -22,9 +22,9 @@ pub struct GConfig {
 
 impl GConfig {
     pub(crate) fn open_yaml() -> Self {
-        #[cfg(not(debug_assertions))]
-        let f_yaml = File::open("myenv.yaml").expect("Could not open file.");
         #[cfg(debug_assertions)]
+        let f_yaml = File::open("myenv.yaml").expect("Could not open file.");
+        #[cfg(not(debug_assertions))]
         let f_yaml = File::open("config.yaml").expect("Could not open file.");
 
         serde_yaml::from_reader(f_yaml).expect("Could not read values.")
