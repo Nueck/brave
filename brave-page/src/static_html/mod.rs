@@ -1,4 +1,4 @@
-use crate::static_html::category::{blog_static_category_config, category_info_page};
+use crate::static_html::category::blog_static_category_config;
 use crate::static_html::page::blog_static_page_config;
 use actix_web::web;
 

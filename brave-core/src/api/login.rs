@@ -4,11 +4,12 @@ use brave_config::utils::common::{generation_random_number, is_invalid_user_name
 use brave_config::utils::fs::gen_symlink_default_skin;
 use brave_config::utils::jwt::{Claims, UserData, GLOB_JOT};
 use brave_config::GLOBAL_CONFIG;
+use brave_db::entity::article_tag;
 use brave_db::entity::prelude::Users;
 use brave_db::entity::users;
 use jsonwebtoken::get_current_timestamp;
 use sea_orm::ActiveValue::Set;
-use sea_orm::{ActiveModelTrait, ColumnTrait, EntityTrait, QueryFilter};
+use sea_orm::{ActiveModelTrait, ColumnTrait, EntityTrait, JsonValue, QueryFilter};
 use serde::Deserialize;
 
 #[derive(Deserialize)]
@@ -249,7 +250,19 @@ async fn register(data: web::Data<AppState>, info: web::Json<RegisterInfo>) -> H
                         };
 
                         let insert_status = match users::Entity::insert(user).exec(db).await {
-                            Ok(_) => gen_symlink_default_skin(&info.username), //此时我们将进行链接处理 使用默认皮肤
+                            Ok(table) => {
+                                gen_symlink_default_skin(&info.username);
+
+                                //添加一条tag数据
+                                let tags = article_tag::ActiveModel {
+                                    user_id: Set(table.last_insert_id),
+                                    content: Set(JsonValue::Array(Vec::new())),
+                                    ..Default::default()
+                                };
+                                article_tag::Entity::insert(tags).exec(db).await.unwrap();
+                                true
+                            }
+
                             Err(err) => {
                                 log::error!("Registration failure : {err:?}"); //打印错误日志
                                 false

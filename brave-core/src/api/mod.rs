@@ -1,6 +1,7 @@
 use crate::api::article::article_config;
 use crate::api::init::init_config;
 use crate::api::login::login_config;
+use crate::api::tag::tag_config;
 use crate::api::token::token_config;
 use crate::api::upload::data_config;
 use crate::api::user::user_config;
@@ -20,7 +21,8 @@ pub fn api_post_config(cfg: &mut web::ServiceConfig) {
         .configure(login_config)
         .configure(user_config)
         .configure(article_config)
-        .configure(data_config);
+        .configure(data_config)
+        .configure(tag_config);
 }
 
 // pub fn api_get_config(_cfg: &mut web::ServiceConfig) {}

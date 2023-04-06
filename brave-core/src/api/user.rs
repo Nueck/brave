@@ -1,4 +1,4 @@
-use crate::entity::user_entity::UserTableData;
+use crate::entity::UserTableData;
 use actix_web::error::ErrorUnauthorized;
 use actix_web::{delete, post, put, web, HttpResponse, Responder};
 use brave_config::app::AppState;
