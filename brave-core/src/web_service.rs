@@ -1,4 +1,5 @@
 use crate::middleware::auth_middleware::JWTAuth;
+#[allow(unused_imports)]
 use crate::middleware::head_middleware::HeadCheck;
 use crate::middleware::init_middleware::InitAuth;
 use actix_cors::Cors;
@@ -76,7 +77,7 @@ pub async fn web_start() -> std::io::Result<()> {
                     .wrap(JWTAuth) //身份验证
                     .wrap(InitAuth) //初始化判断
                     .wrap(cors)
-                    .wrap(HeadCheck) //用于浏览器过滤
+                    // .wrap(HeadCheck) //用于浏览器过滤
                     .configure(super::api::api_post_config), //api的日志
             ) //api配置
             .service(
