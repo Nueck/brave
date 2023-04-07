@@ -7,6 +7,7 @@ use serde::{Deserialize, Serialize};
 pub struct EnvConfig {
     pub pg: PGConfig,
     pub template_autoload: Option<bool>,
+    pub enable_ssl: Option<bool>, //TODO:之后写SSL
 }
 
 impl EnvConfig {

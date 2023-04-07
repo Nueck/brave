@@ -1,13 +1,14 @@
 use crate::template::MiniJinjaRenderer;
 use actix_web::http::header;
-use actix_web::{web, HttpRequest, HttpResponse, Responder, Result};
+use actix_web::{get, web, HttpRequest, HttpResponse, Responder, Result};
 use brave_config::init::InitStatus;
 use brave_config::interface::Interface;
 
 pub fn index_config(cfg: &mut web::ServiceConfig) {
-    cfg.service(web::resource("/").route(web::get().to(index)));
+    cfg.service(index);
 }
 
+#[get("/")]
 async fn index(tmpl_env: MiniJinjaRenderer, req: HttpRequest) -> Result<impl Responder> {
     if InitStatus::global().is_init {
         let add = Interface::redirect_login_address();

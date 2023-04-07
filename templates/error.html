@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- meta -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+    <meta name="description" content="Brave">
+    <link rel="icon" href="favicon.ico"/>
+    <meta name="keywords" content="">
+
+    <title>Brave- Home</title>
+
+    <link rel="stylesheet" href="css/style.css" type="text/css">
+
+    <script src="js/html5shiv.js"></script>
+    <script src="js/respond.min.js"></script>
+
+</head>
+<style>
+
+    .skip-button {
+        width: 140px;
+        height: 45px;
+        font-family: 'Roboto', sans-serif;
+        font-size: 11px;
+        text-transform: uppercase;
+        letter-spacing: 2.5px;
+        font-weight: 500;
+        color: #000;
+        background-color: #fff;
+        border: none;
+        border-radius: 45px;
+        box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+        transition: all 0.3s ease 0s;
+        cursor: pointer;
+        outline: none;
+    }
+
+    .skip-button:hover {
+        background-color: #2EE59D;
+        box-shadow: 0 15px 20px rgba(46, 229, 157, 0.4);
+        color: #fff;
+        transform: translateY(-7px);
+    }
+</style>
+<body class="simple">
+
+<div class="preloader-container">
+    <div class="content-container">
+
+        <span class="spinner-section-far"></span>
+
+        <h6 class="preloader-text">
+            LOADING</h6>
+    </div>
+</div>
+
+
+<div class="page-container" style="user-select: none;user-input: none;">
+
+    <div class="section-container">
+
+        <section class="home-section">
+
+            <div class="bg-container"></div>
+
+            <div class="content col-lg-8 col-lg-offset-2 col-md-8 col-md-offset-2 col-sm-12 col-xs-rlt no-pad centering-y"
+            >
+                <div class="col-md-12 col-sm-12">
+                    <!-- headline -->
+                    <h1>404</h1>
+                    <div class="sub-title" id="wordsrotator">
+                        <h4>{{ error }}</h4>
+                    </div>
+
+                    <p class="desc">
+                        访问资源不存在
+                        <a href="{{ home }}">
+                            <button class="skip-button">返回主页面
+                            </button>
+                        </a>
+                    </p>
+
+
+                </div>
+            </div>
+
+        </section>
+
+    </div>
+
+</div>
+
+
+<script type="text/javascript" src="js/jquery.js"></script>
+
+<script type="text/javascript" src="js/bootstrap.min.js"></script>
+
+<script type="text/javascript" src="js/plugins.min.js"></script>
+
+<script type="text/javascript" src="js/main_constellation.js"></script>
+</body>
+</html>

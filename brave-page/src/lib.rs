@@ -12,10 +12,13 @@ mod template;
 mod utils;
 
 use crate::files::file_load_config;
+use crate::home::error::not_found;
 use crate::index::{index_page, main_page};
 use crate::template::template_init;
 use actix_cors::Cors;
 use actix_files::Files;
+use actix_web::http::StatusCode;
+use actix_web::middleware::ErrorHandlers;
 use actix_web::web;
 use brave_config::GLOBAL_CONFIG;
 
@@ -23,19 +26,23 @@ use brave_config::GLOBAL_CONFIG;
 pub fn page_config(cfg: &mut web::ServiceConfig) {
     let tmpl_reload = web::Data::new(template_init());
 
-    cfg.app_data(tmpl_reload.clone())
-        .service(
-            web::scope(&GLOBAL_CONFIG.interface.blog_scope) //博客方面的加载
-                .wrap(
-                    Cors::default()
-                        .allow_any_header()
-                        .allowed_methods(vec!["GET"]) //只允许GET
-                        .allow_any_origin() //允许任何来源
-                        .max_age(3600),
-                )
-                .configure(blog_config), //博客显示
-        )
-        .configure(home_config); // .service(index::page_handler),
+    cfg.service(
+        web::scope("")
+            .app_data(tmpl_reload.clone())
+            .wrap(ErrorHandlers::new().handler(StatusCode::NOT_FOUND, not_found))
+            .service(
+                web::scope(&GLOBAL_CONFIG.interface.blog_scope) //博客方面的加载
+                    .wrap(
+                        Cors::default()
+                            .allow_any_header()
+                            .allowed_methods(vec!["GET"]) //只允许GET
+                            .allow_any_origin() //允许任何来源
+                            .max_age(3600),
+                    )
+                    .configure(blog_config), //博客显示
+            )
+            .configure(home_config),
+    );
 }
 
 ///用于首页显示配置的
