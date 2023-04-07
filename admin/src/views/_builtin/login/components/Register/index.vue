@@ -22,7 +22,7 @@
       <n-input v-model:value="model.confirmPwd" type="password" show-password-on="click" placeholder="确认密码" />
     </n-form-item>
     <n-space :vertical="true" :size="18">
-      <login-agreement v-model:value="agreement" />
+      <!-- <login-agreement v-model:value="agreement" /> -->
       <n-button type="primary" size="large" :block="true" :round="true" @click="handleSubmit">确定</n-button>
       <n-button size="large" :block="true" :round="true" @click="toLoginModule('pwd-login')">返回</n-button>
     </n-space>
@@ -31,18 +31,21 @@
 
 <script lang="ts" setup>
 import { reactive, ref, toRefs } from 'vue';
+import { storeToRefs } from 'pinia';
 import type { FormInst, FormRules } from 'naive-ui';
 import { useSmsCode } from '@/hooks';
 import { formRules, getConfirmPwdRule } from '@/utils';
-import { fetchRegister } from '~/src/service';
 import { useAuthStore } from '~/src/store';
 import { toLoginModule } from '../index';
 
-const { setTempInfoToLocal, removeTempInfoFormLocal } = useAuthStore();
+const auth = useAuthStore();
+const authStore = storeToRefs(auth);
 
 const { label, isCounting, loading: smsLoading, getEmailCode, tokenCode } = useSmsCode();
 
 const formRef = ref<HTMLElement & FormInst>();
+
+// const agreement = ref(false);
 
 const model = reactive({
   username: '',
@@ -60,10 +63,12 @@ const rules: FormRules = {
   confirmPwd: getConfirmPwdRule(toRefs(model).pwd)
 };
 
-const agreement = ref(false);
-
 async function handleSubmit() {
   await formRef.value?.validate();
+
+  if (!authStore.registerLoading) {
+    return;
+  }
 
   const info: ApiAuth.RegisterInfo = {
     username: model.username,
@@ -72,19 +77,7 @@ async function handleSubmit() {
     verify_code: model.code,
     code: tokenCode.value
   };
-
-  const { message } = await fetchRegister(info);
-  /* 将数据获取 */
-  if (message) {
-    window.$message?.success('注册成功!');
-    removeTempInfoFormLocal();
-    const { username, pwd } = model;
-    setTempInfoToLocal(username, pwd);
-
-    setTimeout(() => {
-      toLoginModule('pwd-login');
-    }, 500);
-  }
+  await auth.register(model, info);
 }
 </script>
 

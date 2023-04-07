@@ -1,9 +1,10 @@
 import { unref, nextTick } from 'vue';
 import { defineStore } from 'pinia';
 import { router } from '@/router';
-import { fetchLogin, fetchUserInfo, fetchEmailLogin, fetchUserDataInfo } from '@/service';
+import { fetchLogin, fetchUserInfo, fetchEmailLogin, fetchUserDataInfo, fetchRegister } from '@/service';
 import { useRouterPush } from '@/composables';
 import { localStg } from '@/utils';
+import { toLoginModule } from '~/src/views/_builtin/login/components';
 import { useTabStore } from '../tab';
 import { useRouteStore } from '../route';
 import { getToken, getUserInfo, clearAuthStorage, getTempInfo, setTempInfo, removeTempInfo } from './helpers';
@@ -17,6 +18,8 @@ interface AuthState {
   loginLoading: boolean;
   // 用户的临时信息
   tempInfo: Temp.TempInfo | null;
+
+  registerLoading: boolean;
 }
 
 export const useAuthStore = defineStore('auth-store', {
@@ -24,6 +27,7 @@ export const useAuthStore = defineStore('auth-store', {
     userInfo: getUserInfo(),
     token: getToken(),
     loginLoading: false,
+    registerLoading: false,
     tempInfo: getTempInfo()
   }),
   getters: {
@@ -107,7 +111,6 @@ export const useAuthStore = defineStore('auth-store', {
 
     /**
      * 处理返回的token
-     * @param backendToken - 返回的token
      */
     async handleUserToken(backendToken: ApiAuth.Token) {
       // 先把token存储到缓存中(后面接口的请求头需要token)
@@ -133,8 +136,6 @@ export const useAuthStore = defineStore('auth-store', {
 
     /**
      * 登录
-     * @param userName - 用户名
-     * @param password - 密码
      */
     async login(userName: string, password: string) {
       this.loginLoading = true;
@@ -152,8 +153,6 @@ export const useAuthStore = defineStore('auth-store', {
 
     /**
      * 邮箱验证码登录
-     * @param userName - 用户名
-     * @param password - 密码
      */
     async email_login(email: string, verify_code: string, code: string) {
       this.loginLoading = true;
@@ -167,6 +166,26 @@ export const useAuthStore = defineStore('auth-store', {
       }
       this.loginLoading = false;
       return false;
+    },
+    /**
+     * 注册
+     */
+    async register(model: any, info: ApiAuth.RegisterInfo) {
+      this.registerLoading = true;
+
+      const { message } = await fetchRegister(info);
+
+      if (message) {
+        window.$message?.success('注册成功!');
+        this.removeTempInfoFormLocal();
+        const { username, pwd } = model;
+        this.setTempInfoToLocal(username, pwd);
+
+        setTimeout(() => {
+          toLoginModule('pwd-login');
+        }, 500);
+      }
+      this.registerLoading = false;
     }
   }
 });
