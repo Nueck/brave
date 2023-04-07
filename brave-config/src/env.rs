@@ -6,6 +6,7 @@ use serde::{Deserialize, Serialize};
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]
 pub struct EnvConfig {
     pub pg: PGConfig,
+    pub template_autoload: Option<bool>,
 }
 
 impl EnvConfig {

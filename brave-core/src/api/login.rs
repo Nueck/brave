@@ -293,7 +293,7 @@ async fn register(data: web::Data<AppState>, info: web::Json<RegisterInfo>) -> H
     }
 }
 
-// /*忘记密码*/
+///忘记密码
 #[post("/forget")]
 async fn forget(data: web::Data<AppState>, info: web::Json<ForgetInfo>) -> HttpResponse {
     /*判断邮箱地址是否存在或在用户名*/
@@ -370,7 +370,7 @@ async fn sendmail(mail: web::Json<MailInfo>) -> HttpResponse {
                     HttpResponse::Ok().json(serde_json::json!({"state": "error", "message": MSG }))
                 }
                 Some(email) => {
-                    /*生成随机数*/
+                    //生成随机数
                     if email.is_empty() {
                         const MSG: &str = "Mailbox is empty";
                         return HttpResponse::Ok()

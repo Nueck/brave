@@ -1,26 +1,26 @@
+use crate::template::MiniJinjaRenderer;
 use actix_web::http::header;
-use actix_web::{get, web, HttpResponse, Responder, Result};
-use askama::DynTemplate;
-use askama::Template;
+use actix_web::{web, HttpRequest, HttpResponse, Responder, Result};
 use brave_config::init::InitStatus;
 use brave_config::interface::Interface;
 
-#[derive(Template)]
-#[template(path = "index.html")]
-struct IndexTemplate<'a> {
-    admin_login: &'a str,
-}
-
 pub fn index_config(cfg: &mut web::ServiceConfig) {
-    cfg.service(index);
+    cfg.service(web::resource("/").route(web::get().to(index)));
 }
 
-#[get("/")]
-async fn index() -> Result<impl Responder> {
+async fn index(tmpl_env: MiniJinjaRenderer, req: HttpRequest) -> Result<impl Responder> {
     if InitStatus::global().is_init {
         let add = Interface::redirect_login_address();
-        let html = IndexTemplate { admin_login: &add }.dyn_render().unwrap();
-        Ok(HttpResponse::Ok().body(html))
+        Ok(tmpl_env
+            .render(
+                "home_index.html",
+                minijinja::context! {
+                    admin_login => add,
+                },
+            )
+            .unwrap()
+            .respond_to(&req)
+            .map_into_boxed_body())
     } else {
         let init_add = Interface::redirect_init_address();
         Ok(HttpResponse::Found()

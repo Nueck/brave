@@ -1,0 +1,9 @@
+{
+  "public": [
+    {
+      "name": "Default",
+      "img_url": "",
+      "location": "./themes/public/Default"
+    }
+  ]
+}

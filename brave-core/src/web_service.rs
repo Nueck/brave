@@ -10,40 +10,15 @@ use actix_web::{web, App, HttpServer};
 use brave_config::interface::Interface;
 use brave_config::{config_init, GLOBAL_CONFIG, GLOBAL_DATA};
 use brave_data::data_config;
-use brave_page::home_config;
+use brave_page::page_config;
 
 #[actix_rt::main]
 pub async fn web_start() -> std::io::Result<()> {
     //初始化日志
     super::log::init_log();
-    /*配置初始化*/
+
+    //配置初始化
     let states = config_init().await;
-
-    //home
-    println!(
-        "Home service start: http://{}/",
-        Interface::get_api_string()
-    );
-
-    //admin
-    println!(
-        "Admin service start: http://{}/{}/",
-        Interface::get_api_string(),
-        &GLOBAL_CONFIG.interface.admin_scope
-    );
-
-    //blog
-    println!(
-        "Blog service start: http://{}/{}/",
-        Interface::get_api_string(),
-        &GLOBAL_CONFIG.interface.blog_scope
-    );
-    //api
-    println!(
-        "API service start: http://{}/{}/",
-        Interface::get_api_string(),
-        &GLOBAL_CONFIG.interface.api_scope
-    );
 
     //开启web服务
     HttpServer::new(move || {
@@ -80,17 +55,6 @@ pub async fn web_start() -> std::io::Result<()> {
                     // .wrap(HeadCheck) //用于浏览器过滤
                     .configure(super::api::api_post_config), //api的日志
             ) //api配置
-            .service(
-                web::scope(&GLOBAL_CONFIG.interface.blog_scope) //博客方面的加载
-                    .wrap(
-                        Cors::default()
-                            .allow_any_header()
-                            .allowed_methods(vec!["GET"]) //只允许GET
-                            .allow_any_origin() //允许任何来源
-                            .max_age(3600),
-                    )
-                    .configure(brave_page::blog_config), //博客显示
-            )
             //数据加载和上传的使用data为前缀的接口
             .service(
                 web::scope(&GLOBAL_DATA.get_data_config().data.unwrap())
@@ -103,7 +67,7 @@ pub async fn web_start() -> std::io::Result<()> {
                     )
                     .configure(data_config),
             )
-            .configure(home_config)
+            .configure(page_config)
     })
     .bind(Interface::get_api_string())?
     .run()

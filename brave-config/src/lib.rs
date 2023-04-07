@@ -4,6 +4,7 @@ use crate::data::DataConfig;
 use crate::env::EnvConfig;
 use crate::global::GConfig;
 use crate::init::InitStatus;
+use crate::interface::Interface;
 use crate::utils::jwt::JWTConfig;
 use once_cell::sync::{Lazy, OnceCell};
 use std::sync::Mutex;
@@ -37,6 +38,43 @@ pub async fn config_init() -> AppState {
 
     //初始化jwt配置
     JWTConfig::new(GLOBAL_CONFIG.jwt.clone());
+
+    //home
+    println!(
+        "Home service start: http://{}/",
+        Interface::get_api_string()
+    );
+
+    //admin
+    println!(
+        "Admin service start: http://{}/{}/",
+        Interface::get_api_string(),
+        &GLOBAL_CONFIG.interface.admin_scope
+    );
+
+    //blog
+    println!(
+        "Blog service start: http://{}/{}/",
+        Interface::get_api_string(),
+        &GLOBAL_CONFIG.interface.blog_scope
+    );
+    //api
+    println!(
+        "API service start: http://{}/{}/",
+        Interface::get_api_string(),
+        &GLOBAL_CONFIG.interface.api_scope
+    );
+
+    //是否开启自动装载
+    if let Some(data) = &GLOBAL_ENV_CONFIG.template_autoload {
+        if *data {
+            log::info!("template auto-reloading is enabled");
+        } else {
+            log::warn!(
+                "template auto-reloading is disabled; run with template_autoload=true to enable"
+            );
+        }
+    };
 
     //数据库连接的
     AppState::new().await
