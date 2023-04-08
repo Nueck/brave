@@ -53,7 +53,7 @@ pub async fn web_start() -> std::io::Result<()> {
                     .wrap(InitAuth) //初始化判断
                     .wrap(cors)
                     // .wrap(HeadCheck) //用于浏览器过滤
-                    .configure(super::api::api_post_config), //api的日志
+                    .configure(super::api::api_config), //api的日志
             ) //api配置
             //数据加载和上传的使用data为前缀的接口
             .service(

@@ -1,6 +1,5 @@
-use crate::GLOB_INIT;
+use crate::{CONFIG_PATH, GLOB_INIT};
 use serde::{Deserialize, Serialize};
-use std::fs;
 use std::fs::File;
 use std::io::Write;
 use std::sync::{Mutex, MutexGuard};
@@ -24,15 +23,8 @@ impl InitStatus {
     }
 
     pub fn new(init: Option<InitStatus>) {
-        /*首先先读取配置文件中的配置*/
-        // 获取 home 目录
-        let mut config_path = dirs::config_dir().expect("Failed to get config directory");
+        let mut config_path = CONFIG_PATH.clone();
 
-        config_path.push("brave");
-        // 创建brave文件夹（如果不存在）
-        if !config_path.exists() {
-            fs::create_dir_all(&config_path).expect("Failed to create directory")
-        }
         config_path.push("config");
         /*判断文件是否存在 .config/brave/config*/
         if config_path.exists() {

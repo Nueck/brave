@@ -2,7 +2,7 @@ use crate::authority::AuthorityConfig;
 use crate::data::DataConfig;
 use crate::interface::Interface;
 use crate::page::PageConfig;
-use crate::theme::ThemeConfig;
+use crate::theme::ThemePosition;
 use crate::utils::blake3::Blake3Config;
 use crate::utils::jwt::JWTConfig;
 use crate::utils::mail::MailConfig;
@@ -21,7 +21,7 @@ pub struct GConfig {
     pub mail: Option<MailConfig>,
     data: Option<DataConfig>,
     page: Option<PageConfig>,
-    theme: Option<ThemeConfig>,
+    theme: Option<ThemePosition>,
 }
 
 impl GConfig {
@@ -65,11 +65,11 @@ impl GConfig {
         }
     }
     //
-    pub fn get_theme(&self) -> ThemeConfig {
+    pub fn get_theme(&self) -> ThemePosition {
         if let Some(data) = &self.theme {
             data.to_owned()
         } else {
-            ThemeConfig {
+            ThemePosition {
                 location: Some("theme".to_string()),
             }
         }

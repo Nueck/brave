@@ -7,6 +7,8 @@ use crate::init::InitStatus;
 use crate::interface::Interface;
 use crate::utils::jwt::JWTConfig;
 use once_cell::sync::{Lazy, OnceCell};
+use std::fs;
+use std::path::PathBuf;
 use std::sync::Mutex;
 
 pub mod admin;
@@ -23,6 +25,17 @@ pub mod interface;
 pub mod page;
 pub mod theme;
 pub mod utils;
+
+pub(crate) static CONFIG_PATH: Lazy<PathBuf> = Lazy::new(|| {
+    let mut config_path = dirs::config_dir().expect("Failed to get config directory");
+    //默认config文件夹
+    config_path.push("brave");
+
+    if !config_path.exists() {
+        fs::create_dir_all(&config_path).expect("Failed to create directory")
+    }
+    config_path
+});
 
 pub static GLOB_INIT: OnceCell<Mutex<InitStatus>> = OnceCell::new();
 
