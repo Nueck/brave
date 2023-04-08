@@ -144,7 +144,7 @@ where
 
 fn is_need_verification(path: &str) -> bool {
     !(path == format!("/{}/init", GLOBAL_CONFIG.interface.api_scope)
-        || path == format!("/{}/init-status", GLOBAL_CONFIG.interface.api_scope)
+        || path == format!("/{}/init/state", GLOBAL_CONFIG.interface.api_scope)
         || path == format!("/{}/login", GLOBAL_CONFIG.interface.api_scope)
         || path == format!("/{}/register", GLOBAL_CONFIG.interface.api_scope)
         || path == format!("/{}/sendmail", GLOBAL_CONFIG.interface.api_scope)

@@ -14,5 +14,5 @@ export function fetchInit(info: Init.InitInfo) {
  * 用于判断系统初始化状态的
  */
 export function fetchInitStatus() {
-  return basicRequest.post<Init.InitStatus>('/init-status', {});
+  return basicRequest.get<Init.InitStatus>('/init/state', {});
 }

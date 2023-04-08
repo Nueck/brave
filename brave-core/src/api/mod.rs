@@ -10,6 +10,7 @@ use actix_web::web;
 mod article;
 mod init;
 mod login;
+mod router;
 mod tag;
 mod token;
 mod upload;

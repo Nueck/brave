@@ -1,6 +1,6 @@
 use crate::entity::UserTableData;
 use actix_web::error::ErrorUnauthorized;
-use actix_web::{delete, post, put, web, HttpResponse, Responder};
+use actix_web::{delete, get, put, web, HttpResponse, Responder};
 use brave_config::app::AppState;
 use brave_config::interface::Interface;
 use brave_config::utils::jwt::UserDataInfo;
@@ -14,18 +14,20 @@ use sea_orm::{
     ActiveModelTrait, ColumnTrait, EntityTrait, FromQueryResult, QueryFilter, QuerySelect,
 };
 use serde::{Deserialize, Serialize};
+use std::path::PathBuf;
+use std::{env, fs};
 
 pub fn user_config(cfg: &mut web::ServiceConfig) {
     cfg.service(get_users)
         .service(get_user_info)
         .service(get_user_data_info)
+        .service(delete_user_soft)
         .service(delete_user)
-        .service(update_user)
-        .service(delete_user_soft);
+        .service(update_user);
 }
 
-/*获取用户的文章总信息*/
-#[post("/getUserDataInfo")]
+///获取用户的文章总信息
+#[get("/user/articles/info")]
 async fn get_user_data_info(
     data: web::Data<AppState>,
     token: web::ReqData<UserDataInfo>,
@@ -65,7 +67,7 @@ async fn get_user_data_info(
 }
 
 ///获取用户信息
-#[post("/getUserInfo")]
+#[get("/user")]
 async fn get_user_info(
     data: web::Data<AppState>,
     token: web::ReqData<UserDataInfo>,
@@ -113,8 +115,8 @@ struct UsersLists {
     create_time: DateTime,
 }
 
-/*获取用户的一些数据*/
-#[post("/getUsers")]
+///获取用户的一些数据
+#[get("/users")]
 async fn get_users(data: web::Data<AppState>, token: web::ReqData<UserDataInfo>) -> impl Responder {
     let auth = token.auth.clone();
 
@@ -209,24 +211,36 @@ async fn delete_user(
         let db = &data.conn;
         let id = query.into_inner();
 
-        let data: users::ActiveModel = Users::find_by_id(id)
-            .one(db)
-            .await
-            .expect("deleteUser")
-            .unwrap()
-            .into();
+        match Users::find_by_id(id.clone()).one(db).await.expect("") {
+            None => HttpResponse::Ok().json(serde_json::json!({"state": "error"})),
+            Some(model) => {
+                //判断用户是否是管理员（禁止删除管理员）
+                if model.authority == GLOBAL_CONFIG.authority.super_admin.clone().unwrap() {
+                    const MSG: &str = "The administrator cannot be deleted";
+                    let json = serde_json::json!({"state": "error",  "message":MSG });
+                    return HttpResponse::Ok().json(json);
+                }
 
-        //判断用户是否是管理员（禁止删除管理员）
-        if data.authority.clone().unwrap() == GLOBAL_CONFIG.authority.super_admin.clone().unwrap() {
-            const MSG: &str = "The administrator cannot be deleted";
-            let json = serde_json::json!({"state": "error",  "message":MSG });
-            return HttpResponse::Ok().json(json);
-        }
+                //删除用户
+                match Users::delete_by_id(model.user_id.clone()).exec(db).await {
+                    Ok(_) => {
+                        if let Some(location) = &GLOBAL_CONFIG.get_page().location {
+                            let mut path_buf = PathBuf::from(env::current_dir().unwrap());
+                            path_buf.push(location);
+                            path_buf.push(model.user_name.to_owned());
 
-        //删除用户
-        match Users::delete_by_id(id).exec(db).await {
-            Ok(_) => HttpResponse::Ok().json(serde_json::json!({"state": "success"})),
-            Err(_) => HttpResponse::Ok().json(serde_json::json!({"state": "error"})),
+                            if path_buf.exists() {
+                                fs::remove_file(path_buf).unwrap();
+                            }
+                        };
+                        HttpResponse::Ok().json(serde_json::json!({"state": "success"}))
+                    }
+                    Err(err) => {
+                        log::error!("{err}");
+                        HttpResponse::Ok().json(serde_json::json!({"state": "error"}))
+                    }
+                }
+            }
         }
     } else {
         ErrorUnauthorized("Lack of authority").into()
@@ -287,4 +301,17 @@ async fn update_user(
     } else {
         ErrorUnauthorized("Lack of authority").into()
     }
+}
+
+#[test]
+pub fn remove_dir_test() {
+    if let Some(location) = &GLOBAL_CONFIG.get_page().location {
+        let mut path_buf = PathBuf::from(env::current_dir().unwrap());
+        path_buf.push(location);
+        path_buf.push(model.user_name.to_owned());
+
+        if path_buf.exists() {
+            fs::remove_file(path_buf).unwrap();
+        }
+    };
 }

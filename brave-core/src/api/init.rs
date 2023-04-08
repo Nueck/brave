@@ -1,6 +1,6 @@
 /*用于初始化时候的超级管理员的创建*/
 
-use actix_web::{post, web, HttpResponse, Responder};
+use actix_web::{get, post, web, HttpResponse, Responder};
 use brave_config::app::AppState;
 use brave_config::init::InitStatus;
 use brave_config::GLOBAL_CONFIG;
@@ -19,7 +19,7 @@ pub struct InitInfo {
 }
 
 pub fn init_config(cfg: &mut web::ServiceConfig) {
-    cfg.service(init_status).service(init);
+    cfg.service(init_state).service(init);
 }
 
 /*
@@ -76,14 +76,13 @@ async fn init(data: web::Data<AppState>, info: web::Json<InitInfo>) -> HttpRespo
 }
 
 /*判断系统是否初始化*/
-#[post("/init-status")]
-async fn init_status() -> impl Responder {
+#[get("/init/state")]
+async fn init_state() -> impl Responder {
     /*判断系统是否初始化*/
     let bool = InitStatus::global().is_init;
     if bool {
         const MSG: &str = "Already initialized";
-        return HttpResponse::Ok()
-            .json(serde_json::json!({ "state": "success","data":{"isInit":true},"message": MSG }));
+        return HttpResponse::Ok().json(serde_json::json!({ "state": "success","message": MSG }));
     }
     HttpResponse::Ok().json(serde_json::json!({ "state": "error"}))
 }

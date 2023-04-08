@@ -48,10 +48,7 @@ pub(crate) fn template_init() -> AutoReloader {
     AutoReloader::new(move |notifier| {
         let mut env: minijinja::Environment<'static> = minijinja::Environment::new();
 
-        let tmpl_path = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
-            .parent()
-            .unwrap()
-            .join("templates");
+        let tmpl_path = PathBuf::from(env::current_dir().unwrap()).join("templates");
 
         if let Some(data) = &GLOBAL_ENV_CONFIG.template_autoload {
             if *data {

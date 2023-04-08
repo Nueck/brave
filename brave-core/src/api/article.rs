@@ -1,5 +1,6 @@
+use crate::entity::ArticleData;
 use actix_web::web::Json;
-use actix_web::{post, web, HttpResponse, Responder};
+use actix_web::{delete, get, post, put, web, HttpResponse, Responder};
 use brave_config::app::AppState;
 use brave_config::blog::generate_blog_table;
 use brave_config::utils::jwt::UserDataInfo;
@@ -19,8 +20,8 @@ pub fn article_config(cfg: &mut web::ServiceConfig) {
         .service(delete_article_data);
 }
 
-//获取文章信息
-#[post("/getArticlesInfo")]
+//获取文章列表
+#[get("/articles")]
 async fn get_articles_info(
     data: web::Data<AppState>,
     token: web::ReqData<UserDataInfo>,
@@ -65,23 +66,19 @@ async fn get_articles_info(
     }
 }
 
-#[derive(Clone, Deserialize, Serialize)]
-struct EditData {
-    table_id: i32,
-}
-
 //获取文章编辑信息
-#[post("/getArticleEditData")]
+#[get("/article/{id}")]
 async fn get_article_data(
     data: web::Data<AppState>,
     token: web::ReqData<UserDataInfo>,
-    json: Json<EditData>,
+    path: web::Path<i64>,
 ) -> impl Responder {
     let db = &data.conn;
     let id = &token.id;
+    let table_id = path.into_inner();
 
     //获取数据库中文章信息
-    match Article::find_by_id(json.table_id.clone().to_owned())
+    match Article::find_by_id(table_id)
         .filter(article::Column::UserId.eq(id.clone().to_owned()))
         .one(db)
         .await
@@ -112,21 +109,11 @@ async fn get_article_data(
     }
 }
 
-#[derive(Debug, Clone, Deserialize, Serialize)]
-struct SaveEditData {
-    table_id: i32,
-    title: String,
-    subtitle: String,
-    content: String,
-    img_url: String,
-    html_content: String,
-}
-
-#[post("/saveArticleEditData")]
+#[post("/article")]
 async fn save_article_data(
     data: web::Data<AppState>,
     token: web::ReqData<UserDataInfo>,
-    json: Json<SaveEditData>,
+    json: Json<ArticleData>,
 ) -> impl Responder {
     let db = &data.conn;
     let id = &token.id;
@@ -181,22 +168,12 @@ async fn save_article_data(
     }
 }
 
-#[derive(Debug, Clone, Deserialize, Serialize)]
-struct UpdateEditData {
-    table_id: i32,
-    title: String,
-    subtitle: String,
-    content: String,
-    img_url: String,
-    html_content: String,
-}
-
 ///用于文章更新
-#[post("/updateArticleEditData")]
+#[put("/article")]
 async fn update_article_data(
     data: web::Data<AppState>,
     token: web::ReqData<UserDataInfo>,
-    json: Json<UpdateEditData>,
+    json: Json<ArticleData>,
 ) -> impl Responder {
     let db = &data.conn;
     let id = &token.id;
@@ -236,23 +213,17 @@ async fn update_article_data(
 }
 
 //删除文章
-
-#[derive(Debug, Clone, Deserialize, Serialize)]
-struct DeleteData {
-    table_id: i64,
-}
-
-//用于文章更新
-#[post("/deleteArticleData")]
+#[delete("/article/{id}")]
 async fn delete_article_data(
     data: web::Data<AppState>,
     token: web::ReqData<UserDataInfo>,
-    json: Json<DeleteData>,
+    path: web::Path<i64>,
 ) -> impl Responder {
     let db = &data.conn;
     let id = &token.id;
+    let table_id = path.into_inner();
 
-    match Article::find_by_id(json.table_id.clone().to_owned())
+    match Article::find_by_id(table_id)
         .filter(article::Column::UserId.eq(id.clone().to_owned()))
         .one(db)
         .await

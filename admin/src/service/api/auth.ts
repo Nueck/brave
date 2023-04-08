@@ -14,7 +14,7 @@ export function fetchLogin(username: string, password: string) {
  * 验证token是否有效
  */
 export function fetchTokenValid() {
-  return basicRequest.post('/tokencheck', {});
+  return basicRequest.get('/tokencheck');
 }
 
 /**
@@ -29,7 +29,7 @@ export function fetchEmailLogin(email: string, verify_code: string, code: string
  */
 
 export function fetchUserInfo() {
-  return basicRequest.post<ApiAuth.UserInfo>('/getUserInfo', {});
+  return basicRequest.get<ApiAuth.UserInfo>('/user');
 }
 
 /**
@@ -37,7 +37,7 @@ export function fetchUserInfo() {
  */
 
 export function fetchUserDataInfo() {
-  return basicRequest.post<ApiAuth.UserDataInfo>('/getUserDataInfo', {});
+  return basicRequest.get<ApiAuth.UserDataInfo>('/user/articles/info');
 }
 
 /**

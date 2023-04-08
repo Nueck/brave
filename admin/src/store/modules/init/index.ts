@@ -12,12 +12,12 @@ export const useInitStore = defineStore('init-store', {
   }),
   actions: {
     async initStatusStore() {
-      const { data } = await fetchInitStatus();
+      const { error } = await fetchInitStatus();
 
-      if (data?.isInit) {
-        this.initStatus = true;
-      } else {
+      if (error) {
         this.initStatus = false;
+      } else {
+        this.initStatus = true;
       }
     }
   }

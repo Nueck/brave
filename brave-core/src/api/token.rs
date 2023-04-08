@@ -1,4 +1,4 @@
-use actix_web::{post, web, HttpResponse, Responder};
+use actix_web::{get, post, web, HttpResponse, Responder};
 use brave_config::utils::jwt::{Claims, UserDataInfo, GLOB_JOT};
 use brave_config::GLOBAL_CONFIG;
 use jsonwebtoken::get_current_timestamp;
@@ -8,7 +8,7 @@ pub fn token_config(cfg: &mut web::ServiceConfig) {
         .service(update_token_handler);
 }
 
-#[post("/tokencheck")]
+#[get("/tokencheck")]
 async fn token_checker_handler() -> impl Responder {
     const MESSAGE: &str = "token availability";
     HttpResponse::Ok().json(serde_json::json!({"state": "success", "message": MESSAGE}))
