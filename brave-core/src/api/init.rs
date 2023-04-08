@@ -30,8 +30,9 @@ async fn init(data: web::Data<AppState>, info: web::Json<InitInfo>) -> HttpRespo
     /*判断系统是否初始化*/
     if !InitStatus::global().is_init {
         let db = &data.conn;
-        /*对密码加密*/
-        let pwd = GLOBAL_CONFIG.blake.generate_with_salt(&info.password);
+        //对密码加密
+        let pwd = GLOBAL_CONFIG.get_blake().generate_with_salt(&info.password);
+
         //初始化数据
         let user = users::ActiveModel {
             user_name: Set((&info.username.as_str()).parse().unwrap()),

@@ -6,8 +6,6 @@ authors = ["Nueck <nueck@outlook.com>"]
 repository = "https://github.com/Nueck/brave/"
 
 
- 
-
 [dependencies]
 brave-config = { path = "../brave-config" }
 brave-db = { path = "../brave-db" }

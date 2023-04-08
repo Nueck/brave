@@ -10,15 +10,6 @@ pub fn data_config(cfg: &mut web::ServiceConfig) {
     cfg.service(
         web::scope("v").service(
             Files::new("/", &GLOBAL_DATA.get_data_config().data_location.unwrap())
-                // .default_handler(fn_service(|req: ServiceRequest| async {
-                //     let (req, _) = req.into_parts();
-                //     Ok(ServiceResponse::new(
-                //         req,
-                //         HttpResponse::Found()
-                //             .append_header((header::LOCATION, "/"))
-                //             .finish(),
-                //     ))
-                // }))
                 .use_last_modified(true)
                 .prefer_utf8(true),
         ),
