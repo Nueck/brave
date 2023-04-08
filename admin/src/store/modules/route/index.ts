@@ -190,8 +190,6 @@ export const useRouteStore = defineStore('route-store', {
         router.addRoute(route);
       });
 
-      console.log(router);
-
       // 添加系统路由到系统中
       const initRouteName = getCacheRoutes(vueRoutes);
 
@@ -207,7 +205,6 @@ export const useRouteStore = defineStore('route-store', {
       routes.forEach(route => {
         const name = (route.name || 'root') as AuthRoute.AllRouteKey;
         if (this.isInitRoute(name)) {
-          console.log(name);
           router.removeRoute(name);
         }
       });
