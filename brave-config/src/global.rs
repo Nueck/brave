@@ -1,6 +1,8 @@
 use crate::authority::AuthorityConfig;
 use crate::data::DataConfig;
 use crate::interface::Interface;
+use crate::page::PageConfig;
+use crate::theme::ThemeConfig;
 use crate::utils::blake3::Blake3Config;
 use crate::utils::jwt::JWTConfig;
 use crate::utils::mail::MailConfig;
@@ -15,9 +17,11 @@ pub struct GConfig {
     pub core_post_url: Option<String>,
     pub jwt: JWTConfig,
     pub authority: AuthorityConfig,
-    pub blake: Blake3Config,
+    blake: Option<Blake3Config>,
     pub mail: Option<MailConfig>,
-    pub data: Option<DataConfig>,
+    data: Option<DataConfig>,
+    page: Option<PageConfig>,
+    theme: Option<ThemeConfig>,
 }
 
 impl GConfig {
@@ -30,13 +34,43 @@ impl GConfig {
         serde_yaml::from_reader(f_yaml).expect("Could not read values.")
     }
 
-    pub fn get_data(&self) -> DataConfig {
+    pub fn get_data(&self) -> &DataConfig {
         if let Some(data) = &self.data {
-            data.to_owned()
+            data
         } else {
-            DataConfig {
+            &DataConfig {
                 data_location: None,
                 data: None,
+            }
+        }
+    }
+
+    pub fn get_blake(&self) -> Blake3Config {
+        if let Some(data) = &self.blake {
+            data.to_owned()
+        } else {
+            Blake3Config {
+                salt: Some("brave".to_string()),
+            }
+        }
+    }
+
+    pub fn get_page(&self) -> PageConfig {
+        if let Some(data) = &self.page {
+            data.to_owned()
+        } else {
+            PageConfig {
+                location: Some("page".to_string()),
+            }
+        }
+    }
+    //
+    pub fn get_theme(&self) -> ThemeConfig {
+        if let Some(data) = &self.theme {
+            data.to_owned()
+        } else {
+            ThemeConfig {
+                location: Some("theme".to_string()),
             }
         }
     }

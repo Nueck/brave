@@ -20,6 +20,8 @@ mod error;
 pub mod global;
 pub mod init;
 pub mod interface;
+pub mod page;
+pub mod theme;
 pub mod utils;
 
 pub static GLOB_INIT: OnceCell<Mutex<InitStatus>> = OnceCell::new();
@@ -30,7 +32,7 @@ pub static GLOBAL_ENV_CONFIG: Lazy<EnvConfig> = Lazy::new(|| EnvConfig::get_env(
 
 pub static GLOBAL_ADMIN_STATUS: Lazy<AdminState> = Lazy::new(|| AdminState::new());
 
-pub static GLOBAL_DATA: Lazy<DataConfig> = Lazy::new(|| GLOBAL_CONFIG.get_data());
+pub static GLOBAL_DATA: Lazy<&DataConfig> = Lazy::new(|| GLOBAL_CONFIG.get_data());
 
 pub async fn config_init() -> AppState {
     //初始化配置文件

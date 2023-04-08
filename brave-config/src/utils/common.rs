@@ -1,4 +1,4 @@
-use crate::GLOBAL_CONFIG;
+use crate::{GLOBAL_CONFIG, GLOBAL_DATA};
 use rand::Rng;
 use regex::Regex;
 
@@ -7,6 +7,7 @@ pub fn is_invalid_user_name(user: &str) -> bool {
     user == GLOBAL_CONFIG.interface.api_scope
         || user == GLOBAL_CONFIG.interface.admin_scope
         || user == GLOBAL_CONFIG.interface.blog_scope
+        || user == GLOBAL_DATA.get_data_config().data.unwrap()
         || user == "css"
         || user == "js"
         || user == "img"

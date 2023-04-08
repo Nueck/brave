@@ -3,7 +3,7 @@ use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]
 pub struct Blake3Config {
-    ///用于加盐
+    //用于加盐
     pub salt: Option<String>,
 }
 

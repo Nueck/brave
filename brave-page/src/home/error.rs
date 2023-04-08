@@ -15,7 +15,6 @@ pub(crate) fn not_found<B>(svc_res: ServiceResponse<B>) -> Result<ErrorHandlerRe
     )))
 }
 
-/// Generic error handler.
 fn get_error_response<B>(res: &ServiceResponse<B>, error: &str) -> HttpResponse {
     let req = res.request();
 

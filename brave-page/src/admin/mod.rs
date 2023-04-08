@@ -10,7 +10,7 @@ pub fn admin_config(cfg: &mut web::ServiceConfig) {
             Files::new("/", "./admin/dist")
                 .index_file("index.html")
                 .use_last_modified(true)
-                .show_files_listing()
+                .redirect_to_slash_directory()
                 .default_handler(fn_service(|req: ServiceRequest| async {
                     let (req, _) = req.into_parts();
                     let file = NamedFile::open_async("./admin/dist/index.html").await?;
