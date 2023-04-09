@@ -26,7 +26,6 @@ struct Theme {
 #[derive(Debug, Serialize, Deserialize)]
 struct Config {
     name: String,
-    img_url: String,
 }
 
 impl ThemePosition {}
