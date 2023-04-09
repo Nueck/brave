@@ -79,8 +79,7 @@ async fn init(data: web::Data<AppState>, info: web::Json<InitInfo>) -> HttpRespo
 #[get("/init/state")]
 async fn init_state() -> impl Responder {
     /*判断系统是否初始化*/
-    let bool = InitStatus::global().is_init;
-    if bool {
+    if InitStatus::global().is_init {
         const MSG: &str = "Already initialized";
         return HttpResponse::Ok().json(serde_json::json!({ "state": "success","message": MSG }));
     }

@@ -7,7 +7,9 @@ use crate::utils::blake3::Blake3Config;
 use crate::utils::jwt::JWTConfig;
 use crate::utils::mail::MailConfig;
 use serde::{Deserialize, Serialize};
+use std::env;
 use std::fs::File;
+use std::path::PathBuf;
 
 //创建yaml配置文件的结构体
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]
@@ -70,8 +72,13 @@ impl GConfig {
             data.to_owned()
         } else {
             ThemePosition {
-                location: Some("theme".to_string()),
+                location: Some("themes".to_string()),
             }
         }
+    }
+
+    //获取当前目录
+    pub fn get_current_path(&self) -> PathBuf {
+        PathBuf::from(env::current_dir().unwrap())
     }
 }
