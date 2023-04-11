@@ -30,6 +30,7 @@ minijinja = { version = "0.31", features = ["source"] }
 minijinja-autoreload = "0.31"
 log = "0.4"
 dirs = "5"
+zip = "0.6"
 config = "0.13"
 dotenvy = "0.15"
 fast_log = "1.5"
