@@ -90,6 +90,13 @@ async fn login(data: web::Data<AppState>, user_info: web::Json<UserInfo>) -> Htt
             HttpResponse::Ok().json(serde_json::json!({"state": "error", "message": MSG }))
         }
         Some(user) => {
+            //判断用户的状态
+            if user.user_status != 1 {
+                const MSG: &str = "The user is shut down. Contact the administrator";
+                return HttpResponse::Ok()
+                    .json(serde_json::json!({"state": "error", "message": MSG }));
+            }
+
             /*进行密码比对*/
             if pwd == user.pwd_hash {
                 //短时间的token
@@ -149,7 +156,7 @@ async fn email_login(data: web::Data<AppState>, info: web::Json<EmailLoginInfo>)
         Some(user) => {
             //判断用户的状态
             if user.user_status != 1 {
-                const MSG: &str = "User does not exist";
+                const MSG: &str = "The user is shut down. Contact the administrator";
                 return HttpResponse::Ok()
                     .json(serde_json::json!({"state": "error", "message": MSG }));
             }
