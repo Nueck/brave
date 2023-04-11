@@ -29,7 +29,7 @@ export function fetchEmailLogin(email: string, verify_code: string, code: string
  */
 
 export function fetchUserInfo() {
-  return basicRequest.get<ApiAuth.UserInfo>('/user');
+  return basicRequest.get<ApiAuth.UserInfo>('/user/info');
 }
 
 /**
@@ -57,11 +57,11 @@ export function fetchRegister(data: ApiAuth.RegisterInfo) {
 }
 
 /**
- * 忘记密码
+ * 忘记密码和修改密码
  */
 
-export function fetchForget(data: ApiAuth.ForgetInfo) {
-  return basicRequest.post('/forget', data);
+export function fetchForgetAndChangPwd(data: ApiAuth.ForgetInfo) {
+  return basicRequest.put('/user/password', data);
 }
 
 /**

@@ -2,7 +2,7 @@ use crate::api::article::article_config;
 use crate::api::init::init_config;
 use crate::api::login::login_config;
 use crate::api::skin::skin_config;
-use crate::api::super_user::{super_user_config, user_config};
+use crate::api::super_user::super_user_config;
 use crate::api::tag::tag_config;
 use crate::api::token::token_config;
 use crate::api::upload::data_config;

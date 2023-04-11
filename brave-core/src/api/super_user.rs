@@ -2,21 +2,18 @@ use crate::entity::UserTableData;
 use actix_web::error::ErrorUnauthorized;
 use actix_web::{delete, get, put, web, HttpResponse, Responder};
 use brave_config::app::AppState;
-use brave_config::interface::Interface;
 use brave_config::utils::jwt::UserDataInfo;
 use brave_config::GLOBAL_CONFIG;
 use brave_db::entity::prelude::Users;
 use brave_db::entity::users;
 use brave_db::enumeration::user_enum::UserStatusEnum;
 use sea_orm::ActiveValue::Set;
-use sea_orm::{ActiveModelTrait, ColumnTrait, EntityTrait, QueryFilter, QueryOrder, QuerySelect};
+use sea_orm::{ActiveModelTrait, EntityTrait, QueryOrder, QuerySelect};
 use std::path::PathBuf;
 use std::{env, fs};
 
 pub fn super_user_config(cfg: &mut web::ServiceConfig) {
     cfg.service(get_users)
-        .service(get_user_info)
-        .service(get_user_data_info)
         .service(delete_user_soft)
         .service(delete_user)
         .service(update_user);

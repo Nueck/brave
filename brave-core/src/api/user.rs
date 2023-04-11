@@ -1,22 +1,18 @@
-use crate::entity::UserTableData;
-use actix_web::error::ErrorUnauthorized;
-use actix_web::{delete, get, put, web, HttpResponse, Responder};
+use crate::entity::ChangePwdInfo;
+use actix_web::{get, put, web, HttpResponse, Responder};
 use brave_config::app::AppState;
 use brave_config::interface::Interface;
-use brave_config::utils::jwt::UserDataInfo;
+use brave_config::utils::jwt::{UserDataInfo, GLOB_JOT};
 use brave_config::GLOBAL_CONFIG;
 use brave_db::entity::prelude::Users;
 use brave_db::entity::users;
-use brave_db::enumeration::user_enum::UserStatusEnum;
 use sea_orm::ActiveValue::Set;
-use sea_orm::{ActiveModelTrait, ColumnTrait, EntityTrait, QueryFilter, QueryOrder, QuerySelect};
-use std::path::PathBuf;
-use std::{env, fs};
+use sea_orm::{ActiveModelTrait, ColumnTrait, EntityTrait, QueryFilter};
 
 pub fn user_config(cfg: &mut web::ServiceConfig) {
     cfg.service(get_user_info)
         .service(get_user_data_info)
-        .service(update_user);
+        .service(chang_pwd);
 }
 
 ///获取用户的文章总信息
@@ -60,7 +56,7 @@ async fn get_user_data_info(
 }
 
 ///获取用户信息
-#[get("/user")]
+#[get("/user/info")]
 async fn get_user_info(
     data: web::Data<AppState>,
     token: web::ReqData<UserDataInfo>,
@@ -100,51 +96,67 @@ async fn get_user_info(
     }
 }
 
-///更新用户信息
-#[put("/user")]
-async fn update_user(
+#[put("/user/password")]
+pub(crate) async fn chang_pwd(
     data: web::Data<AppState>,
-    token: web::ReqData<UserDataInfo>,
-    query: web::Path<i32>,
-    json: web::Json<UserTableData>,
-) -> impl Responder {
-    let auth = token.auth.clone();
-
+    info: web::Json<ChangePwdInfo>,
+) -> HttpResponse {
+    /*判断邮箱地址是否存在或在用户名*/
     let db = &data.conn;
-    let id = &token.id;
+    match Users::find()
+        .filter(users::Column::Email.contains(&info.email))
+        .one(db)
+        .await
+        .expect("Could not find Users -- Login")
+    {
+        None => {
+            /*用户不存在*/
+            const MSG: &str = "Mail does not exist";
+            HttpResponse::Ok().json(serde_json::json!({"state": "error", "message": MSG }))
+        }
+        Some(user) => {
+            /*用户不存在的时候注册*/
+            /*验证验证码是否正确*/
+            match GLOB_JOT.validation_to_claim(&info.code) {
+                Ok(data) => {
+                    //对需要验证的code的加盐
+                    let verify_code = GLOBAL_CONFIG
+                        .get_blake()
+                        .generate_with_salt(&info.verify_code);
 
-    //更新用户
-    match Users::find_by_id(id).one(db).await {
-        Ok(model) => {
-            let mut data: users::ActiveModel = model.unwrap().into();
+                    let code = data.data.clone().unwrap().code;
+                    let email = data.data.clone().unwrap().email;
+                    //判断验证码是否正确
+                    if verify_code == code && email == info.email.clone() {
+                        /*对密码加密*/
+                        let pwd = GLOBAL_CONFIG.get_blake().generate_with_salt(&info.new_pwd);
+                        /*修改数据库数据*/
+                        let mut user: users::ActiveModel = user.into();
+                        user.pwd_hash = Set(pwd);
 
-            data.user_name = Set(json.user_name.to_owned());
-            data.user_status = Set(json.user_status);
-            data.email = Set(json.email.to_owned());
-
-            if GLOBAL_CONFIG
-                .authority
-                .auth
-                .clone()
-                .unwrap()
-                .contains(&json.authority)
-            {
-                data.authority = Set(json.authority.to_owned());
-            };
-
-            match data.update(db).await {
-                Ok(_) => HttpResponse::Ok().json(serde_json::json!({"state": "success"})),
+                        match user.update(db).await {
+                            Ok(_) => {
+                                const MSG: &str = "Modified successfully";
+                                HttpResponse::Ok()
+                                    .json(serde_json::json!({"state": "success", "message": MSG }))
+                            }
+                            Err(_) => {
+                                const MSG: &str = "Modification failure";
+                                HttpResponse::Ok()
+                                    .json(serde_json::json!({"state": "error", "message": MSG }))
+                            }
+                        }
+                    } else {
+                        const MSG: &str = "Verification code error";
+                        HttpResponse::Ok()
+                            .json(serde_json::json!({"state": "error", "message": MSG }))
+                    }
+                }
                 Err(_) => {
-                    const MSG: &str = "Update failure";
-                    let json = serde_json::json!({"state": "error",  "message":MSG });
-                    HttpResponse::Ok().json(json)
+                    const MSG: &str = "Error in sending data";
+                    HttpResponse::Ok().json(serde_json::json!({"state": "error", "message": MSG }))
                 }
             }
-        }
-        Err(_) => {
-            const MSG: &str = "User does not exist";
-            let json = serde_json::json!({"state": "error",  "message":MSG });
-            HttpResponse::Ok().json(json)
         }
     }
 }

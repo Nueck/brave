@@ -14,6 +14,14 @@ pub(crate) struct UserTableData {
 }
 
 #[derive(Deserialize, Serialize)]
+pub(crate) struct ChangePwdInfo {
+    pub(crate) email: String,
+    pub(crate) new_pwd: String,
+    pub(crate) verify_code: String,
+    pub(crate) code: String,
+}
+
+#[derive(Deserialize, Serialize)]
 pub(crate) struct TagData {
     pub(crate) tag: String,
 }

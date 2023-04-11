@@ -9,7 +9,7 @@ use brave_db::entity::prelude::Users;
 use brave_db::entity::users;
 use jsonwebtoken::get_current_timestamp;
 use sea_orm::ActiveValue::Set;
-use sea_orm::{ActiveModelTrait, ColumnTrait, EntityTrait, JsonValue, QueryFilter};
+use sea_orm::{ColumnTrait, EntityTrait, JsonValue, QueryFilter};
 use serde::Deserialize;
 
 #[derive(Deserialize)]
@@ -39,18 +39,9 @@ pub struct RegisterInfo {
     pub code: String,
 }
 
-#[derive(Deserialize)]
-pub struct ForgetInfo {
-    pub email: String,
-    pub new_pwd: String,
-    pub verify_code: String,
-    pub code: String,
-}
-
 pub fn login_config(cfg: &mut web::ServiceConfig) {
     cfg.service(login)
         .service(email_login)
-        .service(forget)
         .service(register)
         .service(sendmail);
 }
@@ -303,69 +294,6 @@ async fn register(data: web::Data<AppState>, info: web::Json<RegisterInfo>) -> H
                         HttpResponse::Ok()
                             .json(serde_json::json!({"state": "code error", "message": MSG }))
                     };
-                }
-                Err(_) => {
-                    const MSG: &str = "Error in sending data";
-                    HttpResponse::Ok().json(serde_json::json!({"state": "error", "message": MSG }))
-                }
-            }
-        }
-    }
-}
-
-///忘记密码
-#[post("/forget")]
-async fn forget(data: web::Data<AppState>, info: web::Json<ForgetInfo>) -> HttpResponse {
-    /*判断邮箱地址是否存在或在用户名*/
-    let db = &data.conn;
-    match Users::find()
-        .filter(users::Column::Email.contains(&info.email))
-        .one(db)
-        .await
-        .expect("Could not find Users -- Login")
-    {
-        None => {
-            /*用户不存在*/
-            const MSG: &str = "Mail does not exist";
-            HttpResponse::Ok().json(serde_json::json!({"state": "error", "message": MSG }))
-        }
-        Some(user) => {
-            /*用户不存在的时候注册*/
-            /*验证验证码是否正确*/
-            match GLOB_JOT.validation_to_claim(&info.code) {
-                Ok(data) => {
-                    //对需要验证的code的加盐
-                    let verify_code = GLOBAL_CONFIG
-                        .get_blake()
-                        .generate_with_salt(&info.verify_code);
-
-                    let code = data.data.clone().unwrap().code;
-                    let email = data.data.clone().unwrap().email;
-                    //判断验证码是否正确
-                    if verify_code == code && email == info.email.clone() {
-                        /*对密码加密*/
-                        let pwd = GLOBAL_CONFIG.get_blake().generate_with_salt(&info.new_pwd);
-                        /*修改数据库数据*/
-                        let mut user: users::ActiveModel = user.into();
-                        user.pwd_hash = Set(pwd);
-
-                        match user.update(db).await {
-                            Ok(_) => {
-                                const MSG: &str = "Modified successfully";
-                                HttpResponse::Ok()
-                                    .json(serde_json::json!({"state": "success", "message": MSG }))
-                            }
-                            Err(_) => {
-                                const MSG: &str = "Modification failure";
-                                HttpResponse::Ok()
-                                    .json(serde_json::json!({"state": "error", "message": MSG }))
-                            }
-                        }
-                    } else {
-                        const MSG: &str = "Verification code error";
-                        HttpResponse::Ok()
-                            .json(serde_json::json!({"state": "error", "message": MSG }))
-                    }
                 }
                 Err(_) => {
                     const MSG: &str = "Error in sending data";

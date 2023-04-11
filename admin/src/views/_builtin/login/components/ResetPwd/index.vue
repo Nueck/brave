@@ -30,7 +30,7 @@ import { reactive, ref, toRefs } from 'vue';
 import type { FormInst, FormRules } from 'naive-ui';
 import { useSmsCode } from '@/hooks';
 import { formRules, getConfirmPwdRule } from '@/utils';
-import { fetchForget } from '~/src/service';
+import { fetchForgetAndChangPwd } from '~/src/service';
 import { useAuthStore } from '~/src/store';
 import { toLoginModule } from '../index';
 
@@ -65,7 +65,7 @@ async function handleSubmit() {
     code: tokenCode.value
   };
 
-  const { error } = await fetchForget(info);
+  const { error } = await fetchForgetAndChangPwd(info);
   /* 将数据获取 */
   if (!error) {
     removeTempInfoFormLocal();
