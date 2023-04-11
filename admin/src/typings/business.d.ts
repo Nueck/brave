@@ -75,7 +75,7 @@ declare namespace UserManagement {
     /** 序号 */
     index: number;
     /** 表格的key（id） */
-    key: string;
+    key: number;
   }
 
   /**
@@ -85,7 +85,7 @@ declare namespace UserManagement {
    * - 3: 冻结
    * - 4: 软删除
    */
-  type UserStatusKey = NonNullable<User['userStatus']>;
+  type UserStatusKey = NonNullable<User['user_status']>;
 
   // 用户权限
   type UserAuthority = NonNullable<User['authority']>;

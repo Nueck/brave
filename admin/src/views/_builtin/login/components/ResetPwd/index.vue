@@ -65,9 +65,9 @@ async function handleSubmit() {
     code: tokenCode.value
   };
 
-  const { message } = await fetchForget(info);
+  const { error } = await fetchForget(info);
   /* 将数据获取 */
-  if (message) {
+  if (!error) {
     removeTempInfoFormLocal();
     resetAuthStore();
     window.$message?.success('修改密码成功!');

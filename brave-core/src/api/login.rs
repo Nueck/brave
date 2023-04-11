@@ -147,6 +147,13 @@ async fn email_login(data: web::Data<AppState>, info: web::Json<EmailLoginInfo>)
             HttpResponse::Ok().json(serde_json::json!({"state": "error", "message": MSG }))
         }
         Some(user) => {
+            //判断用户的状态
+            if user.user_status != 1 {
+                const MSG: &str = "User does not exist";
+                return HttpResponse::Ok()
+                    .json(serde_json::json!({"state": "error", "message": MSG }));
+            }
+
             /*验证验证码是否正确*/
             match GLOB_JOT.validation_to_claim(&info.code) {
                 Ok(data) => {

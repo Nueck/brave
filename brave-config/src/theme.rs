@@ -1,7 +1,6 @@
 use crate::{CONFIG_PATH, GLOBAL_CONFIG};
 use serde::{Deserialize, Serialize};
 use std::fs;
-use std::fs::File;
 use std::io::Write;
 use std::path::PathBuf;
 
@@ -13,14 +12,14 @@ pub struct ThemePosition {
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct ThemeConf {
-    public: Vec<Theme>,
+    pub public: Vec<Theme>,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
-struct Theme {
-    name: String,
-    img_url: PathBuf,
-    location: PathBuf,
+pub struct Theme {
+    pub name: String,
+    pub img_url: PathBuf,
+    pub location: PathBuf,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -36,13 +35,7 @@ impl ThemeConf {
         let mut config_path = CONFIG_PATH.clone();
         config_path.push("theme.json");
 
-        if config_path.exists() {
-            if config_path.exists() {
-                let f_config = std::fs::File::open(config_path).expect("Could not open conf file");
-                let _config: ThemeConf =
-                    serde_json::from_reader(f_config).expect("Could not read conf file");
-            }
-        } else {
+        if !config_path.exists() {
             //获取theme路径
             if let Some(location) = GLOBAL_CONFIG.get_theme().location {
                 let mut path_buf = GLOBAL_CONFIG.get_current_path();
@@ -62,13 +55,33 @@ impl ThemeConf {
                         .expect("ThemeConf to Json failure");
 
                     //将数据存放在json中的
-                    let mut file = File::create(config_path.as_path())
+                    let mut file = std::fs::File::create(config_path.as_path())
                         .expect("Could not create theme conf file");
                     file.write_all(str.as_bytes())
                         .expect("Description Failed to write the theme conf file");
                 }
             }
         }
+
+        // if config_path.exists() {
+        //     let f_config = std::fs::File::open(config_path).expect("Could not open conf file");
+        //     let _config: ThemeConf =
+        //         serde_json::from_reader(f_config).expect("Could not read conf file");
+        // }
+    }
+
+    pub fn read_theme_conf() -> Option<ThemeConf> {
+        let mut config_path = CONFIG_PATH.clone();
+        config_path.push("theme.json");
+
+        if config_path.exists() {
+            let f_config =
+                std::fs::File::open(config_path).expect("Could not open theme conf file");
+            let config: ThemeConf =
+                serde_json::from_reader(f_config).expect("Could not read theme conf file");
+            return Some(config);
+        }
+        None
     }
 }
 
@@ -83,7 +96,7 @@ fn find_conf_file_to_theme(dir: PathBuf, them_cof: &mut ThemeConf, count: i32) {
                 find_conf_file_to_theme(path, them_cof, count);
             } else if let Some(ext) = path.extension() {
                 if ext == "json" && path.file_name() == Some("conf.json".as_ref()) {
-                    match File::open(path.clone()) {
+                    match std::fs::File::open(path.clone()) {
                         Ok(f_content) => {
                             let config: Config = serde_json::from_reader(f_content)
                                 .expect("Could not read  theme conf file");

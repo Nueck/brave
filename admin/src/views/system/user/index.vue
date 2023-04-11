@@ -27,7 +27,7 @@ import { reactive, ref } from 'vue';
 import type { Ref } from 'vue';
 import { NButton, NPopconfirm, NSpace, NTag } from 'naive-ui';
 import type { DataTableColumns, PaginationProps } from 'naive-ui';
-import { fetchUserList } from '@/service';
+import { fetchUsersList, fetchDeleteUser } from '@/service';
 import { useBoolean, useLoading } from '@/hooks';
 import { userAuthority, userStatusLabels } from '@/constants';
 import TableActionModal from './components/TableActionModal.vue';
@@ -43,7 +43,7 @@ function setTableData(data: UserManagement.User[]) {
 
 async function getTableData() {
   startLoading();
-  const { data } = await fetchUserList();
+  const { data } = await fetchUsersList();
   if (data) {
     setTimeout(() => {
       setTableData(data);
@@ -64,7 +64,7 @@ const columns: Ref<DataTableColumns<UserManagement.User>> = ref([
     sorter: (row1, row2) => row1.index - row2.index
   },
   {
-    key: 'userName',
+    key: 'user_name',
     title: '用户名',
     align: 'center',
     defaultSortOrder: 'ascend',
@@ -108,11 +108,6 @@ const columns: Ref<DataTableColumns<UserManagement.User>> = ref([
     }
   },
   {
-    key: 'phone',
-    title: '手机号码',
-    align: 'center'
-  },
-  {
     key: 'email',
     title: '邮箱',
     align: 'center'
@@ -122,7 +117,7 @@ const columns: Ref<DataTableColumns<UserManagement.User>> = ref([
     title: '状态',
     align: 'center',
     render: row => {
-      if (row.userStatus) {
+      if (row.user_status) {
         const tagTypes: Record<UserManagement.UserStatusKey, NaiveUI.ThemeColor> = {
           '1': 'success',
           '2': 'error',
@@ -130,7 +125,7 @@ const columns: Ref<DataTableColumns<UserManagement.User>> = ref([
           '4': 'default'
         };
 
-        return <NTag type={tagTypes[row.userStatus]}>{userStatusLabels[row.userStatus]}</NTag>;
+        return <NTag type={tagTypes[row.user_status]}>{userStatusLabels[row.user_status]}</NTag>;
       }
       return <span></span>;
     }
@@ -140,21 +135,30 @@ const columns: Ref<DataTableColumns<UserManagement.User>> = ref([
     title: '操作',
     align: 'center',
     render: row => {
+      if (handleDeleteDisplay(row.authority)) {
+        return (
+          <NSpace justify={'center'}>
+            <NButton type="primary" ghost size={'small'} onClick={() => handleEditTable(row.user_id)}>
+              编辑
+            </NButton>
+            <NPopconfirm onPositiveClick={() => handleDeleteTable(row.user_id)}>
+              {{
+                default: () => '确认删除',
+                trigger: () => (
+                  <NButton type="primary" ghost size={'small'}>
+                    删除
+                  </NButton>
+                )
+              }}
+            </NPopconfirm>
+          </NSpace>
+        );
+      }
       return (
         <NSpace justify={'center'}>
-          <NButton type="primary" ghost size={'small'} onClick={() => handleEditTable(row.userId)}>
+          <NButton type="primary" ghost size={'small'} onClick={() => handleEditTable(row.user_id)}>
             编辑
           </NButton>
-          <NPopconfirm onPositiveClick={() => handleDeleteTable(row.userId)}>
-            {{
-              default: () => '确认删除',
-              trigger: () => (
-                <NButton type="primary" ghost size={'small'}>
-                  删除
-                </NButton>
-              )
-            }}
-          </NPopconfirm>
         </NSpace>
       );
     }
@@ -178,8 +182,12 @@ function handleAddTable() {
   setModalType('add');
 }
 
-function handleEditTable(rowId: string) {
-  const findItem = tableData.value.find(item => item.userId === rowId);
+function handleDeleteDisplay(user: string) {
+  return user !== 'super';
+}
+
+function handleEditTable(rowId: number) {
+  const findItem = tableData.value.find(item => item.user_id === rowId);
   if (findItem) {
     setEditData(findItem);
   }
@@ -187,8 +195,15 @@ function handleEditTable(rowId: string) {
   openModal();
 }
 
-function handleDeleteTable(rowId: string) {
-  window.$message?.info(`点击了删除，rowId为${rowId}`);
+async function handleDeleteTable(row_id: number) {
+  const { error } = await fetchDeleteUser(row_id);
+
+  if (error) {
+    window.$message?.error('删除失败');
+  }
+  window.$message?.success('删除成功');
+  // 重新加载数据
+  getTableData();
 }
 
 const pagination: PaginationProps = reactive({

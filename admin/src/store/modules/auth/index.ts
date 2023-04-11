@@ -173,9 +173,9 @@ export const useAuthStore = defineStore('auth-store', {
     async register(model: any, info: ApiAuth.RegisterInfo) {
       this.registerLoading = true;
 
-      const { message } = await fetchRegister(info);
+      const { error } = await fetchRegister(info);
 
-      if (message) {
+      if (!error) {
         window.$message?.success('注册成功!');
         this.removeTempInfoFormLocal();
         const { username, pwd } = model;

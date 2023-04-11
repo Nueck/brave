@@ -54,7 +54,7 @@ export default class CustomAxiosInstance {
       },
       (axiosError: AxiosError) => {
         const error = handleAxiosError(axiosError);
-        return handleServiceResult(error, null, null);
+        return handleServiceResult(error, null);
       }
     );
     this.instance.interceptors.response.use(
@@ -63,18 +63,18 @@ export default class CustomAxiosInstance {
 
         if (status === 200) {
           const backend = response.data;
-          const { state, data, message } = this.backendConfig;
+          const { state, data } = this.backendConfig;
           // 请求成功
           if (backend[state] === 'success') {
-            return handleServiceResult(null, backend[data], backend[message]);
+            return handleServiceResult(null, backend[data]);
           } else if (backend[state] === 'error') {
             /* 显示弹窗 */
             const error = handleBackendError(backend, this.backendConfig);
-            return handleServiceResult(error, null, backend[message]);
+            return handleServiceResult(error, null);
           }
         }
         const error = handleResponseError(response);
-        return handleServiceResult(error, null, null);
+        return handleServiceResult(error, null);
       },
       async (axiosError: AxiosError) => {
         // 如何未授权更新接口
@@ -88,7 +88,7 @@ export default class CustomAxiosInstance {
         }
 
         const error = handleAxiosError(axiosError);
-        return handleServiceResult(error, null, null);
+        return handleServiceResult(error, null);
       }
     );
   }

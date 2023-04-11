@@ -8,12 +8,8 @@ use brave_config::GLOBAL_CONFIG;
 use brave_db::entity::prelude::Users;
 use brave_db::entity::users;
 use brave_db::enumeration::user_enum::UserStatusEnum;
-use sea_orm::prelude::DateTime;
 use sea_orm::ActiveValue::Set;
-use sea_orm::{
-    ActiveModelTrait, ColumnTrait, EntityTrait, FromQueryResult, QueryFilter, QuerySelect,
-};
-use serde::{Deserialize, Serialize};
+use sea_orm::{ActiveModelTrait, ColumnTrait, EntityTrait, QueryFilter, QuerySelect};
 use std::path::PathBuf;
 use std::{env, fs};
 
@@ -107,15 +103,7 @@ async fn get_user_info(
     }
 }
 
-#[derive(FromQueryResult, Deserialize, Serialize)]
-struct UsersLists {
-    user_name: String,
-    authority: String,
-    email: String,
-    create_time: DateTime,
-}
-
-///获取用户的一些数据
+///获取所有用户的信息
 #[get("/users")]
 async fn get_users(data: web::Data<AppState>, token: web::ReqData<UserDataInfo>) -> impl Responder {
     let auth = token.auth.clone();
@@ -132,12 +120,14 @@ async fn get_users(data: web::Data<AppState>, token: web::ReqData<UserDataInfo>)
         let data = Users::find()
             .select_only()
             .columns([
+                users::Column::UserId,
                 users::Column::UserName,
                 users::Column::Authority,
                 users::Column::Email,
+                users::Column::UserStatus,
                 users::Column::CreateTime,
             ])
-            .into_model::<UsersLists>()
+            .into_model::<UserTableData>()
             .all(db)
             .await
             .expect("Could not find Users");

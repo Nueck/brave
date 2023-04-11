@@ -39,15 +39,15 @@ declare namespace ApiEmailVerification {
 declare namespace ApiUserManagement {
   interface User {
     /** 用户id */
-    userId: string;
+    user_id: number;
     /** 用户名 */
-    userName: string;
+    user_name: string;
 
     // 权限
     authority: 'admin' | 'super' | 'user';
 
-    /** 用户手机号码 */
-    phone: string;
+    // /** 用户手机号码 */
+    // phone: string;
 
     /** 用户邮箱 */
     email: string | null;
@@ -58,6 +58,9 @@ declare namespace ApiUserManagement {
      * - 3: 冻结
      * - 4: 软删除
      */
-    userStatus: '1' | '2' | '3' | '4' | null;
+    user_status: '1' | '2' | '3' | '4' | null;
+
+    /* 创建时间 */
+    create_time: string;
   }
 }

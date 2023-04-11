@@ -3,7 +3,7 @@
     <n-form ref="formRef" label-placement="left" :label-width="80" :model="formModel" :rules="rules">
       <n-grid :cols="24" :x-gap="18">
         <n-form-item-grid-item :span="12" label="用户名" path="userName">
-          <n-input v-model:value="formModel.userName" />
+          <n-input v-model:value="formModel.user_name" />
         </n-form-item-grid-item>
         <n-form-item-grid-item :span="12" label="权限" path="age">
           <n-select v-model:value="formModel.authority" :options="userAuthorityOptions" />
@@ -12,7 +12,7 @@
           <n-input v-model:value="formModel.email" />
         </n-form-item-grid-item>
         <n-form-item-grid-item :span="12" label="状态" path="userStatus">
-          <n-select v-model:value="formModel.userStatus" :options="userStatusOptions" />
+          <n-select v-model:value="formModel.user_status" :options="userStatusOptions" />
         </n-form-item-grid-item>
       </n-grid>
       <n-space class="w-full pt-16px" :size="24" justify="end">
@@ -79,23 +79,23 @@ const title = computed(() => {
 
 const formRef = ref<HTMLElement & FormInst>();
 
-type FormModel = Pick<UserManagement.User, 'userName' | 'authority' | 'email' | 'userStatus'>;
+type FormModel = Pick<UserManagement.User, 'user_name' | 'authority' | 'email' | 'user_status'>;
 
 const formModel = reactive<FormModel>(createDefaultFormModel());
 
 const rules: Record<keyof FormModel, FormItemRule | FormItemRule[]> = {
-  userName: createRequiredFormRule('请输入用户名'),
+  user_name: createRequiredFormRule('请输入用户名'),
   authority: createRequiredFormRule('选择用户权限'),
   email: formRules.email,
-  userStatus: createRequiredFormRule('请选择用户状态')
+  user_status: createRequiredFormRule('请选择用户状态')
 };
 
 function createDefaultFormModel(): FormModel {
   return {
-    userName: '',
+    user_name: '',
     authority: 'user',
     email: null,
-    userStatus: null
+    user_status: '1'
   };
 }
 
