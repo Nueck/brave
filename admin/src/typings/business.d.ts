@@ -1,3 +1,19 @@
+declare namespace UserManagement {
+  interface User extends ApiUserManagement.User {
+    /** 序号 */
+    index: number;
+    /** 表格的key（id） */
+    key: number;
+  }
+
+  /**
+   * 用户状态
+   */
+  type UserStatusKey = NonNullable<User['user_status']>;
+
+  // 用户权限
+  type UserAuthority = NonNullable<User['authority']>;
+}
 /** 用户相关模块 */
 declare namespace Auth {
   /**
@@ -58,6 +74,8 @@ declare namespace Auth {
     /** token */
     code: string;
   }
+
+  type FormModel = Pick<UserManagement.User, 'user_name' | 'authority' | 'email' | 'user_status'>;
 }
 
 // 用户的临时信息
@@ -68,25 +86,4 @@ declare namespace Temp {
     /** 用户密码 */
     userPwd: string;
   }
-}
-
-declare namespace UserManagement {
-  interface User extends ApiUserManagement.User {
-    /** 序号 */
-    index: number;
-    /** 表格的key（id） */
-    key: number;
-  }
-
-  /**
-   * 用户状态
-   * - 1: 启用
-   * - 2: 禁用
-   * - 3: 冻结
-   * - 4: 软删除
-   */
-  type UserStatusKey = NonNullable<User['user_status']>;
-
-  // 用户权限
-  type UserAuthority = NonNullable<User['authority']>;
 }

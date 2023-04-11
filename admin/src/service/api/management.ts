@@ -20,6 +20,6 @@ export function fetchDeleteUser(user_id: number) {
 /**
  * 更新user数据
  */
-export function fetchPutUser(user: ApiUserManagement.User) {
-  return basicRequest.put('/user', user);
+export function fetchUpdateUser(id: number, user: UserManagement.User) {
+  return basicRequest.put(`/user/${id}`, user);
 }

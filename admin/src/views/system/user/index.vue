@@ -2,14 +2,10 @@
   <n-card title="用户管理" :bordered="false" class="rounded-16px shadow-sm">
     <n-space class="pb-12px" justify="space-between">
       <n-space>
-        <n-button type="primary" @click="handleAddTable">
-          <icon-ic-round-plus class="mr-4px text-20px" />
-          新增
-        </n-button>
-        <n-button type="error">
+        <!-- <n-button type="error">
           <icon-ic-round-delete class="mr-4px text-20px" />
           删除
-        </n-button>
+        </n-button> -->
       </n-space>
       <n-space align="center" :size="15">
         <n-button size="small" type="primary" @click="getTableData">
@@ -18,7 +14,7 @@
       </n-space>
     </n-space>
     <n-data-table :columns="columns" :data="tableData" :loading="loading" :pagination="pagination" />
-    <table-action-modal v-model:visible="visible" :type="modalType" :edit-data="editData" />
+    <table-action-modal v-model:visible="visible" :edit-data="editData" />
   </n-card>
 </template>
 
@@ -31,12 +27,12 @@ import { fetchUsersList, fetchDeleteUser } from '@/service';
 import { useBoolean, useLoading } from '@/hooks';
 import { userAuthority, userStatusLabels } from '@/constants';
 import TableActionModal from './components/TableActionModal.vue';
-import type { ModalType } from './components/TableActionModal.vue';
 
 const { loading, startLoading, endLoading } = useLoading(false);
 const { bool: visible, setTrue: openModal } = useBoolean();
 
 const tableData = ref<UserManagement.User[]>([]);
+const editData = ref<UserManagement.User | null>(null);
 function setTableData(data: UserManagement.User[]) {
   tableData.value = data;
 }
@@ -54,10 +50,6 @@ async function getTableData() {
 
 const columns: Ref<DataTableColumns<UserManagement.User>> = ref([
   {
-    type: 'selection',
-    align: 'center'
-  },
-  {
     key: 'index',
     title: '序号',
     align: 'center',
@@ -67,7 +59,6 @@ const columns: Ref<DataTableColumns<UserManagement.User>> = ref([
     key: 'user_name',
     title: '用户名',
     align: 'center',
-    defaultSortOrder: 'ascend',
     sorter: 'default'
   },
   {
@@ -165,21 +156,8 @@ const columns: Ref<DataTableColumns<UserManagement.User>> = ref([
   }
 ]) as Ref<DataTableColumns<UserManagement.User>>;
 
-const modalType = ref<ModalType>('add');
-
-function setModalType(type: ModalType) {
-  modalType.value = type;
-}
-
-const editData = ref<UserManagement.User | null>(null);
-
 function setEditData(data: UserManagement.User | null) {
   editData.value = data;
-}
-
-function handleAddTable() {
-  openModal();
-  setModalType('add');
 }
 
 function handleDeleteDisplay(user: string) {
@@ -190,9 +168,8 @@ function handleEditTable(rowId: number) {
   const findItem = tableData.value.find(item => item.user_id === rowId);
   if (findItem) {
     setEditData(findItem);
+    openModal();
   }
-  setModalType('edit');
-  openModal();
 }
 
 async function handleDeleteTable(row_id: number) {

@@ -3,7 +3,7 @@ use sea_orm::FromQueryResult;
 use serde::{Deserialize, Serialize};
 
 ///用户表数据
-#[derive(FromQueryResult, Deserialize, Serialize)]
+#[derive(Debug, FromQueryResult, Deserialize, Serialize)]
 pub(crate) struct UserTableData {
     pub(crate) user_id: i32,
     pub(crate) user_name: String,

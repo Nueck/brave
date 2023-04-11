@@ -15,13 +15,23 @@ export const userAuthority: Record<UserManagement.UserAuthority, string> = {
 
 export const userAuthorityOptions: { value: UserManagement.UserAuthority; label: string }[] = [
   { value: 'admin', label: userAuthority.admin },
-  { value: 'super', label: userAuthority.super },
   { value: 'user', label: userAuthority.user }
 ];
 
+export const superAuthorityOptions: { value: UserManagement.UserAuthority; label: string }[] = [
+  { value: 'super', label: userAuthority.super }
+];
+
+export function authorityOptions(user: string) {
+  if (user === 'super') {
+    return superAuthorityOptions;
+  }
+  return userAuthorityOptions;
+}
+
 export const userStatusOptions: { value: UserManagement.UserStatusKey; label: string }[] = [
-  { value: '1', label: userStatusLabels['1'] },
-  { value: '2', label: userStatusLabels['2'] },
-  { value: '3', label: userStatusLabels['3'] },
-  { value: '4', label: userStatusLabels['4'] }
+  { value: 1, label: userStatusLabels['1'] },
+  { value: 2, label: userStatusLabels['2'] },
+  { value: 3, label: userStatusLabels['3'] },
+  { value: 4, label: userStatusLabels['4'] }
 ];

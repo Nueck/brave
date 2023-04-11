@@ -9,7 +9,7 @@ use brave_db::entity::prelude::Users;
 use brave_db::entity::users;
 use brave_db::enumeration::user_enum::UserStatusEnum;
 use sea_orm::ActiveValue::Set;
-use sea_orm::{ActiveModelTrait, ColumnTrait, EntityTrait, QueryFilter, QuerySelect};
+use sea_orm::{ActiveModelTrait, ColumnTrait, EntityTrait, QueryFilter, QueryOrder, QuerySelect};
 use std::path::PathBuf;
 use std::{env, fs};
 
@@ -127,6 +127,7 @@ async fn get_users(data: web::Data<AppState>, token: web::ReqData<UserDataInfo>)
                 users::Column::UserStatus,
                 users::Column::CreateTime,
             ])
+            .order_by_asc(users::Column::UserId)
             .into_model::<UserTableData>()
             .all(db)
             .await
@@ -247,6 +248,8 @@ async fn update_user(
 ) -> impl Responder {
     let auth = token.auth.clone();
 
+    println!("{:?}", json);
+
     //只有是超级管理员才能访问
     if auth
         == GLOBAL_CONFIG
@@ -259,33 +262,37 @@ async fn update_user(
         let id = query.into_inner();
 
         //更新用户
-        let mut data: users::ActiveModel = Users::find_by_id(id)
-            .one(db)
-            .await
-            .expect("deleteUser")
-            .unwrap()
-            .into();
+        match Users::find_by_id(id).one(db).await {
+            Ok(model) => {
+                let mut data: users::ActiveModel = model.unwrap().into();
 
-        data.user_name = Set(json.user_name.to_owned());
-        data.user_status = Set(json.user_status);
-        data.email = Set(json.email.to_owned());
+                data.user_name = Set(json.user_name.to_owned());
+                data.user_status = Set(json.user_status);
+                data.email = Set(json.email.to_owned());
 
-        if GLOBAL_CONFIG
-            .authority
-            .auth
-            .clone()
-            .unwrap()
-            .contains(&json.authority)
-        {
-            data.authority = Set(json.authority.to_owned());
-        };
+                if GLOBAL_CONFIG
+                    .authority
+                    .auth
+                    .clone()
+                    .unwrap()
+                    .contains(&json.authority)
+                {
+                    data.authority = Set(json.authority.to_owned());
+                };
 
-        match data.update(db).await {
-            Ok(_) => HttpResponse::Ok().json(serde_json::json!({"state": "success"})),
+                match data.update(db).await {
+                    Ok(_) => HttpResponse::Ok().json(serde_json::json!({"state": "success"})),
+                    Err(_) => {
+                        const MSG: &str = "Update failure";
+                        let json = serde_json::json!({"state": "error",  "message":MSG });
+                        HttpResponse::Ok().json(json)
+                    }
+                }
+            }
             Err(_) => {
-                const MSG: &str = "Update failure";
+                const MSG: &str = "User does not exist";
                 let json = serde_json::json!({"state": "error",  "message":MSG });
-                return HttpResponse::Ok().json(json);
+                HttpResponse::Ok().json(json)
             }
         }
     } else {

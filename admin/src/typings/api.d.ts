@@ -58,7 +58,7 @@ declare namespace ApiUserManagement {
      * - 3: 冻结
      * - 4: 软删除
      */
-    user_status: '1' | '2' | '3' | '4' | null;
+    user_status: number;
 
     /* 创建时间 */
     create_time: string;

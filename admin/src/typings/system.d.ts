@@ -59,7 +59,7 @@ declare namespace Service {
     /** 表示后端请求数据的属性字段 */
     data: string;
     /** 表示后端消息的属性字段 */
-    message: string;
+    message: string | null;
   }
 
   /** 自定义的请求成功结果 */

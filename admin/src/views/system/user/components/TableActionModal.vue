@@ -6,7 +6,7 @@
           <n-input v-model:value="formModel.user_name" />
         </n-form-item-grid-item>
         <n-form-item-grid-item :span="12" label="权限" path="age">
-          <n-select v-model:value="formModel.authority" :options="userAuthorityOptions" />
+          <n-select v-model:value="formModel.authority" :options="authorityOptions(formModel.authority)" />
         </n-form-item-grid-item>
         <n-form-item-grid-item :span="12" label="邮箱" path="email">
           <n-input v-model:value="formModel.email" />
@@ -27,27 +27,19 @@
 import { ref, computed, reactive, watch } from 'vue';
 import type { FormInst, FormItemRule } from 'naive-ui';
 import { formRules, createRequiredFormRule } from '@/utils';
-import { userStatusOptions, userAuthorityOptions } from '@/constants';
+import { userStatusOptions, authorityOptions } from '@/constants';
+import { fetchUpdateUser } from '~/src/service';
 
 export interface Props {
   /** 弹窗可见性 */
   visible: boolean;
-  /**
-   * 弹窗类型
-   * add: 新增
-   * edit: 编辑
-   */
-  type?: 'add' | 'edit';
   /** 编辑的表格行数据 */
   editData?: UserManagement.User | null;
 }
 
-export type ModalType = NonNullable<Props['type']>;
-
 defineOptions({ name: 'TableActionModal' });
 
 const props = withDefaults(defineProps<Props>(), {
-  type: 'add',
   editData: null
 });
 
@@ -70,58 +62,45 @@ const closeModal = () => {
 };
 
 const title = computed(() => {
-  const titles: Record<ModalType, string> = {
-    add: '添加用户',
-    edit: '编辑用户'
-  };
-  return titles[props.type];
+  return '编辑用户';
 });
 
 const formRef = ref<HTMLElement & FormInst>();
 
-type FormModel = Pick<UserManagement.User, 'user_name' | 'authority' | 'email' | 'user_status'>;
+const formModel = reactive<Auth.FormModel>(createDefaultFormModel());
 
-const formModel = reactive<FormModel>(createDefaultFormModel());
-
-const rules: Record<keyof FormModel, FormItemRule | FormItemRule[]> = {
+const rules: Record<keyof Auth.FormModel, FormItemRule | FormItemRule[]> = {
   user_name: createRequiredFormRule('请输入用户名'),
   authority: createRequiredFormRule('选择用户权限'),
   email: formRules.email,
   user_status: createRequiredFormRule('请选择用户状态')
 };
 
-function createDefaultFormModel(): FormModel {
+function createDefaultFormModel(): Auth.FormModel {
   return {
     user_name: '',
     authority: 'user',
     email: null,
-    user_status: '1'
+    user_status: 1
   };
 }
 
-function handleUpdateFormModel(model: Partial<FormModel>) {
-  Object.assign(formModel, model);
-}
-
-function handleUpdateFormModelByModalType() {
-  const handlers: Record<ModalType, () => void> = {
-    add: () => {
-      const defaultFormModel = createDefaultFormModel();
-      handleUpdateFormModel(defaultFormModel);
-    },
-    edit: () => {
-      if (props.editData) {
-        handleUpdateFormModel(props.editData);
-      }
+async function handleUpdateFormModel() {
+  if (props.editData) {
+    Object.assign(props.editData, formModel);
+    const { error } = await fetchUpdateUser(props.editData.user_id, props.editData);
+    if (!error) {
+      window.$message?.success('更新成功!');
+      return true;
     }
-  };
-
-  handlers[props.type]();
+  }
+  window.$message?.error('更新失败!');
+  return false;
 }
 
 async function handleSubmit() {
   await formRef.value?.validate();
-  window.$message?.success('新增成功!');
+  await handleUpdateFormModel();
   closeModal();
 }
 
@@ -129,7 +108,9 @@ watch(
   () => props.visible,
   newValue => {
     if (newValue) {
-      handleUpdateFormModelByModalType();
+      if (props.editData) {
+        Object.assign(formModel, props.editData);
+      }
     }
   }
 );
