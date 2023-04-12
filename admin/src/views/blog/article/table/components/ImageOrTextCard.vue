@@ -1,7 +1,7 @@
 <template>
-  <n-card class="border-1 shadow-sm hover:shadow-2xl">
+  <n-card class="rounded-10px border-1 shadow-sm hover:shadow-2xl">
     <template #cover>
-      <n-image class="w-auto h-24" :src="props.imgUrl" object-fit="fill" @click="clickCard"> </n-image>
+      <n-image class="w-auto h-24" :src="props.imgUrl" preview-disabled object-fit="fill" @click="clickCard"> </n-image>
     </template>
     <n-ellipsis :line-clamp="1" class="h-auto">
       {{ text }}
@@ -39,7 +39,6 @@ const props = withDefaults(defineProps<Props>(), {
 
 async function deleteArticle() {
   await article.deleteData(props.id);
-  await article.getArticles();
 }
 
 function clickCard() {

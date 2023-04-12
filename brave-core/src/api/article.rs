@@ -8,21 +8,27 @@ use brave_db::entity::article;
 use brave_db::entity::article::Model;
 use brave_db::entity::prelude::{Article, Users};
 use sea_orm::ActiveValue::Set;
-use sea_orm::{ActiveModelTrait, ColumnTrait, EntityTrait, QueryFilter, QueryOrder};
+use sea_orm::{
+    ActiveModelTrait, ColumnTrait, EntityTrait, PaginatorTrait, QueryFilter, QueryOrder,
+};
 use serde::{Deserialize, Serialize};
+
+//分页
+const PAGE_SIZE: u64 = 18;
 
 //文章
 pub fn article_config(cfg: &mut web::ServiceConfig) {
-    cfg.service(get_articles_info)
+    cfg.service(get_articles_page)
+        .service(get_articles_info)
         .service(get_article_data)
         .service(update_article_data)
         .service(save_article_data)
         .service(delete_article_data);
 }
 
-//获取文章列表
-#[get("/articles")]
-async fn get_articles_info(
+//获取文章列表页数
+#[get("/articles/page")]
+async fn get_articles_page(
     data: web::Data<AppState>,
     token: web::ReqData<UserDataInfo>,
 ) -> impl Responder {
@@ -32,8 +38,37 @@ async fn get_articles_info(
     //获取数据库中文章信息
     match Article::find()
         .filter(article::Column::UserId.eq(id.clone().to_owned()))
+        .paginate(db, PAGE_SIZE)
+        .num_pages()
+        .await
+    {
+        Ok(num) => HttpResponse::Ok().json(serde_json::json!({"state": "success", "data": {
+            "page_total":num
+        } })),
+        Err(_) => {
+            const MSG: &str = "Unable to find the data";
+            HttpResponse::Ok().json(serde_json::json!({"state": "error", "message": MSG }))
+        }
+    }
+}
+
+//获取文章列表
+#[get("/articles/{page}")]
+async fn get_articles_info(
+    data: web::Data<AppState>,
+    token: web::ReqData<UserDataInfo>,
+    path: web::Path<i64>,
+) -> impl Responder {
+    let db = &data.conn;
+    let id = &token.id;
+    let page = path.into_inner();
+
+    //获取数据库中文章信息
+    match Article::find()
+        .filter(article::Column::UserId.eq(id.clone().to_owned()))
         .order_by_desc(article::Column::ArticleId.to_owned())
-        .all(db)
+        .paginate(db, PAGE_SIZE)
+        .fetch_page(page as u64)
         .await
     {
         Ok(table) => {

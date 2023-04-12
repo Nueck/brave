@@ -3,8 +3,15 @@ import { basicRequest } from '../request';
 /**
  * 获取文章列表
  */
-export function fetchArticles() {
-  return basicRequest.get<Blog.ArticlesInfo[]>('/articles');
+export function fetchArticles(page: number) {
+  return basicRequest.get<Blog.ArticlesInfo[]>(`/articles/${page}`);
+}
+
+/**
+ * 获取文章列表总页数
+ */
+export function fetchArticlesPageTotal() {
+  return basicRequest.get<Blog.ArticlesPage>('/articles/page');
 }
 
 /**

@@ -1,4 +1,7 @@
 declare namespace Blog {
+  interface ArticlesPage {
+    page_total: number;
+  }
   interface ArticlesInfo {
     table_id: number;
     img_url: string;
