@@ -1,7 +1,7 @@
 <template>
-  <n-card class="rounded-10px border-1 shadow-sm hover:shadow-2xl">
+  <n-card class="shadow-xl hover:shadow-2xl">
     <template #cover>
-      <n-image class="w-auto h-24" :src="props.imgUrl" preview-disabled object-fit="fill" @click="clickCard"> </n-image>
+      <n-image class="w-auto h-35" :src="props.imgUrl" preview-disabled object-fit="fill" @click="clickCard"> </n-image>
     </template>
     <n-ellipsis :line-clamp="1" class="h-auto">
       {{ text }}
@@ -26,22 +26,22 @@ const { routerPush } = useRouterPush();
 const article = useArticlesStore();
 
 interface Props {
-  id: number;
+  tableId: number;
   imgUrl: string;
   text: string;
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  id: 0,
+  tableId: 0,
   imgUrl: '',
   text: ''
 });
 
 async function deleteArticle() {
-  await article.deleteData(props.id);
+  await article.deleteData(props.tableId);
 }
 
 function clickCard() {
-  routerPush({ name: routeName('blog_article_edit'), query: { tableId: props.id } });
+  routerPush({ name: routeName('blog_article_edit'), hash: `#${props.tableId}` });
 }
 </script>

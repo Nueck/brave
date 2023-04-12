@@ -8,6 +8,7 @@ import {
   fetchSaveArticleEditData,
   fetchUpdateArticleEditData
 } from '~/src/service/api/article';
+import { useTabStore } from '../tab';
 
 interface ArticlesStore {
   articlesData: Blog.ArticlesInfo[];
@@ -32,6 +33,7 @@ export const useArticlesStore = defineStore('articles-store', {
         const { data } = await fetchArticles(page - 1);
         if (data) {
           (this.articlesData as Blog.ArticlesInfo[]) = data;
+          this.current_page = page;
         } else {
           this.articlesData = <Blog.ArticlesInfo[]>[];
         }
@@ -62,15 +64,17 @@ export const useArticlesStore = defineStore('articles-store', {
       }
     },
     // 保存数据
-    async saveData(data: Blog.ArticleEditData) {
+    async saveData(data: Blog.ArticleEditData, fullPath: string) {
       if (!this.loading) {
         this.loading = true;
 
         const { error } = await fetchSaveArticleEditData(data);
         if (!error) {
           // 重新加载页数
-          await this.getArticlesPageTotal();
           await this.getArticles(this.current_page);
+          const tab = useTabStore();
+          await tab.removeTab(fullPath);
+
           window.$message?.success('保存数据成功');
         }
         setTimeout(() => {

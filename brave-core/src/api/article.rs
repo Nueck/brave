@@ -14,7 +14,7 @@ use sea_orm::{
 use serde::{Deserialize, Serialize};
 
 //分页
-const PAGE_SIZE: u64 = 18;
+const PAGE_SIZE: u64 = 10;
 
 //文章
 pub fn article_config(cfg: &mut web::ServiceConfig) {

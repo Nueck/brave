@@ -40,7 +40,7 @@
       <md-editor v-model="contentData.content" :on-html-changed="handleHtmlCode" :preview="false" class="w-auto" />
       <n-space class="w-auto" justify="end">
         <template v-if="status">
-          <n-button type="primary" class="w-180px h-36px" @click="article.saveData(contentData)">保存文章</n-button>
+          <n-button type="primary" class="w-180px h-36px" @click="handleSaveData()">保存文章</n-button>
         </template>
         <template v-else>
           <n-button type="primary" class="w-180px h-36px" @click="article.updateData(contentData)">保存修改</n-button>
@@ -87,8 +87,9 @@ const contentData = ref<Blog.ArticleEditData>({
 });
 
 const status = ref(true);
-if (route.query.tableId) {
-  const id = Number(route.query.tableId);
+if (route.hash) {
+  const str = route.hash.replace('#', '');
+  const id = Number(str);
   if (id) {
     contentData.value.table_id = id;
     fetchArticleEditData(id)
@@ -135,6 +136,10 @@ async function beforeUpload(data: { file: UploadFileInfo; fileList: UploadFileIn
 // 处理渲染好的html数据
 async function handleHtmlCode(h: string) {
   contentData.value.html_content = h;
+}
+
+async function handleSaveData() {
+  await article.saveData(contentData.value, route.fullPath);
 }
 
 // 获取服务器的数据
