@@ -31,7 +31,7 @@ export const useArticlesStore = defineStore('articles-store', {
       }
       setTimeout(() => {
         this.acticleLoading = false;
-      }, 500);
+      }, 300);
     },
     async updateData(data: Blog.ArticleEditData) {
       if (!this.loading) {

@@ -1,6 +1,7 @@
 use std::future::{ready, Ready};
 use std::task::{Context, Poll};
 
+use crate::middleware::{is_need_verification, refresh_api};
 use actix_web::error::{ErrorNetworkAuthenticationRequired, ErrorUnauthorized};
 use actix_web::http::header;
 use actix_web::{
@@ -72,7 +73,7 @@ where
                     //进行token认证
                     match GLOB_JOT.validation_token(&token_msg) {
                         Ok(data) => {
-                            /*判断用户权限是否存在*/
+                            //判断用户权限是否存在
                             if GLOBAL_CONFIG
                                 .authority
                                 .auth
@@ -81,7 +82,7 @@ where
                                 .contains(&data.auth)
                             {
                                 if data.refresh {
-                                    /*判断是否刷新token*/
+                                    //判断是否刷新token
                                     if refresh_api(req.path()) {
                                         req.extensions_mut().insert(data);
 
@@ -99,7 +100,7 @@ where
                                         })
                                     }
                                 } else {
-                                    /*将用户信息传下去*/
+                                    //将用户信息传下去
                                     req.extensions_mut().insert(data);
 
                                     let fut = self.service.call(req);
@@ -140,19 +141,4 @@ where
             })
         }
     }
-}
-
-fn is_need_verification(path: &str) -> bool {
-    !(path == format!("/{}/init", GLOBAL_CONFIG.interface.api_scope)
-        || path == format!("/{}/init/state", GLOBAL_CONFIG.interface.api_scope)
-        || path == format!("/{}/login", GLOBAL_CONFIG.interface.api_scope)
-        || path == format!("/{}/register", GLOBAL_CONFIG.interface.api_scope)
-        || path == format!("/{}/sendmail", GLOBAL_CONFIG.interface.api_scope)
-        || path == format!("/{}/forget", GLOBAL_CONFIG.interface.api_scope)
-        || path == format!("/{}/email-login", GLOBAL_CONFIG.interface.api_scope)
-        || path == format!("/{}/upload/img", GLOBAL_CONFIG.interface.api_scope))
-}
-
-fn refresh_api(path: &str) -> bool {
-    path == format!("/{}/updateToken", GLOBAL_CONFIG.interface.api_scope)
 }

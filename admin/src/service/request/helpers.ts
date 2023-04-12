@@ -9,25 +9,31 @@ import { fetchUpdateToken } from '../api';
  */
 export async function handleRefreshToken(axiosConfig: AxiosRequestConfig) {
   const { resetAuthStore } = useAuthStore();
-  const refreshToken = localStg.get('refreshToken') || '';
+  const tokenData: StorageInterface.RefreshData = localStg.get('refreshToken') || { code: '', num: 0 };
 
-  /* 将本地token设置成ref */
-  const oldConfig = { ...axiosConfig };
-  if (oldConfig.headers) {
-    oldConfig.headers.Authorization = refreshToken;
-  }
-
-  const { data } = await fetchUpdateToken(refreshToken, oldConfig);
-
-  if (data) {
-    localStg.set('token', data.token);
-    localStg.set('refreshToken', data.refreshToken);
-
-    const config = { ...axiosConfig };
-    if (config.headers) {
-      config.headers.Authorization = data.token;
+  if (tokenData.num > 0) {
+    /* 将本地token设置成ref */
+    const oldConfig = { ...axiosConfig };
+    if (oldConfig.headers) {
+      oldConfig.headers.Authorization = tokenData.code;
     }
-    return config;
+
+    const { data } = await fetchUpdateToken(oldConfig);
+
+    if (data) {
+      localStg.set('token', data.token);
+      const newFreshTokenData: StorageInterface.RefreshData = { code: data.refreshToken, num: 3 };
+      localStg.set('refreshToken', newFreshTokenData);
+
+      const config = { ...axiosConfig };
+      if (config.headers) {
+        config.headers.Authorization = data.token;
+      }
+      return config;
+    }
+
+    const newFreshTokenData: StorageInterface.RefreshData = { code: tokenData.code, num: tokenData.num - 1 };
+    localStg.set('refreshToken', newFreshTokenData);
   }
 
   resetAuthStore();

@@ -116,7 +116,9 @@ export const useAuthStore = defineStore('auth-store', {
       // 先把token存储到缓存中(后面接口的请求头需要token)
       const { token, refreshToken } = backendToken;
       localStg.set('token', token);
-      localStg.set('refreshToken', refreshToken);
+      // 限制三次请求
+      const dataToken: StorageInterface.RefreshData = { code: refreshToken, num: 3 };
+      localStg.set('refreshToken', dataToken);
 
       // 获取用户信息
       const { data } = await fetchUserInfo();

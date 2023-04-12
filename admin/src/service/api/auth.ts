@@ -77,6 +77,6 @@ export function fetchUserRoutes(userId: string) {
  * 刷新token
  * @param refreshToken
  */
-export function fetchUpdateToken(refreshToken: string, config: AxiosRequestConfig) {
-  return basicRequest.post<ApiAuth.Token>('/updateToken', { refreshToken }, config);
+export function fetchUpdateToken(config: AxiosRequestConfig) {
+  return basicRequest.put<ApiAuth.Token>('/updateToken', config);
 }

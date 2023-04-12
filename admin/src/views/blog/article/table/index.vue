@@ -5,9 +5,9 @@
       新增
     </n-button>
     <n-spin :show="articleStore.acticleLoading">
-      <n-layout class="bg-transparent w-full" has-sider>
+      <n-layout class="bg-transparent w-full h-600px">
         <template v-if="articles.articlesData.value.length === 0">
-          <n-empty :description="description" class="bg-transparent w-full h-full absolute-center p-b-50">
+          <n-empty :description="description" class="absolute-center h-full">
             <template #extra>
               <n-button size="small" @click="handleAdd"> 点击新建 </n-button>
             </template>
@@ -15,22 +15,24 @@
         </template>
 
         <template v-else>
-          <n-grid
-            v-if="articles.articlesData.value"
-            class="p-t-5px p-b-5 p-l-3 p-t-3"
-            x-gap="8"
-            y-gap="8"
-            cols="2 150:1 300:2 450:3 600:4 750:5 900:6"
-          >
-            <n-gi v-for="(article, index) in articles.articlesData.value" :key="index">
-              <ImageOrTextCard :id="article.table_id" :img-url="article.img_url" :text="article.title" />
-            </n-gi>
-          </n-grid>
+          <n-layout content-style="w-full ">
+            <n-grid
+              v-if="articles.articlesData.value"
+              class="p-b-5 p-t-5 h-570px"
+              x-gap="8"
+              y-gap="8"
+              cols="1 150:1 300:2 450:3 600:4 750:5 900:6"
+            >
+              <n-gi v-for="(article, index) in articles.articlesData.value" :key="index">
+                <ImageOrTextCard :id="article.table_id" :img-url="article.img_url" :text="article.title" />
+              </n-gi>
+            </n-grid>
+          </n-layout>
+          <n-space justify="end">
+            <n-pagination v-model:page="page" class="h-30px" :page-count="1" />
+          </n-space>
         </template>
       </n-layout>
-      <n-space justify="end">
-        <n-pagination v-model:page="page" :page-count="1" />
-      </n-space>
     </n-spin>
   </n-card>
 </template>

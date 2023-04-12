@@ -4,6 +4,12 @@ declare namespace StorageInterface {
     demoKey: string;
   }
 
+  // 刷新token样式
+  interface RefreshData {
+    code: string;
+    num: number;
+  }
+
   /** localStorage的存储数据的类型 */
   interface Local {
     /** 主题颜色 */
@@ -11,7 +17,7 @@ declare namespace StorageInterface {
     /** 用户token */
     token: string;
     /** 用户刷新token */
-    refreshToken: string;
+    refreshToken: RefreshData;
     /** 用户信息 */
     userInfo: Auth.UserInfo;
     // 用户的临时信息
