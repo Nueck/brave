@@ -10,6 +10,7 @@ declare namespace Blog {
 
   interface ArticlesEditInfo {
     title: string;
+    tag: string;
     subtitle: string;
     img_url: string;
     content: string;
@@ -18,6 +19,7 @@ declare namespace Blog {
   interface ArticleEditData {
     title: string;
     subtitle: string;
+    tag: string;
     table_id: number;
     img_url: string;
     content: string;

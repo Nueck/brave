@@ -74,15 +74,15 @@ async fn get_tag(data: web::Data<AppState>, token: web::ReqData<UserDataInfo>) -
 }
 
 //删除指定标签
-#[delete("/tags")]
+#[delete("/tags/{tag}")]
 async fn delete_tag(
     data: web::Data<AppState>,
     token: web::ReqData<UserDataInfo>,
-    json: web::Json<TagData>,
+    path: web::Path<String>,
 ) -> impl Responder {
     let id = &token.id;
     let db = &data.conn;
-    let tag = &json.tag;
+    let tag = path.to_string();
     let table = article_tag::Entity::find()
         .filter(article_tag::Column::UserId.eq(id.to_owned()))
         .one(db)
@@ -97,7 +97,7 @@ async fn delete_tag(
     } else {
         if content.is_array() {
             let mut tags = content.as_array().unwrap().to_vec();
-            tags.retain(|x| x != &JsonValue::String(tag.to_string()));
+            tags.retain(|x| x != &JsonValue::String(tag.to_owned()));
             model.content = Set(JsonValue::Array(tags));
         }
     };

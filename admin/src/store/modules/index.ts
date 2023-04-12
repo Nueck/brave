@@ -4,5 +4,6 @@ export * from './init';
 export * from './articles';
 export * from './auth';
 export * from './tab';
+export * from './albums';
 export * from './route';
 export * from './setup-store';

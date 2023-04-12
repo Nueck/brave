@@ -27,17 +27,24 @@ pub fn article_config(cfg: &mut web::ServiceConfig) {
 }
 
 //获取文章列表页数
-#[get("/articles/page")]
+#[get("/articles/page/{tag}")]
 async fn get_articles_page(
     data: web::Data<AppState>,
     token: web::ReqData<UserDataInfo>,
+    path: web::Path<String>,
 ) -> impl Responder {
     let db = &data.conn;
     let id = &token.id;
+    let tag = path.into_inner();
 
     //获取数据库中文章信息
     match Article::find()
         .filter(article::Column::UserId.eq(id.clone().to_owned()))
+        .filter(if tag != "all" {
+            article::Column::Tag.contains(tag.as_str())
+        } else {
+            article::Column::Tag.contains("")
+        })
         .paginate(db, PAGE_SIZE)
         .num_pages()
         .await
@@ -53,19 +60,24 @@ async fn get_articles_page(
 }
 
 //获取文章列表
-#[get("/articles/{page}")]
+#[get("/articles/{page}/{tag}")]
 async fn get_articles_info(
     data: web::Data<AppState>,
     token: web::ReqData<UserDataInfo>,
-    path: web::Path<i64>,
+    path: web::Path<(i64, String)>,
 ) -> impl Responder {
     let db = &data.conn;
     let id = &token.id;
-    let page = path.into_inner();
+    let (page, tag) = path.into_inner();
 
     //获取数据库中文章信息
     match Article::find()
         .filter(article::Column::UserId.eq(id.clone().to_owned()))
+        .filter(if tag != "all" {
+            article::Column::Tag.contains(tag.as_str())
+        } else {
+            article::Column::Tag.contains("")
+        })
         .order_by_desc(article::Column::ArticleId.to_owned())
         .paginate(db, PAGE_SIZE)
         .fetch_page(page as u64)
@@ -127,6 +139,7 @@ async fn get_article_data(
             #[derive(Clone, Deserialize, Serialize)]
             struct ArticleEditData {
                 title: String,
+                tag: String,
                 subtitle: String,
                 img_url: String,
                 content: String,
@@ -134,6 +147,7 @@ async fn get_article_data(
 
             let data = ArticleEditData {
                 title: model.title.unwrap(),
+                tag: model.tag.unwrap(),
                 subtitle: model.subtitle.unwrap(),
                 img_url: model.img_url.unwrap(),
                 content: model.content.unwrap(),
@@ -167,6 +181,7 @@ async fn save_article_data(
             let model = article::ActiveModel {
                 user_id: Set(user.user_id.to_owned()),
                 title: Set(Some(json.title.to_owned())),
+                tag: Set(Some(json.tag.to_owned())),
                 content: Set(Some(json.content.to_owned())),
                 img_url: Set(Some(json.img_url.to_owned())),
                 html_content: Set(Some(json.html_content.to_owned())),
@@ -226,6 +241,7 @@ async fn update_article_data(
         Some(table) => {
             let mut model: article::ActiveModel = table.into();
             model.html_content = Set(Some(json.html_content.to_owned()));
+            model.tag = Set(Some(json.tag.to_owned()));
             model.title = Set(Some(json.title.to_owned()));
             model.subtitle = Set(Some(json.subtitle.to_owned()));
             model.content = Set(Some(json.content.to_owned()));

@@ -1,5 +1,6 @@
+import type { Component } from 'vue';
 import { defineStore } from 'pinia';
-import { useRouterPush } from '~/src/composables';
+import { useIconRender, useRouterPush } from '~/src/composables';
 import { routeName } from '~/src/router';
 import {
   fetchArticles,
@@ -8,29 +9,41 @@ import {
   fetchSaveArticleEditData,
   fetchUpdateArticleEditData
 } from '~/src/service/api/article';
+import { fetchTags } from '~/src/service/api/tags';
 import { useTabStore } from '../tab';
+const { iconRender } = useIconRender();
+
+interface MenuOption {
+  label: string;
+  key: string;
+  icon?: Component;
+}
 
 interface ArticlesStore {
+  menuOptions: MenuOption[];
   articlesData: Blog.ArticlesInfo[];
   acticleLoading: boolean;
   loading: boolean;
   page_total: number;
   current_page: number;
+  current_tag: string;
 }
 
 export const useArticlesStore = defineStore('articles-store', {
   state: (): ArticlesStore => ({
+    menuOptions: [],
     articlesData: [],
     acticleLoading: false,
     loading: false,
     page_total: 1,
-    current_page: 1
+    current_page: 1,
+    current_tag: 'all'
   }),
   actions: {
     async getArticles(page: number) {
       this.acticleLoading = true;
       if (page > 0) {
-        const { data } = await fetchArticles(page - 1);
+        const { data } = await fetchArticles(page - 1, this.current_tag);
         if (data) {
           (this.articlesData as Blog.ArticlesInfo[]) = data;
           this.current_page = page;
@@ -44,7 +57,7 @@ export const useArticlesStore = defineStore('articles-store', {
     },
 
     async getArticlesPageTotal() {
-      const { data } = await fetchArticlesPageTotal();
+      const { data } = await fetchArticlesPageTotal(this.current_tag);
       if (data) {
         this.page_total = data.page_total;
       } else {
@@ -98,6 +111,30 @@ export const useArticlesStore = defineStore('articles-store', {
           routerPush({ name: routeName('blog_article_table') });
         }, 200);
       }
+    },
+    async getTags() {
+      const { data } = await fetchTags();
+      this.menuOptions = [];
+      this.menuOptions.push({
+        label: '全部',
+        key: 'all',
+        icon: iconRender({ icon: 'material-symbols:border-all-rounded' })
+      });
+      if (data) {
+        data.forEach(value => {
+          const menu: MenuOption = {
+            label: value,
+            key: value,
+            icon: iconRender({ icon: 'material-symbols:border-all-rounded' })
+          };
+          this.menuOptions.push(menu);
+        });
+      }
+    },
+    async switchTags(tag: string) {
+      this.current_tag = tag;
+      await this.getArticlesPageTotal();
+      await this.getArticles(this.current_page);
     }
   }
 });

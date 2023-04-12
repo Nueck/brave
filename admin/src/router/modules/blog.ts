@@ -37,25 +37,13 @@ const blog: AuthRoute.Route = {
       }
     },
     {
-      name: 'blog_category',
-      path: '/blog/category',
-      component: 'self',
-      meta: {
-        title: '类别',
-        icon: 'bx:category',
-        order: 2,
-        requiresAuth: true,
-        permissions: ['admin', 'super', 'user']
-      }
-    },
-    {
       name: 'blog_message',
       path: '/blog/message',
       component: 'self',
       meta: {
         title: '留言',
         icon: 'mdi:message-badge-outline',
-        order: 3,
+        order: 2,
         requiresAuth: true,
         permissions: ['admin', 'super', 'user']
       }
@@ -67,7 +55,7 @@ const blog: AuthRoute.Route = {
       meta: {
         title: '相册',
         icon: 'bx:photo-album',
-        order: 4,
+        order: 3,
         requiresAuth: true,
         permissions: ['admin', 'super', 'user']
       }
@@ -79,7 +67,7 @@ const blog: AuthRoute.Route = {
       meta: {
         title: '皮肤',
         icon: 'ant-design:skin-outlined',
-        order: 5,
+        order: 4,
         requiresAuth: true,
         permissions: ['admin', 'super', 'user']
       }

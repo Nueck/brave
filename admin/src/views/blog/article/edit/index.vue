@@ -80,6 +80,7 @@ const fileList = ref<UploadFileInfo[]>([]);
 const contentData = ref<Blog.ArticleEditData>({
   table_id: 0,
   title: '',
+  tag: '',
   subtitle: '',
   img_url: '',
   content: '',
@@ -100,6 +101,7 @@ if (route.hash) {
           contentData.value.title = data.title;
           contentData.value.subtitle = data.subtitle;
           contentData.value.img_url = data.img_url;
+          contentData.value.tag = data.tag;
 
           fileList.value.push({
             id: 'a',
