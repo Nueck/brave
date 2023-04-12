@@ -29,9 +29,6 @@
         >
           上传封面</n-upload
         >
-        <!-- <n-modal v-model:show="showModal" preset="card" style="width: 600px" title="一张很酷的图片">
-          <img :src="previewImageUrl" style="width: 100%" />
-        </n-modal> -->
         <n-radio-group v-model:value="radioValue" name="radiogroup">
           <n-space>
             <n-radio v-for="song in songs" :key="song.value" :value="song.value">
@@ -43,16 +40,11 @@
       <md-editor v-model="contentData.content" :on-html-changed="handleHtmlCode" :preview="false" class="w-auto" />
       <n-space class="w-auto" justify="end">
         <template v-if="status">
-          <n-button type="primary" class="w-180px h-36px" @click="article.saveData(contentData)"
-            >保存
-          </n-button></template
-        >
-        <template v-else
-          ><n-button type="primary" class="w-180px h-36px" @click="article.updateData(contentData)">保存编辑</n-button>
-          <n-button type="primary" class="w-180px h-36px" @click="article.deleteData(contentData.table_id)"
-            >删除</n-button
-          ></template
-        >
+          <n-button type="primary" class="w-180px h-36px" @click="article.saveData(contentData)">保存文章</n-button>
+        </template>
+        <template v-else>
+          <n-button type="primary" class="w-180px h-36px" @click="article.updateData(contentData)">保存修改</n-button>
+        </template>
       </n-space>
     </n-space>
   </n-space>
