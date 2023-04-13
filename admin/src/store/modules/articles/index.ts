@@ -73,7 +73,7 @@ export const useArticlesStore = defineStore('articles-store', {
         }
         setTimeout(() => {
           this.loading = false;
-        }, 500);
+        }, 100);
       }
     },
     // 保存数据
@@ -92,7 +92,7 @@ export const useArticlesStore = defineStore('articles-store', {
         }
         setTimeout(() => {
           this.loading = false;
-        }, 500);
+        }, 100);
       }
     },
     async deleteData(data: number) {

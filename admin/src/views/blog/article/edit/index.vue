@@ -29,6 +29,7 @@
         >
           上传封面</n-upload
         >
+        <n-dynamic-tags v-model:value="contentData.tag" :max="3"> </n-dynamic-tags>
         <n-radio-group v-model:value="radioValue" name="radiogroup">
           <n-space>
             <n-radio v-for="song in songs" :key="song.value" :value="song.value">
@@ -40,10 +41,10 @@
       <md-editor v-model="contentData.content" :on-html-changed="handleHtmlCode" :preview="false" class="w-auto" />
       <n-space class="w-auto" justify="end">
         <template v-if="status">
-          <n-button type="primary" class="w-180px h-36px" @click="handleSaveData()">保存文章</n-button>
+          <n-button type="primary" class="w-180px h-36px" @click="handleData('save')">保存文章</n-button>
         </template>
         <template v-else>
-          <n-button type="primary" class="w-180px h-36px" @click="article.updateData(contentData)">保存修改</n-button>
+          <n-button type="primary" class="w-180px h-36px" @click="handleData('update')">保存修改</n-button>
         </template>
       </n-space>
     </n-space>
@@ -80,7 +81,7 @@ const fileList = ref<UploadFileInfo[]>([]);
 const contentData = ref<Blog.ArticleEditData>({
   table_id: 0,
   title: '',
-  tag: ['all'],
+  tag: [''],
   subtitle: '',
   img_url: '',
   content: '',
@@ -103,6 +104,11 @@ if (route.hash) {
           contentData.value.img_url = data.img_url;
           contentData.value.tag = data.tag;
 
+          // 删除all的存在
+          const index = contentData.value.tag.indexOf('all');
+          if (index > -1) {
+            contentData.value.tag.splice(index, 1);
+          }
           fileList.value.push({
             id: 'a',
             name: 'cover',
@@ -140,8 +146,17 @@ async function handleHtmlCode(h: string) {
   contentData.value.html_content = h;
 }
 
-async function handleSaveData() {
-  await article.saveData(contentData.value, route.fullPath);
+async function handleData(str: string) {
+  const data: Blog.ArticleEditData = JSON.parse(JSON.stringify(contentData.value));
+  const index = data.tag.indexOf('all');
+  if (index === -1) {
+    data.tag.push('all');
+  }
+  if (str === 'update') {
+    await article.updateData(data);
+  } else if (str === 'save') {
+    await article.saveData(data, route.fullPath);
+  }
 }
 
 // 获取服务器的数据
