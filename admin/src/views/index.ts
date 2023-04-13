@@ -15,7 +15,6 @@ export const views: Record<
   blog_album: () => import('./blog/album/index.vue'),
   blog_article_edit: () => import('./blog/article/edit/index.vue'),
   blog_article_table: () => import('./blog/article/table/index.vue'),
-  blog_category: () => import('./blog/category/index.vue'),
   blog_message: () => import('./blog/message/index.vue'),
   blog_skin: () => import('./blog/skin/index.vue'),
   information: () => import('./information/index.vue'),

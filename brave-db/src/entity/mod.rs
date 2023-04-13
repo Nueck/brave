@@ -3,6 +3,7 @@
 pub mod prelude;
 
 pub mod article;
+pub mod article_archive;
 pub mod article_category;
 pub mod article_tag;
 pub mod users;

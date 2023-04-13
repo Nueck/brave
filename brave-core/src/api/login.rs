@@ -4,6 +4,8 @@ use brave_config::utils::common::{generation_random_number, is_invalid_user_name
 use brave_config::utils::fs::gen_symlink_default_skin;
 use brave_config::utils::jwt::{Claims, UserData, GLOB_JOT};
 use brave_config::GLOBAL_CONFIG;
+use brave_db::entity::article_archive;
+use brave_db::entity::article_category;
 use brave_db::entity::article_tag;
 use brave_db::entity::prelude::Users;
 use brave_db::entity::users;
@@ -264,13 +266,34 @@ async fn register(data: web::Data<AppState>, info: web::Json<RegisterInfo>) -> H
                             Ok(table) => {
                                 gen_symlink_default_skin(&info.username);
 
-                                //添加一条tag数据
                                 let tags = article_tag::ActiveModel {
                                     user_id: Set(table.last_insert_id),
                                     content: Set(JsonValue::Array(Vec::new())),
                                     ..Default::default()
                                 };
+
+                                let archive = article_archive::ActiveModel {
+                                    user_id: Set(table.last_insert_id),
+                                    content: Set(JsonValue::Array(Vec::new())),
+                                    ..Default::default()
+                                };
+                                let category = article_category::ActiveModel {
+                                    user_id: Set(table.last_insert_id),
+                                    content: Set(JsonValue::Array(Vec::new())),
+                                    ..Default::default()
+                                };
+
+                                //添加分类和归档和tag
                                 article_tag::Entity::insert(tags).exec(db).await.unwrap();
+                                article_archive::Entity::insert(archive)
+                                    .exec(db)
+                                    .await
+                                    .unwrap();
+                                article_category::Entity::insert(category)
+                                    .exec(db)
+                                    .await
+                                    .unwrap();
+
                                 true
                             }
 

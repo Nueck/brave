@@ -26,6 +26,13 @@ pub(crate) struct TagData {
     pub(crate) tag: String,
 }
 
+#[derive(Clone, Debug, Deserialize, Serialize)]
+pub(crate) struct ArchiveData {
+    pub(crate) id: usize,
+    pub(crate) name: String,
+    pub(crate) icon: String,
+}
+
 #[derive(Debug, Clone, Deserialize, Serialize)]
 pub(crate) struct ArticleData {
     pub(crate) table_id: i64,

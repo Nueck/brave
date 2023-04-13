@@ -1,3 +1,4 @@
+use crate::api::archive::archive_config;
 use crate::api::article::article_config;
 use crate::api::init::init_config;
 use crate::api::login::login_config;
@@ -9,6 +10,7 @@ use crate::api::upload::data_config;
 use crate::api::user::user_config;
 use actix_web::web;
 
+mod archive;
 mod article;
 mod init;
 mod login;
@@ -27,6 +29,7 @@ pub fn api_config(cfg: &mut web::ServiceConfig) {
         .configure(user_config)
         .configure(article_config)
         .configure(data_config)
+        .configure(archive_config)
         .configure(tag_config)
         .configure(skin_config)
         .configure(super_user_config);
