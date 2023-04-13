@@ -30,7 +30,7 @@ pub(crate) struct TagData {
 pub(crate) struct ArticleData {
     pub(crate) table_id: i64,
     pub(crate) title: String,
-    pub(crate) tag: String,
+    pub(crate) tag: Vec<String>,
     pub(crate) subtitle: String,
     pub(crate) content: String,
     pub(crate) img_url: String,

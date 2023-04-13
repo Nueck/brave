@@ -50,7 +50,7 @@ lettre = "0.10"
 publicsuffix = "2"
 uuid = { version = "1", features = ["v4"] }
 may = "0.3"
-sea-orm = { version = "0.11", features = ["sqlx-postgres", "runtime-actix-native-tls", "macros"] }
+sea-orm = { version = "0.11", features = ["sqlx-postgres", "runtime-actix-native-tls", "macros", "postgres-array"] }
 derive_more = "0.99"
 jsonwebtoken = "8"
 

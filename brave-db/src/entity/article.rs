@@ -15,7 +15,7 @@ pub struct Model {
     pub view_count: i64,
     pub messages_count: i64,
     pub messages_content: Option<Json>,
-    pub tag: Option<String>,
+    pub tag: Vec<String>,
     #[sea_orm(column_type = "Text", nullable)]
     pub img_url: Option<String>,
     #[sea_orm(column_type = "Text", nullable)]

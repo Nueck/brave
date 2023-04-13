@@ -4,6 +4,13 @@
       <icon-ic-round-plus class="text-24px" />
       新增
     </n-button>
+    <n-menu
+      default-value="all"
+      :value="articleStore.current_tag"
+      mode="horizontal"
+      :options="articles.menuOptions.value as MenuMixedOption[]"
+      @update-value="switchTag"
+    />
 
     <n-layout class="bg-transparent w-full h-600px">
       <n-layout embedded class="rounded-10px h-550px" has-sider>

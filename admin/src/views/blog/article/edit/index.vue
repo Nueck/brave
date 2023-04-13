@@ -80,7 +80,7 @@ const fileList = ref<UploadFileInfo[]>([]);
 const contentData = ref<Blog.ArticleEditData>({
   table_id: 0,
   title: '',
-  tag: '',
+  tag: ['all'],
   subtitle: '',
   img_url: '',
   content: '',

@@ -9,7 +9,7 @@ use brave_db::entity::article::Model;
 use brave_db::entity::prelude::{Article, Users};
 use sea_orm::ActiveValue::Set;
 use sea_orm::{
-    ActiveModelTrait, ColumnTrait, EntityTrait, PaginatorTrait, QueryFilter, QueryOrder,
+    ActiveModelTrait, ColumnTrait, DbBackend, EntityTrait, PaginatorTrait, QueryFilter, Statement,
 };
 use serde::{Deserialize, Serialize};
 
@@ -39,12 +39,29 @@ async fn get_articles_page(
 
     //获取数据库中文章信息
     match Article::find()
-        .filter(article::Column::UserId.eq(id.clone().to_owned()))
-        .filter(if tag != "all" {
-            article::Column::Tag.contains(tag.as_str())
-        } else {
-            article::Column::Tag.contains("")
-        })
+        .from_raw_sql(Statement::from_sql_and_values(
+            DbBackend::Postgres,
+            r#"SELECT
+                    "article"."article_id",
+                     "article"."user_id",
+                     "article"."title",
+                     "article"."content",
+                     "article"."publish_time",
+                     "article"."view_count",
+                     "article"."messages_count",
+                     "article"."messages_content",
+                     "article"."tag",
+                     "article"."img_url",
+                     "article"."html_content",
+                     "article"."subtitle",
+                     "article"."url"
+                     FROM
+                       "article"
+                     WHERE
+                       "article"."user_id" = $1
+                       AND  $2 = ANY(tag)"#,
+            [(*id).into(), tag.into()],
+        ))
         .paginate(db, PAGE_SIZE)
         .num_pages()
         .await
@@ -52,7 +69,8 @@ async fn get_articles_page(
         Ok(num) => HttpResponse::Ok().json(serde_json::json!({"state": "success", "data": {
             "page_total":num
         } })),
-        Err(_) => {
+        Err(err) => {
+            log::error!("{:?}", err);
             const MSG: &str = "Unable to find the data";
             HttpResponse::Ok().json(serde_json::json!({"state": "error", "message": MSG }))
         }
@@ -72,13 +90,31 @@ async fn get_articles_info(
 
     //获取数据库中文章信息
     match Article::find()
-        .filter(article::Column::UserId.eq(id.clone().to_owned()))
-        .filter(if tag != "all" {
-            article::Column::Tag.contains(tag.as_str())
-        } else {
-            article::Column::Tag.contains("")
-        })
-        .order_by_desc(article::Column::ArticleId.to_owned())
+        .from_raw_sql(Statement::from_sql_and_values(
+            DbBackend::Postgres,
+            r#"SELECT
+                     "article"."article_id",
+                     "article"."user_id",
+                     "article"."title",
+                     "article"."content",
+                     "article"."publish_time",
+                     "article"."view_count",
+                     "article"."messages_count",
+                     "article"."messages_content",
+                     "article"."tag",
+                     "article"."img_url",
+                     "article"."html_content",
+                     "article"."subtitle",
+                     "article"."url"
+                     FROM
+                       "article"
+                     WHERE
+                       "article"."user_id" = $1
+                       AND  $2 = ANY(tag)
+                     ORDER BY
+                       "article"."article_id" DESC"#,
+            [(*id).into(), tag.into()],
+        ))
         .paginate(db, PAGE_SIZE)
         .fetch_page(page as u64)
         .await
@@ -106,7 +142,8 @@ async fn get_articles_info(
             // .collect::<Vec<ArticleData>>();
             HttpResponse::Ok().json(serde_json::json!({"state": "success", "data": data }))
         }
-        Err(_) => {
+        Err(err) => {
+            log::error!("{:?}", err);
             const MSG: &str = "Unable to find the data";
             HttpResponse::Ok().json(serde_json::json!({"state": "error", "message": MSG }))
         }
@@ -139,7 +176,7 @@ async fn get_article_data(
             #[derive(Clone, Deserialize, Serialize)]
             struct ArticleEditData {
                 title: String,
-                tag: String,
+                tag: Vec<String>,
                 subtitle: String,
                 img_url: String,
                 content: String,
@@ -147,7 +184,7 @@ async fn get_article_data(
 
             let data = ArticleEditData {
                 title: model.title.unwrap(),
-                tag: model.tag.unwrap(),
+                tag: model.tag,
                 subtitle: model.subtitle.unwrap(),
                 img_url: model.img_url.unwrap(),
                 content: model.content.unwrap(),
@@ -181,7 +218,7 @@ async fn save_article_data(
             let model = article::ActiveModel {
                 user_id: Set(user.user_id.to_owned()),
                 title: Set(Some(json.title.to_owned())),
-                tag: Set(Some(json.tag.to_owned())),
+                tag: Set(json.tag.to_owned()),
                 content: Set(Some(json.content.to_owned())),
                 img_url: Set(Some(json.img_url.to_owned())),
                 html_content: Set(Some(json.html_content.to_owned())),
@@ -209,7 +246,8 @@ async fn save_article_data(
                         }
                     }
                 }
-                Err(_) => {
+                Err(err) => {
+                    log::error!("{:?}", err);
                     const MSG: &str = "Failed to Save data";
                     HttpResponse::Ok().json(serde_json::json!({"state": "error", "message": MSG }))
                 }
@@ -241,7 +279,7 @@ async fn update_article_data(
         Some(table) => {
             let mut model: article::ActiveModel = table.into();
             model.html_content = Set(Some(json.html_content.to_owned()));
-            model.tag = Set(Some(json.tag.to_owned()));
+            model.tag = Set(json.tag.to_owned());
             model.title = Set(Some(json.title.to_owned()));
             model.subtitle = Set(Some(json.subtitle.to_owned()));
             model.content = Set(Some(json.content.to_owned()));
