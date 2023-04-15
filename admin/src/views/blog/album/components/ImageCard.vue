@@ -1,5 +1,5 @@
 <template>
-  <n-card class="shadow-xl hover:shadow-2xl">
+  <n-card class="shadow-sm hover:shadow-2xl">
     <template #cover>
       <n-image class="w-auto h-35" :src="props.imgUrl" preview-disabled object-fit="fill"> </n-image>
     </template>

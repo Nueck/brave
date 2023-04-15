@@ -28,7 +28,7 @@ pub async fn web_start() -> std::io::Result<()> {
         #[cfg(not(debug_assertions))]
         let cors = Cors::default()
             .allowed_origin(Interface::get_server_uri().as_str())
-            .allowed_methods(vec!["GET", "POST", "OPTIONS"])
+            .allow_any_method()
             .allowed_headers(vec![
                 http::header::AUTHORIZATION,
                 http::header::ACCEPT,

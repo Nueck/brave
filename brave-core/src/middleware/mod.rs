@@ -18,3 +18,8 @@ pub(crate) fn is_need_verification(path: &str) -> bool {
 pub(crate) fn refresh_api(path: &str) -> bool {
     path == format!("/{}/updateToken", GLOBAL_CONFIG.interface.api_scope)
 }
+
+pub(crate) fn is_need_init(path: &str) -> bool {
+    !(path == format!("/{}/init", GLOBAL_CONFIG.interface.api_scope)
+        || path == format!("/{}/init/state", GLOBAL_CONFIG.interface.api_scope))
+}

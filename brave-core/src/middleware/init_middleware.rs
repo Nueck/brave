@@ -1,6 +1,7 @@
 use std::future::{ready, Ready};
 use std::task::{Context, Poll};
 
+use crate::middleware::is_need_init;
 use actix_web::error::ErrorServiceUnavailable;
 use actix_web::{
     dev::{Service, ServiceRequest, ServiceResponse, Transform},
@@ -47,7 +48,7 @@ where
     }
 
     fn call(&self, req: ServiceRequest) -> Self::Future {
-        if is_need_verification(req.path()) {
+        if is_need_init(req.path()) {
             /*判断是否初始化,如果没有初始化其他接口无法调用，只能访问博客*/
             if InitStatus::global().is_init {
                 let fut = self.service.call(req);
@@ -70,8 +71,4 @@ where
             })
         }
     }
-}
-
-fn is_need_verification(path: &str) -> bool {
-    !(path == "/api/init" || path == "/api/init-status")
 }
