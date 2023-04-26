@@ -2,7 +2,10 @@ use crate::utils::common::is_outlook_email;
 use lettre::message::header::ContentType;
 use lettre::transport::smtp::authentication::Credentials;
 use lettre::{Message, SmtpTransport, Transport};
+use minijinja::{context, Environment};
 use serde::{Deserialize, Serialize};
+use std::fs;
+use std::path::PathBuf;
 
 //mail的配置
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]
@@ -15,14 +18,33 @@ pub struct MailConfig {
 
 impl MailConfig {
     pub async fn sendmail(&self, target_email: String, code: &str) -> bool {
+        //判断文件是否存在
+
+        let mut path_buf = PathBuf::new();
+        path_buf.push("mail.html");
+
+        let html = if !path_buf.exists() {
+            format!("\"你的验证码是:\" {} + \"  有效时间5分钟\"", code)
+        } else {
+            let string = fs::read_to_string(path_buf).unwrap();
+            let mut env = Environment::new();
+            env.add_template("mail.html", &string).unwrap();
+            let tmpl = env.get_template("mail.html").unwrap();
+
+            let codes = code
+                .chars()
+                .map(|c| c.to_digit(10).unwrap())
+                .collect::<Vec<u32>>();
+
+            tmpl.render(context! {codes}).unwrap()
+        };
+
         let email = Message::builder()
             .from((&self.mine_email.clone()).parse().unwrap())
             .to(target_email.parse().unwrap())
             .subject("Brave验证码")
-            .header(ContentType::TEXT_PLAIN)
-            .body(String::from(
-                "你的验证码是".to_owned() + code + "  有效时间5分钟",
-            ))
+            .header(ContentType::TEXT_HTML)
+            .body(html)
             .unwrap();
 
         let passwd = &self.password;
