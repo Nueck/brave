@@ -46,7 +46,7 @@ pub fn is_outlook_email(email: &str) -> bool {
 pub fn generation_random_number() -> u32 {
     let mut rng = rand::thread_rng();
     let code = rng.gen_range(100000..=999999);
-    if GLOBAL_CODE.lock().unwrap().contains_key(&code) {
+    if let Some(_) = GLOBAL_CODE.lock().unwrap().get(&code) {
         generation_random_number()
     } else {
         code
