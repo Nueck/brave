@@ -26,8 +26,8 @@ actix-multipart = "0.6"
 actix-rt = "2"
 actix-cors = "0.6"
 actix-web-lab = "0.19"
-minijinja = { version = "0.31", features = ["source"] }
-minijinja-autoreload = "0.31"
+minijinja = { version = "0.32", features = ["source"] }
+minijinja-autoreload = "0.32"
 log = "0.4"
 dirs = "5"
 zip = "0.6"

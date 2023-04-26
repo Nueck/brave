@@ -2,6 +2,7 @@ use crate::entity::ChangePwdInfo;
 use actix_web::{get, put, web, HttpResponse, Responder};
 use brave_config::app::AppState;
 use brave_config::interface::Interface;
+use brave_config::utils::common::GLOBAL_CODE;
 use brave_config::utils::jwt::{UserDataInfo, GLOB_JOT};
 use brave_config::GLOBAL_CONFIG;
 use brave_db::entity::prelude::Users;
@@ -101,7 +102,16 @@ pub(crate) async fn chang_pwd(
     data: web::Data<AppState>,
     info: web::Json<ChangePwdInfo>,
 ) -> HttpResponse {
-    /*判断邮箱地址是否存在或在用户名*/
+    if let Some(_) = GLOBAL_CODE
+        .lock()
+        .unwrap()
+        .get(&(&info.verify_code).parse::<u32>().unwrap())
+    {
+        const MSG: &str = "Code is invalid";
+        return HttpResponse::Ok().json(serde_json::json!({"state": "error", "message": MSG }));
+    }
+
+    //判断邮箱地址是否存在或在用户名
     let db = &data.conn;
     match Users::find()
         .filter(users::Column::Email.contains(&info.email))
@@ -110,13 +120,13 @@ pub(crate) async fn chang_pwd(
         .expect("Could not find Users -- Login")
     {
         None => {
-            /*用户不存在*/
+            //用户不存在
             const MSG: &str = "Mail does not exist";
             HttpResponse::Ok().json(serde_json::json!({"state": "error", "message": MSG }))
         }
         Some(user) => {
-            /*用户不存在的时候注册*/
-            /*验证验证码是否正确*/
+            //用户不存在的时候注册
+            //验证验证码是否正确
             match GLOB_JOT.validation_to_claim(&info.code) {
                 Ok(data) => {
                     //对需要验证的code的加盐
@@ -128,9 +138,9 @@ pub(crate) async fn chang_pwd(
                     let email = data.data.clone().unwrap().email;
                     //判断验证码是否正确
                     if verify_code == code && email == info.email.clone() {
-                        /*对密码加密*/
+                        //对密码加密
                         let pwd = GLOBAL_CONFIG.get_blake().generate_with_salt(&info.new_pwd);
-                        /*修改数据库数据*/
+                        //修改数据库数据
                         let mut user: users::ActiveModel = user.into();
                         user.pwd_hash = Set(pwd);
 

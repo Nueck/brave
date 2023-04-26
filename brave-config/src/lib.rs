@@ -6,6 +6,7 @@ use crate::global::GConfig;
 use crate::init::InitStatus;
 use crate::interface::Interface;
 use crate::theme::ThemeConf;
+use crate::utils::common::async_code_process;
 use crate::utils::jwt::JWTConfig;
 use once_cell::sync::{Lazy, OnceCell};
 use std::fs;
@@ -46,6 +47,9 @@ pub async fn config_init() -> AppState {
 
     //初始化jwt配置
     JWTConfig::new(GLOBAL_CONFIG.jwt.clone());
+
+    //定时清除code中的数据
+    async_code_process().await;
 
     //home
     println!(

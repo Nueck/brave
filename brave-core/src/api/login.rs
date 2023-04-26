@@ -1,7 +1,9 @@
 use actix_web::{post, web, HttpResponse};
 use brave_config::app::AppState;
 use brave_config::init::InitStatus;
-use brave_config::utils::common::{generation_random_number, is_invalid_user_name, is_valid_email};
+use brave_config::utils::common::{
+    generation_random_number, is_invalid_user_name, is_valid_email, GLOBAL_CODE,
+};
 use brave_config::utils::fs::gen_symlink_default_skin;
 use brave_config::utils::jwt::{Claims, UserData, GLOB_JOT};
 use brave_config::GLOBAL_CONFIG;
@@ -10,6 +12,7 @@ use brave_db::entity::article_category;
 use brave_db::entity::article_tag;
 use brave_db::entity::prelude::Users;
 use brave_db::entity::users;
+use brave_db::entity::users::Model;
 use jsonwebtoken::get_current_timestamp;
 use sea_orm::ActiveValue::Set;
 use sea_orm::{
@@ -93,34 +96,9 @@ async fn login(data: web::Data<AppState>, user_info: web::Json<UserInfo>) -> Htt
                     .json(serde_json::json!({"state": "error", "message": MSG }));
             }
 
-            /*进行密码比对*/
+            //进行密码比对
             if pwd == user.pwd_hash {
-                //短时间的token
-                let claims = Claims {
-                    id: user.user_id.clone(),
-                    aud: user.user_name.clone(),
-                    sub: GLOBAL_CONFIG.jwt.get_sub(),
-                    exp: get_current_timestamp() + GLOBAL_CONFIG.jwt.get_exp_time(),
-                    auth: user.authority.clone(),
-                    data: None,
-                    refresh: false,
-                };
-                let token = GLOB_JOT.generate_token(&claims);
-
-                //长时间的token
-                let claims = Claims {
-                    id: user.user_id.clone(),
-                    aud: user.user_name.clone(),
-                    sub: GLOBAL_CONFIG.jwt.get_sub(),
-                    exp: get_current_timestamp() + GLOBAL_CONFIG.jwt.get_ref_time(),
-                    auth: user.authority.clone(),
-                    data: None,
-                    refresh: true,
-                };
-                let ref_token = GLOB_JOT.generate_token(&claims);
-
-                let json = serde_json::json!({"state": "success",  "data":{"token": token ,"refreshToken": ref_token} });
-                HttpResponse::Ok().json(json)
+                login_success_process(user)
             } else {
                 const MSG: &str = "Password error";
                 HttpResponse::Ok().json(serde_json::json!({"state": "error", "message": MSG }))
@@ -129,16 +107,20 @@ async fn login(data: web::Data<AppState>, user_info: web::Json<UserInfo>) -> Htt
     }
 }
 
-/*邮箱验证码登陆*/
+//邮箱验证码登陆
 #[post("email-login")]
 async fn email_login(data: web::Data<AppState>, info: web::Json<EmailLoginInfo>) -> HttpResponse {
-    /*
-     * 登陆获取,
-     */
+    if let Some(_) = GLOBAL_CODE
+        .lock()
+        .unwrap()
+        .get(&(&info.verify_code).parse::<u32>().unwrap())
+    {
+        const MSG: &str = "Code is invalid";
+        return HttpResponse::Ok().json(serde_json::json!({"state": "error", "message": MSG }));
+    }
+
+    //获取user数据
     let db = &data.conn;
-    /*
-     *获取user数据
-     */
     match Users::find()
         .filter(users::Column::Email.contains(&info.email))
         .one(db)
@@ -147,7 +129,7 @@ async fn email_login(data: web::Data<AppState>, info: web::Json<EmailLoginInfo>)
     {
         None => {
             const MSG: &str = "User does not exist";
-            HttpResponse::Ok().json(serde_json::json!({"state": "error", "message": MSG }))
+            return HttpResponse::Ok().json(serde_json::json!({"state": "error", "message": MSG }));
         }
         Some(user) => {
             //判断用户的状态
@@ -157,7 +139,7 @@ async fn email_login(data: web::Data<AppState>, info: web::Json<EmailLoginInfo>)
                     .json(serde_json::json!({"state": "error", "message": MSG }));
             }
 
-            /*验证验证码是否正确*/
+            //验证验证码是否正确
             match GLOB_JOT.validation_to_claim(&info.code) {
                 Ok(data) => {
                     //对需要验证的code的加盐
@@ -167,55 +149,30 @@ async fn email_login(data: web::Data<AppState>, info: web::Json<EmailLoginInfo>)
 
                     let code = data.data.clone().unwrap().code;
                     let email = data.data.clone().unwrap().email;
+
                     //判断验证码是否正确
                     if verify_code == code && email == info.email.clone() {
-                        //短时间的token
-                        let claims = Claims {
-                            id: user.user_id.clone(),
-                            aud: user.user_name.clone(),
-                            sub: GLOBAL_CONFIG.jwt.get_sub(),
-                            exp: get_current_timestamp() + GLOBAL_CONFIG.jwt.get_exp_time(),
-                            auth: user.authority.clone(),
-                            data: None,
-                            refresh: false,
-                        };
-                        let token = GLOB_JOT.generate_token(&claims);
+                        let exp = data.exp;
+                        GLOBAL_CODE
+                            .lock()
+                            .unwrap()
+                            .insert((&info.verify_code).parse().unwrap(), exp);
 
-                        //长时间的token
-                        let claims = Claims {
-                            id: user.user_id.clone(),
-                            aud: user.user_name.clone(),
-                            sub: GLOBAL_CONFIG.jwt.get_sub(),
-                            exp: get_current_timestamp() + GLOBAL_CONFIG.jwt.get_ref_time(),
-                            auth: user.authority.clone(),
-                            data: None,
-                            refresh: true,
-                        };
-                        let ref_token = GLOB_JOT.generate_token(&claims);
-
-                        let json = serde_json::json!({"state": "success",  "data":{"token": token ,"refreshToken": ref_token} });
-
-                        HttpResponse::Ok().json(json)
-                    } else {
-                        const MSG: &str = "Verification code error";
-                        HttpResponse::Ok()
-                            .json(serde_json::json!({"state": "error", "message": MSG }))
+                        return login_success_process(user);
                     }
                 }
-
-                Err(_) => {
-                    const MSG: &str = "Verification code error";
-                    HttpResponse::Ok().json(serde_json::json!({"state": "error", "message": MSG }))
-                }
+                Err(_) => {}
             }
         }
     }
+    const MSG: &str = "Code is invalid";
+    HttpResponse::Ok().json(serde_json::json!({"state": "error", "message": MSG }))
 }
 
 //注册
 #[post("/register")]
 async fn register(data: web::Data<AppState>, info: web::Json<RegisterInfo>) -> HttpResponse {
-    /*判断邮箱地址是否存在或在用户名*/
+    //判断邮箱地址是否存在或在用户名
     let db = &data.conn;
 
     //判断用户是否存在于接口名上
@@ -227,6 +184,15 @@ async fn register(data: web::Data<AppState>, info: web::Json<RegisterInfo>) -> H
     if !InitStatus::global().able_register {
         return HttpResponse::Ok()
             .json(serde_json::json!({"state": "error", "message": "Register is closed" }));
+    }
+
+    if let Some(_) = GLOBAL_CODE
+        .lock()
+        .unwrap()
+        .get(&(&info.verify_code).parse::<u32>().unwrap())
+    {
+        const MSG: &str = "Code is invalid";
+        return HttpResponse::Ok().json(serde_json::json!({"state": "error", "message": MSG }));
     }
 
     if judge_registers_number_effective(db).await {
@@ -241,12 +207,12 @@ async fn register(data: web::Data<AppState>, info: web::Json<RegisterInfo>) -> H
             .expect("Could not find Users -- Login")
         {
             Some(_) => {
-                /*用户存在则不能注册*/
+                //用户存在则不能注册
                 const MSG: &str = "User or Email already exists";
                 HttpResponse::Ok().json(serde_json::json!({"state": "error", "message": MSG }))
             }
             None => {
-                /*验证验证码是否正确*/
+                //验证验证码是否正确
                 match GLOB_JOT.validation_to_claim(&info.code) {
                     Ok(data) => {
                         //对需要验证的code的加盐
@@ -256,10 +222,16 @@ async fn register(data: web::Data<AppState>, info: web::Json<RegisterInfo>) -> H
 
                         let code = data.data.clone().unwrap().code;
                         let email = data.data.clone().unwrap().email;
+                        //获取失效时间
+                        let exp = data.exp;
                         //判断验证码是否正确
-                        return if verify_code == code && email == info.email.clone() {
-                            /*保存数据到数据库*/
-                            /*对密码加密*/
+                        if verify_code == code && email == info.email.clone() {
+                            GLOBAL_CODE
+                                .lock()
+                                .unwrap()
+                                .insert((&info.verify_code).parse().unwrap(), exp);
+
+                            //对密码加密
                             let pwd = GLOBAL_CONFIG.get_blake().generate_with_salt(&info.password);
                             //初始化数据
                             let user = users::ActiveModel {
@@ -325,7 +297,7 @@ async fn register(data: web::Data<AppState>, info: web::Json<RegisterInfo>) -> H
                             const MSG: &str = "Verification code error";
                             HttpResponse::Ok()
                                 .json(serde_json::json!({"state": "code error", "message": MSG }))
-                        };
+                        }
                     }
                     Err(_) => {
                         const MSG: &str = "Error in sending data";
@@ -344,7 +316,7 @@ async fn register(data: web::Data<AppState>, info: web::Json<RegisterInfo>) -> H
 /*发送邮件*/
 #[post("/sendmail")]
 async fn sendmail(mail: web::Json<MailInfo>) -> HttpResponse {
-    /*将随机数发送到相应的邮箱*/
+    //将随机数发送到相应的邮箱
     match &GLOBAL_CONFIG.mail {
         None => {
             const MSG: &str = "The server does not support email sending";
@@ -367,7 +339,7 @@ async fn sendmail(mail: web::Json<MailInfo>) -> HttpResponse {
                     let num = generation_random_number();
                     match m.sendmail(email.to_string(), &num.to_string()).await {
                         true => {
-                            /*生成加盐的数据 和使用token加密*/
+                            //生成加盐的数据 和使用token加密
                             let num_code = GLOBAL_CONFIG
                                 .get_blake()
                                 .generate_with_salt(&num.to_string());
@@ -409,4 +381,33 @@ async fn judge_registers_number_effective(db: &DatabaseConnection) -> bool {
         Ok(count) => count < InitStatus::global().registrants as u64,
         Err(_) => false,
     }
+}
+
+fn login_success_process(user: Model) -> HttpResponse {
+    //短时间的token
+    let claims = Claims {
+        id: user.user_id.clone(),
+        aud: user.user_name.clone(),
+        sub: GLOBAL_CONFIG.jwt.get_sub(),
+        exp: get_current_timestamp() + GLOBAL_CONFIG.jwt.get_exp_time(),
+        auth: user.authority.clone(),
+        data: None,
+        refresh: false,
+    };
+    let token = GLOB_JOT.generate_token(&claims);
+
+    //长时间的token
+    let claims = Claims {
+        id: user.user_id.clone(),
+        aud: user.user_name.clone(),
+        sub: GLOBAL_CONFIG.jwt.get_sub(),
+        exp: get_current_timestamp() + GLOBAL_CONFIG.jwt.get_ref_time(),
+        auth: user.authority.clone(),
+        data: None,
+        refresh: true,
+    };
+    let ref_token = GLOB_JOT.generate_token(&claims);
+
+    let json = serde_json::json!({"state": "success",  "data":{"token": token ,"refreshToken": ref_token} });
+    HttpResponse::Ok().json(json)
 }

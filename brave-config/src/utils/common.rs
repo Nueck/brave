@@ -1,6 +1,18 @@
 use crate::{GLOBAL_CONFIG, GLOBAL_DATA};
+use actix_rt::time;
+use jsonwebtoken::get_current_timestamp;
+use once_cell::sync::Lazy;
 use rand::Rng;
 use regex::Regex;
+use std::collections::HashMap;
+use std::sync::Mutex;
+use std::time::Duration;
+
+//验证码验证
+pub static GLOBAL_CODE: Lazy<Mutex<HashMap<u32, u64>>> = Lazy::new(|| {
+    let hash = HashMap::<u32, u64>::new();
+    Mutex::new(hash)
+});
 
 //判断是否是无效的用户名
 pub fn is_invalid_user_name(user: &str) -> bool {
@@ -33,7 +45,12 @@ pub fn is_outlook_email(email: &str) -> bool {
 ///生成随机数
 pub fn generation_random_number() -> u32 {
     let mut rng = rand::thread_rng();
-    rng.gen_range(100000..=999999)
+    let code = rng.gen_range(100000..=999999);
+    if GLOBAL_CODE.lock().unwrap().contains_key(&code) {
+        generation_random_number()
+    } else {
+        code
+    }
 }
 
 ///判断文件路径是否是html
@@ -45,6 +62,27 @@ pub fn is_html_path(path: &str) -> bool {
 pub fn is_web_path(path: &str) -> bool {
     let re = Regex::new(r"(https?)://[-A-Za-z0-9+&@#/%?=~_|!:,.;]+[-A-Za-z0-9+&@#/%=~_|]").unwrap();
     re.is_match(path)
+}
+
+//实现定时任务
+pub async fn async_code_process() {
+    actix_rt::spawn(async {
+        //每一分钟开始清除
+        let mut interval = time::interval(Duration::from_secs(60));
+        //开始循环任务
+        loop {
+            interval.tick().await;
+            if GLOBAL_CODE.lock().unwrap().is_empty() {
+                continue;
+            }
+            let current_time = get_current_timestamp();
+            for (key, value) in GLOBAL_CODE.lock().unwrap().iter() {
+                if value < &current_time {
+                    GLOBAL_CODE.lock().unwrap().remove(key);
+                }
+            }
+        }
+    });
 }
 
 #[cfg(test)]
