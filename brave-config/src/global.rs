@@ -24,12 +24,15 @@ pub struct GConfig {
     data: Option<DataConfig>,
     page: Option<PageConfig>,
     theme: Option<ThemePosition>,
+    registrants: Option<i64>,
+    able_register: Option<bool>,
 }
 
 impl GConfig {
     pub(crate) fn open_yaml() -> Self {
         #[cfg(debug_assertions)]
         let f_yaml = File::open("myenv.yaml").expect("Could not open file.");
+
         #[cfg(not(debug_assertions))]
         let f_yaml = File::open("config.yaml").expect("Could not open file.");
 
@@ -66,7 +69,7 @@ impl GConfig {
             }
         }
     }
-    //
+
     pub fn get_theme(&self) -> ThemePosition {
         if let Some(data) = &self.theme {
             data.to_owned()
@@ -74,6 +77,23 @@ impl GConfig {
             ThemePosition {
                 location: Some("themes".to_string()),
             }
+        }
+    }
+
+    //获取可登记人数(默认走二个用户)
+    pub fn get_registrants(&self) -> i64 {
+        if let Some(registrants) = &self.registrants {
+            registrants.to_owned()
+        } else {
+            2
+        }
+    }
+    //获得是否可注册
+    pub fn get_able_register(&self) -> bool {
+        if let Some(able_register) = &self.able_register {
+            able_register.to_owned()
+        } else {
+            true
         }
     }
 

@@ -1,5 +1,6 @@
 use actix_web::{post, web, HttpResponse};
 use brave_config::app::AppState;
+use brave_config::init::InitStatus;
 use brave_config::utils::common::{generation_random_number, is_invalid_user_name, is_valid_email};
 use brave_config::utils::fs::gen_symlink_default_skin;
 use brave_config::utils::jwt::{Claims, UserData, GLOB_JOT};
@@ -11,7 +12,9 @@ use brave_db::entity::prelude::Users;
 use brave_db::entity::users;
 use jsonwebtoken::get_current_timestamp;
 use sea_orm::ActiveValue::Set;
-use sea_orm::{ColumnTrait, EntityTrait, JsonValue, QueryFilter};
+use sea_orm::{
+    ColumnTrait, DatabaseConnection, EntityTrait, JsonValue, PaginatorTrait, QueryFilter,
+};
 use serde::Deserialize;
 
 #[derive(Deserialize)]
@@ -209,7 +212,7 @@ async fn email_login(data: web::Data<AppState>, info: web::Json<EmailLoginInfo>)
     }
 }
 
-/*注册*/
+//注册
 #[post("/register")]
 async fn register(data: web::Data<AppState>, info: web::Json<RegisterInfo>) -> HttpResponse {
     /*判断邮箱地址是否存在或在用户名*/
@@ -221,109 +224,120 @@ async fn register(data: web::Data<AppState>, info: web::Json<RegisterInfo>) -> H
         return HttpResponse::Ok().json(serde_json::json!({"state": "error", "message": MSG }));
     }
 
-    match Users::find()
-        .filter(
-            users::Column::Email
-                .contains(&info.email)
-                .or(users::Column::UserName.contains(&info.username)),
-        )
-        .one(db)
-        .await
-        .expect("Could not find Users -- Login")
-    {
-        Some(_) => {
-            /*用户存在则不能注册*/
-            const MSG: &str = "User or Email already exists";
-            HttpResponse::Ok().json(serde_json::json!({"state": "error", "message": MSG }))
-        }
-        None => {
-            /*验证验证码是否正确*/
-            match GLOB_JOT.validation_to_claim(&info.code) {
-                Ok(data) => {
-                    //对需要验证的code的加盐
-                    let verify_code = GLOBAL_CONFIG
-                        .get_blake()
-                        .generate_with_salt(&info.verify_code);
+    if !InitStatus::global().able_register {
+        return HttpResponse::Ok()
+            .json(serde_json::json!({"state": "error", "message": "Register is closed" }));
+    }
 
-                    let code = data.data.clone().unwrap().code;
-                    let email = data.data.clone().unwrap().email;
-                    //判断验证码是否正确
-                    return if verify_code == code && email == info.email.clone() {
-                        /*保存数据到数据库*/
-                        /*对密码加密*/
-                        let pwd = GLOBAL_CONFIG.get_blake().generate_with_salt(&info.password);
-                        //初始化数据
-                        let user = users::ActiveModel {
-                            user_name: Set((&info.username.as_str()).parse().unwrap()),
-                            authority: Set("user".to_owned()),
-                            email: Set((&info.email.as_str()).parse().unwrap()),
-                            address: Set((&info.username.as_str()).parse().unwrap()),
-                            pwd_hash: Set(pwd),
-                            ..Default::default() // all other attributes are `NotSet`
-                        };
+    if judge_registers_number_effective(db).await {
+        match Users::find()
+            .filter(
+                users::Column::Email
+                    .contains(&info.email)
+                    .or(users::Column::UserName.contains(&info.username)),
+            )
+            .one(db)
+            .await
+            .expect("Could not find Users -- Login")
+        {
+            Some(_) => {
+                /*用户存在则不能注册*/
+                const MSG: &str = "User or Email already exists";
+                HttpResponse::Ok().json(serde_json::json!({"state": "error", "message": MSG }))
+            }
+            None => {
+                /*验证验证码是否正确*/
+                match GLOB_JOT.validation_to_claim(&info.code) {
+                    Ok(data) => {
+                        //对需要验证的code的加盐
+                        let verify_code = GLOBAL_CONFIG
+                            .get_blake()
+                            .generate_with_salt(&info.verify_code);
 
-                        let insert_status = match users::Entity::insert(user).exec(db).await {
-                            Ok(table) => {
-                                gen_symlink_default_skin(&info.username);
+                        let code = data.data.clone().unwrap().code;
+                        let email = data.data.clone().unwrap().email;
+                        //判断验证码是否正确
+                        return if verify_code == code && email == info.email.clone() {
+                            /*保存数据到数据库*/
+                            /*对密码加密*/
+                            let pwd = GLOBAL_CONFIG.get_blake().generate_with_salt(&info.password);
+                            //初始化数据
+                            let user = users::ActiveModel {
+                                user_name: Set((&info.username.as_str()).parse().unwrap()),
+                                authority: Set("user".to_owned()),
+                                email: Set((&info.email.as_str()).parse().unwrap()),
+                                address: Set((&info.username.as_str()).parse().unwrap()),
+                                pwd_hash: Set(pwd),
+                                ..Default::default() // all other attributes are `NotSet`
+                            };
 
-                                let tags = article_tag::ActiveModel {
-                                    user_id: Set(table.last_insert_id),
-                                    content: Set(JsonValue::Array(Vec::new())),
-                                    ..Default::default()
-                                };
+                            let insert_status = match users::Entity::insert(user).exec(db).await {
+                                Ok(table) => {
+                                    gen_symlink_default_skin(&info.username);
 
-                                let archive = article_archive::ActiveModel {
-                                    user_id: Set(table.last_insert_id),
-                                    content: Set(JsonValue::Array(Vec::new())),
-                                    ..Default::default()
-                                };
-                                let category = article_category::ActiveModel {
-                                    user_id: Set(table.last_insert_id),
-                                    content: Set(JsonValue::Array(Vec::new())),
-                                    ..Default::default()
-                                };
+                                    let tags = article_tag::ActiveModel {
+                                        user_id: Set(table.last_insert_id),
+                                        content: Set(JsonValue::Array(Vec::new())),
+                                        ..Default::default()
+                                    };
 
-                                //添加分类和归档和tag
-                                article_tag::Entity::insert(tags).exec(db).await.unwrap();
-                                article_archive::Entity::insert(archive)
-                                    .exec(db)
-                                    .await
-                                    .unwrap();
-                                article_category::Entity::insert(category)
-                                    .exec(db)
-                                    .await
-                                    .unwrap();
+                                    let archive = article_archive::ActiveModel {
+                                        user_id: Set(table.last_insert_id),
+                                        content: Set(JsonValue::Array(Vec::new())),
+                                        ..Default::default()
+                                    };
+                                    let category = article_category::ActiveModel {
+                                        user_id: Set(table.last_insert_id),
+                                        content: Set(JsonValue::Array(Vec::new())),
+                                        ..Default::default()
+                                    };
 
-                                true
+                                    //添加分类和归档和tag
+                                    article_tag::Entity::insert(tags).exec(db).await.unwrap();
+                                    article_archive::Entity::insert(archive)
+                                        .exec(db)
+                                        .await
+                                        .unwrap();
+                                    article_category::Entity::insert(category)
+                                        .exec(db)
+                                        .await
+                                        .unwrap();
+
+                                    true
+                                }
+
+                                Err(err) => {
+                                    log::error!("Registration failure : {err:?}"); //打印错误日志
+                                    false
+                                }
+                            };
+
+                            if insert_status {
+                                const MSG: &str = "Successful registration";
+                                HttpResponse::Ok()
+                                    .json(serde_json::json!({"state": "success", "message": MSG }))
+                            } else {
+                                const MSG: &str = "Registration failure";
+                                HttpResponse::Ok()
+                                    .json(serde_json::json!({"state": "error", "message": MSG }))
                             }
-
-                            Err(err) => {
-                                log::error!("Registration failure : {err:?}"); //打印错误日志
-                                false
-                            }
-                        };
-
-                        if insert_status {
-                            const MSG: &str = "Successful registration";
-                            HttpResponse::Ok()
-                                .json(serde_json::json!({"state": "success", "message": MSG }))
                         } else {
-                            const MSG: &str = "Registration failure";
+                            const MSG: &str = "Verification code error";
                             HttpResponse::Ok()
-                                .json(serde_json::json!({"state": "error", "message": MSG }))
-                        }
-                    } else {
-                        const MSG: &str = "Verification code error";
+                                .json(serde_json::json!({"state": "code error", "message": MSG }))
+                        };
+                    }
+                    Err(_) => {
+                        const MSG: &str = "Error in sending data";
                         HttpResponse::Ok()
-                            .json(serde_json::json!({"state": "code error", "message": MSG }))
-                    };
-                }
-                Err(_) => {
-                    const MSG: &str = "Error in sending data";
-                    HttpResponse::Ok().json(serde_json::json!({"state": "error", "message": MSG }))
+                            .json(serde_json::json!({"state": "error", "message": MSG }))
+                    }
                 }
             }
         }
+    } else {
+        const MSG: &str = "The number of registrations has been capped";
+        HttpResponse::Ok().json(serde_json::json!({"state": "error", "message": MSG }))
     }
 }
 
@@ -387,5 +401,12 @@ async fn sendmail(mail: web::Json<MailInfo>) -> HttpResponse {
                 }
             }
         }
+    }
+}
+
+async fn judge_registers_number_effective(db: &DatabaseConnection) -> bool {
+    match Users::find().count(db).await {
+        Ok(count) => count < InitStatus::global().registrants as u64,
+        Err(_) => false,
     }
 }

@@ -55,6 +55,8 @@ async fn init(data: web::Data<AppState>, info: web::Json<InitInfo>) -> HttpRespo
                     username: Some(user.user_name.clone().unwrap()),
                     email: Some(user.email.clone().unwrap()),
                     address: Some(user.address.clone().unwrap()),
+                    registrants: GLOBAL_CONFIG.get_registrants(),
+                    able_register: GLOBAL_CONFIG.get_able_register(),
                 });
 
                 const MSG: &str = "Successful initialization";
@@ -75,12 +77,22 @@ async fn init(data: web::Data<AppState>, info: web::Json<InitInfo>) -> HttpRespo
     }
 }
 
-/*判断系统是否初始化*/
+//判断系统是否初始化
 #[get("/init/state")]
 async fn init_state() -> impl Responder {
     /*判断系统是否初始化*/
     if InitStatus::global().is_init {
         const MSG: &str = "Already initialized";
+        return HttpResponse::Ok().json(serde_json::json!({ "state": "success","message": MSG }));
+    }
+    HttpResponse::Ok().json(serde_json::json!({ "state": "error"}))
+}
+
+//判断系统是否可注册
+#[get("/init/able_register")]
+async fn init_able_register() -> impl Responder {
+    if InitStatus::global().able_register {
+        const MSG: &str = "Can be registered";
         return HttpResponse::Ok().json(serde_json::json!({ "state": "success","message": MSG }));
     }
     HttpResponse::Ok().json(serde_json::json!({ "state": "error"}))

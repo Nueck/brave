@@ -6,6 +6,11 @@ interface:
   blog_scope: blog
   admin_scope: are-you
 
+#设置可注册人数
+registrants: 2
+#是否可注册
+able_register: true
+
 #JWT设置
 jwt:
   #过期时间七天(秒)

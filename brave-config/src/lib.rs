@@ -27,17 +27,6 @@ pub mod page;
 pub mod theme;
 pub mod utils;
 
-pub(crate) static CONFIG_PATH: Lazy<PathBuf> = Lazy::new(|| {
-    let mut config_path = dirs::config_dir().expect("Failed to get config directory");
-    //默认config文件夹
-    config_path.push("brave");
-
-    if !config_path.exists() {
-        fs::create_dir_all(&config_path).expect("Failed to create directory")
-    }
-    config_path
-});
-
 pub static GLOB_INIT: OnceCell<Mutex<InitStatus>> = OnceCell::new();
 
 pub static GLOBAL_CONFIG: Lazy<GConfig> = Lazy::new(|| GConfig::open_yaml());
@@ -98,3 +87,14 @@ pub async fn config_init() -> AppState {
     //数据库连接的
     AppState::new().await
 }
+
+pub(crate) static CONFIG_PATH: Lazy<PathBuf> = Lazy::new(|| {
+    let mut config_path = dirs::config_dir().expect("Failed to get config directory");
+    //默认config文件夹
+    config_path.push("brave");
+
+    if !config_path.exists() {
+        fs::create_dir_all(&config_path).expect("Failed to create directory")
+    }
+    config_path
+});
