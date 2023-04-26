@@ -1,3 +1,6 @@
+use fast_log::consts::LogSize;
+use fast_log::plugin::file_split::RollingType;
+use fast_log::plugin::packer::GZipPacker;
 use fast_log::Config;
 use log::LevelFilter;
 
@@ -16,7 +19,12 @@ pub fn init_log() {
     fast_log::init(
         Config::new()
             .console()
-            .file("log/brave-rust.log")
+            .file_split(
+                "logs/",
+                LogSize::MB(8),
+                RollingType::KeepNum(10),
+                GZipPacker {},
+            )
             .level(level)
             .chan_len(Some(100000)),
     )

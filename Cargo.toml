@@ -33,7 +33,7 @@ dirs = "5"
 zip = "0.6"
 config = "0.13"
 dotenvy = "0.15"
-fast_log = "1.5"
+fast_log = { version = "1.5", features = ["gzip"] }
 sanitize-filename = "0.4"
 rand = "0.8"
 ring = { version = "0.16", features = ["std"] }

@@ -32,6 +32,8 @@ Cargo.lock
 
 log/
 
+logs/
+
 public/*
 
 page/
