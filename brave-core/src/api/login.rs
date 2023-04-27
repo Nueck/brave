@@ -4,7 +4,7 @@ use brave_config::init::InitStatus;
 use brave_config::utils::common::{
     generation_random_number, is_invalid_user_name, is_valid_email, GLOBAL_CODE,
 };
-use brave_config::utils::fs::gen_symlink_default_skin;
+use brave_config::utils::fs::gen_default_skin_page;
 use brave_config::utils::jwt::{Claims, UserData, GLOB_JOT};
 use brave_config::GLOBAL_CONFIG;
 use brave_db::entity::article_archive;
@@ -245,7 +245,7 @@ async fn register(data: web::Data<AppState>, info: web::Json<RegisterInfo>) -> H
 
                             let insert_status = match users::Entity::insert(user).exec(db).await {
                                 Ok(table) => {
-                                    gen_symlink_default_skin(&info.username);
+                                    gen_default_skin_page(&info.username);
 
                                     let tags = article_tag::ActiveModel {
                                         user_id: Set(table.last_insert_id),
