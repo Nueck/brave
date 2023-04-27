@@ -6,7 +6,7 @@ interface:
   blog_scope: blog
   admin_scope: are-you
 
-#设置可注册人数
+#设置可注册人数(这两个参数只在系统初始化的时候加载一次，后期通过管理员权限控制)
 registrants: 2
 #是否可注册
 able_register: true

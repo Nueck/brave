@@ -1,4 +1,4 @@
-use crate::{GLOBAL_CONFIG, GLOBAL_DATA};
+use crate::{GLOBAL_CONFIG, GLOBAL_DATA, GLOBAL_START_TIME};
 use actix_rt::time;
 use jsonwebtoken::get_current_timestamp;
 use once_cell::sync::Lazy;
@@ -62,6 +62,11 @@ pub fn is_html_path(path: &str) -> bool {
 pub fn is_web_path(path: &str) -> bool {
     let re = Regex::new(r"(https?)://[-A-Za-z0-9+&@#/%?=~_|!:,.;]+[-A-Za-z0-9+&@#/%=~_|]").unwrap();
     re.is_match(path)
+}
+
+//获取当前系统的启动时间
+pub fn get_system_uptime() -> u64 {
+    GLOBAL_START_TIME.get().unwrap().to_owned()
 }
 
 //实现定时任务

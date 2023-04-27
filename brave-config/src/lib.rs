@@ -8,6 +8,7 @@ use crate::interface::Interface;
 use crate::theme::ThemeConf;
 use crate::utils::common::async_code_process;
 use crate::utils::jwt::JWTConfig;
+use jsonwebtoken::get_current_timestamp;
 use once_cell::sync::{Lazy, OnceCell};
 use std::fs;
 use std::path::PathBuf;
@@ -37,6 +38,8 @@ pub static GLOBAL_ENV_CONFIG: Lazy<EnvConfig> = Lazy::new(|| EnvConfig::get_env(
 pub static GLOBAL_ADMIN_STATUS: Lazy<AdminState> = Lazy::new(|| AdminState::new());
 
 pub static GLOBAL_DATA: Lazy<&DataConfig> = Lazy::new(|| GLOBAL_CONFIG.get_data());
+
+pub static GLOBAL_START_TIME: OnceCell<u64> = OnceCell::new();
 
 pub async fn config_init() -> AppState {
     //初始化配置文件
@@ -87,7 +90,8 @@ pub async fn config_init() -> AppState {
             );
         }
     };
-
+    //更新启动时间
+    GLOBAL_START_TIME.set(get_current_timestamp()).unwrap();
     //数据库连接的
     AppState::new().await
 }

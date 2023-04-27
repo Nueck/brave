@@ -1,32 +1,32 @@
 use crate::template::MiniJinjaRenderer;
-use actix_web::http::header;
-use actix_web::{get, web, HttpRequest, HttpResponse, Responder, Result};
-use brave_config::init::InitStatus;
+use crate::utils::common::init_status_jump;
+use actix_web::{get, web, HttpRequest, Responder};
 use brave_config::interface::Interface;
+use brave_config::utils::common::get_system_uptime;
 
 pub fn index_config(cfg: &mut web::ServiceConfig) {
     cfg.service(index);
 }
 
 #[get("/")]
-async fn index(tmpl_env: MiniJinjaRenderer, req: HttpRequest) -> Result<impl Responder> {
-    if InitStatus::global().is_init {
-        let add = Interface::redirect_login_address();
-        Ok(tmpl_env
-            .render(
-                "home_index.html",
-                minijinja::context! {
-                    admin_login => add,
-                },
-            )
-            .unwrap()
-            .respond_to(&req)
-            .map_into_boxed_body())
-    } else {
-        let init_add = Interface::redirect_init_address();
-        Ok(HttpResponse::Found()
-            .append_header((header::LOCATION, init_add))
-            .finish())
+async fn index(tmpl_env: MiniJinjaRenderer, req: HttpRequest) -> impl Responder {
+    match init_status_jump() {
+        Ok(http) => http,
+        Err(_) => {
+            let add = Interface::redirect_login_address();
+            let uptime = get_system_uptime();
+            tmpl_env
+                .render(
+                    "home_index.html",
+                    minijinja::context! {
+                        admin_login => add,
+                        uptime
+                    },
+                )
+                .unwrap()
+                .respond_to(&req)
+                .map_into_boxed_body()
+        }
     }
 }
 
