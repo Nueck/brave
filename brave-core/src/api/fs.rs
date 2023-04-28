@@ -3,7 +3,7 @@ use actix_web::{get, put, web, HttpRequest, HttpResponse, Responder, Result};
 use brave_config::utils::jwt::UserDataInfo;
 use brave_config::GLOBAL_CONFIG;
 use serde_json::json;
-use std::fs::File;
+use std::fs::OpenOptions;
 use std::io::Write;
 use std::path::PathBuf;
 
@@ -49,11 +49,16 @@ pub async fn update_files(
     path_buf.push(aud.to_owned());
     path_buf.push(filename.to_string());
 
-    let mut file = match File::create(path_buf.as_path()) {
+    let mut file = match OpenOptions::new()
+        .read(false)
+        .write(true)
+        .append(false)
+        .open(path_buf.as_path())
+    {
         Ok(f) => f,
         Err(e) => {
             log::error!("{}", e);
-            return HttpResponse::Ok().json(json!({"state": "error"}));
+            return HttpResponse::Ok().json(json!({"state": "error", "message": "Not found"}));
         }
     };
 
@@ -61,7 +66,8 @@ pub async fn update_files(
         Ok(_) => HttpResponse::Ok().json(json!({"state": "success"})),
         Err(e) => {
             log::error!("{}", e);
-            return HttpResponse::Ok().json(json!({"state": "error"}));
+            return HttpResponse::Ok()
+                .json(json!({"state": "error" ,"message": "can't write file"}));
         }
     }
 }
