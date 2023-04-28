@@ -60,13 +60,11 @@ impl GConfig {
         }
     }
 
-    pub fn get_page(&self) -> PageConfig {
+    pub fn get_page(&self) -> String {
         if let Some(data) = &self.page {
-            data.to_owned()
+            data.location.to_string()
         } else {
-            PageConfig {
-                location: Some("page".to_string()),
-            }
+            "page".to_string()
         }
     }
 

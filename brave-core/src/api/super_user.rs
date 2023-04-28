@@ -131,15 +131,14 @@ async fn delete_user(
                 //删除用户
                 match Users::delete_by_id(model.user_id.clone()).exec(db).await {
                     Ok(_) => {
-                        if let Some(location) = &GLOBAL_CONFIG.get_page().location {
-                            let mut path_buf = PathBuf::from(env::current_dir().unwrap());
-                            path_buf.push(location);
-                            path_buf.push(model.user_name.to_owned());
+                        let mut path_buf = PathBuf::from(env::current_dir().unwrap());
+                        path_buf.push(&GLOBAL_CONFIG.get_page());
+                        path_buf.push(model.user_name.to_owned());
 
-                            if path_buf.exists() {
-                                fs::remove_file(path_buf).unwrap();
-                            }
-                        };
+                        if path_buf.exists() {
+                            fs::remove_file(path_buf).unwrap();
+                        }
+
                         HttpResponse::Ok().json(serde_json::json!({"state": "success"}))
                     }
                     Err(err) => {
@@ -216,13 +215,11 @@ async fn update_user(
 
 #[test]
 pub fn remove_dir_test() {
-    if let Some(location) = &GLOBAL_CONFIG.get_page().location {
-        let mut path_buf = PathBuf::from(env::current_dir().unwrap());
-        path_buf.push(location);
-        path_buf.push(model.user_name.to_owned());
+    let mut path_buf = PathBuf::from(env::current_dir().unwrap());
+    path_buf.push(&GLOBAL_CONFIG.get_page());
+    path_buf.push(model.user_name.to_owned());
 
-        if path_buf.exists() {
-            fs::remove_file(path_buf).unwrap();
-        }
-    };
+    if path_buf.exists() {
+        fs::remove_file(path_buf).unwrap();
+    }
 }
