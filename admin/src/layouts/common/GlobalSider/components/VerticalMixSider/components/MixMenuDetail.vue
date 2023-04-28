@@ -4,7 +4,7 @@
       class="flex-center flex-col py-12px rounded-2px bg-transparent transition-colors duration-300 ease-in-out"
       :class="{ 'text-primary !bg-primary_active': isActive, 'text-primary': isHover }"
     >
-      <component :is="icon" :class="[isMini ? 'text-16px' : 'text-20px']" />
+      <component :is="icon as any" :class="[isMini ? 'text-16px' : 'text-20px']" />
       <p
         class="text-12px overflow-hidden transition-height duration-300 ease-in-out"
         :class="[isMini ? 'h-0 pt-0' : 'h-24px pt-4px']"

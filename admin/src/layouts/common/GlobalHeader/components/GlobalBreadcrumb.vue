@@ -5,7 +5,7 @@
         <n-dropdown v-if="breadcrumb.hasChildren" :options="breadcrumb.children" @select="dropdownSelect">
           <span>
             <component
-              :is="breadcrumb.icon"
+              :is="breadcrumb.icon as any"
               v-if="theme.header.crumb.showIcon"
               class="inline-block align-text-bottom mr-4px text-16px"
             />
@@ -14,7 +14,7 @@
         </n-dropdown>
         <template v-else>
           <component
-            :is="breadcrumb.icon"
+            :is="breadcrumb.icon as any"
             v-if="theme.header.crumb.showIcon"
             class="inline-block align-text-bottom mr-4px text-16px"
             :class="{ 'text-#BBBBBB': theme.header.inverted }"

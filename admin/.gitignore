@@ -10,11 +10,14 @@ lerna-debug.log*
 node_modules
 .DS_Store
 dist
+dist-old
 dist-ssr
 dist.zip
 coverage
 *.local
 stats.html
+
+
 
 /cypress/videos/
 /cypress/screenshots/
