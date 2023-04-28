@@ -97,8 +97,8 @@ devDependencies:
     specifier: ^0.0.10
     version: 0.0.10
   '@iconify/json':
-    specifier: ^2.2.56
-    version: 2.2.56
+    specifier: ^2.2.57
+    version: 2.2.57
   '@iconify/vue':
     specifier: ^4.1.1
     version: 4.1.1(vue@3.2.47)
@@ -205,8 +205,8 @@ devDependencies:
     specifier: ^2.0.1
     version: 2.0.1(vite@4.3.3)
   vue-tsc:
-    specifier: ^1.6.0
-    version: 1.6.0(typescript@4.9.5)
+    specifier: ^1.6.1
+    version: 1.6.1(typescript@4.9.5)
 
 packages:
 
@@ -1951,8 +1951,8 @@ packages:
     engines: {node: '>=6.9.0'}
     dev: true
 
-  /@iconify/json@2.2.56:
-    resolution: {integrity: sha512-OVW7Bt/Gzgb1UO5zFzM8enzIOWHyLXp3LVfMq0LtyxloxPqRCEJ5UGVzk+EcwEOsX3q1lMqMhkVY/EqAaqr52Q==}
+  /@iconify/json@2.2.57:
+    resolution: {integrity: sha512-gOS/2y0ekLfCP7O1t5n3M4qFa9jVLUzvCA+d7atHnN0SCKLRj6UoB0DWK0n0rOWsK0cpyTNSJP8XEO1Oj0Z0fA==}
     dependencies:
       '@iconify/types': 2.0.0
       pathe: 1.1.0
@@ -2779,8 +2779,8 @@ packages:
       typescript: 4.9.5
     dev: true
 
-  /@volar/vue-language-core@1.6.0:
-    resolution: {integrity: sha512-oyX+A4vclBlDB7UQtfAPraD6tt3nE+y9YNXdH+xjDi//Cokdx65PZnwLaiG+hURI6WgDn1ZQffTE1OeJtr786A==}
+  /@volar/vue-language-core@1.6.1:
+    resolution: {integrity: sha512-lIuxzvIx5U8MfoF+vrXNG1aZgmk8T0uyPEwI8g3EUJdESuU0qIKM84o+L4TUw77IQCYXiSefaJmsSSY87/VWnA==}
     dependencies:
       '@volar/language-core': 1.4.1
       '@volar/source-map': 1.4.1
@@ -2793,13 +2793,13 @@ packages:
       vue-template-compiler: 2.7.14
     dev: true
 
-  /@volar/vue-typescript@1.6.0(typescript@4.9.5):
-    resolution: {integrity: sha512-Ob5X/XICtwCFwHDo9zUhQuCIH4QmiDWX7DgQkuPBZkO18mirp27ymRJk2Q5EtHKedGQnTce/NRsoqjn8DnyLKw==}
+  /@volar/vue-typescript@1.6.1(typescript@4.9.5):
+    resolution: {integrity: sha512-5mhG6Lv2niq/AGNvHy4RSAGlJhkR+EcH7zRQ19JlffzhWDVXEdDp8luSSabCkrJzejXIMh0rsTGlKy2EFYy7vQ==}
     peerDependencies:
       typescript: '*'
     dependencies:
       '@volar/typescript': 1.4.1(typescript@4.9.5)
-      '@volar/vue-language-core': 1.6.0
+      '@volar/vue-language-core': 1.6.1
       typescript: 4.9.5
     dev: true
 
@@ -3527,7 +3527,7 @@ packages:
     hasBin: true
     dependencies:
       caniuse-lite: 1.0.30001481
-      electron-to-chromium: 1.4.374
+      electron-to-chromium: 1.4.376
       node-releases: 2.0.10
       update-browserslist-db: 1.0.11(browserslist@4.21.5)
     dev: true
@@ -4671,8 +4671,8 @@ packages:
       jake: 10.8.5
     dev: true
 
-  /electron-to-chromium@1.4.374:
-    resolution: {integrity: sha512-dNP9tQNTrjgVlSXMqGaj0BdrCS+9pcUvy5/emB6x8kh0YwCoDZ0Z4ce1+7aod+KhybHUd5o5LgKrc5al4kVmzQ==}
+  /electron-to-chromium@1.4.376:
+    resolution: {integrity: sha512-TFeOKd98TpJzRHkr4Aorn16QkMnuCQuGAE6IZ0wYF+qkbSfMPqjplvRppR02tMUpVxZz8nyBNvVm9lIZsqrbPQ==}
     dev: true
 
   /emoji-regex@7.0.3:
@@ -8937,7 +8937,7 @@ packages:
       picomatch: 2.3.1
       rollup: 2.79.1
       source-map: 0.7.4
-      yargs: 17.7.1
+      yargs: 17.7.2
     dev: true
 
   /rollup@2.79.1:
@@ -10563,14 +10563,14 @@ packages:
       he: 1.2.0
     dev: true
 
-  /vue-tsc@1.6.0(typescript@4.9.5):
-    resolution: {integrity: sha512-JO8Hmc/ZL8pEXtYsUuMFHIvpu5zqtBLtKBp6CRq2O0JVgrRGqYmVIq9v2R7LMVhMo1LhJEvPBWcE24w30mUvXQ==}
+  /vue-tsc@1.6.1(typescript@4.9.5):
+    resolution: {integrity: sha512-cKKKrv98MdU9kgd434fkjcIpU7a5bUflhklF9usf/GzebjmZpaht7tYGm/MNdBz7V9icySceCzCr3RiG02mOJg==}
     hasBin: true
     peerDependencies:
       typescript: '*'
     dependencies:
-      '@volar/vue-language-core': 1.6.0
-      '@volar/vue-typescript': 1.6.0(typescript@4.9.5)
+      '@volar/vue-language-core': 1.6.1
+      '@volar/vue-typescript': 1.6.1(typescript@4.9.5)
       semver: 7.5.0
       typescript: 4.9.5
     dev: true
@@ -10959,8 +10959,8 @@ packages:
       yargs-parser: 20.2.9
     dev: true
 
-  /yargs@17.7.1:
-    resolution: {integrity: sha512-cwiTb08Xuv5fqF4AovYacTFNxk62th7LKJ6BL9IGUpTJrWoU7/7WdQGTP2SjKf1dUNBGzDd28p/Yfs/GI6JrLw==}
+  /yargs@17.7.2:
+    resolution: {integrity: sha512-7dSzzRQ++CKnNI/krKnYRV7JKKPUXMEh61soaHKg9mrWEhzFWhFnxPxGl+69cD1Ou63C13NUPCnmIcrvqCuM6w==}
     engines: {node: '>=12'}
     dependencies:
       cliui: 8.0.1

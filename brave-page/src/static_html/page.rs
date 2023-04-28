@@ -58,6 +58,7 @@ async fn page(
     match Article::find()
         .select_only()
         .columns([article::Column::Subtitle, article::Column::Title])
+        .column(article::Column::Content)
         .column(article::Column::HtmlContent)
         .column_as(article::Column::ImgUrl, "bg_img")
         .column(article::Column::Url)
@@ -86,6 +87,7 @@ async fn page(
             let title = article.title;
             let subtitle = article.subtitle;
             let http_content = article.html_content;
+            let article_content = article.content;
             let bg_img = article.bg_img;
 
             let string = fs::read_to_string(path_buf).unwrap();
@@ -102,7 +104,7 @@ async fn page(
 
             //对数据处理一下
             let str = tmpl
-                .render(context! {name,personal_details,home,about,content,contact,http_content,title,subtitle,bg_img})
+                .render(context! {name,personal_details,home,about,content,contact,article_content,http_content,title,subtitle,bg_img})
                 .unwrap();
             Ok(HttpResponse::Ok().body(str))
         }
