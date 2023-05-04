@@ -21,7 +21,7 @@ pub fn init_log() {
             .console()
             .file_split(
                 "logs/",
-                LogSize::MB(8),
+                LogSize::MB(3),
                 RollingType::KeepNum(10),
                 GZipPacker {},
             )

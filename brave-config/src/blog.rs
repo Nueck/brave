@@ -1,6 +1,7 @@
 use crate::GLOBAL_CONFIG;
 
 //生成博客的文章的id
+//TODO：更改跳转
 pub fn generate_blog_table(name: &str, table_id: &i64) -> String {
     format!(
         "http://{}:{}/{}/{}/page/{}",

@@ -1,18 +1,20 @@
 use crate::entity::ArticlesInfo;
 use crate::error::page::PageError;
 use crate::files::file_load;
+use crate::utils::common::get_page_location;
 use actix_web::http::header;
 use actix_web::web::Path;
 use actix_web::{get, web, HttpResponse, Responder, Result};
 use brave_config::app::AppState;
-use brave_config::blog::{get_blog_about, get_blog_contact, get_blog_content, get_blog_home};
+use brave_config::blog::{
+    get_blog_about, get_blog_contact, get_blog_content, get_blog_error, get_blog_home,
+};
 use brave_config::interface::Interface;
 use brave_db::entity::prelude::{Article, Users};
 use brave_db::entity::{article, users};
 use minijinja::{context, Environment};
 use sea_orm::{ColumnTrait, EntityTrait, JoinType, QueryFilter, QuerySelect, RelationTrait};
 use std::fs;
-use std::path::PathBuf;
 
 //用于blog的页面加载
 pub fn blog_static_page_config(cfg: &mut web::ServiceConfig) {
@@ -32,9 +34,9 @@ async fn page_error(data: web::Data<AppState>, name: Path<String>) -> Result<imp
         .expect("Could not find Users")
     {
         None => {
-            let home = Interface::redirect_home();
+            let error = get_blog_error(name.as_str());
             Ok(HttpResponse::Found()
-                .append_header((header::LOCATION, home))
+                .append_header((header::LOCATION, error))
                 .finish())
         }
         Some(user) => {
@@ -71,16 +73,13 @@ async fn page(
         .expect("Could not find Users")
     {
         None => {
-            let home = Interface::redirect_home();
+            let error = get_blog_error(name.as_str());
             Ok(HttpResponse::Found()
-                .append_header((header::LOCATION, home))
+                .append_header((header::LOCATION, error))
                 .finish())
         }
         Some(article) => {
-            // Article::find().filter(article::Column::UserId.eq(user.user_id)).;
-            let mut path_buf = PathBuf::new();
-            path_buf.push("./page");
-            path_buf.push(name.to_string());
+            let mut path_buf = get_page_location(name.as_str());
             path_buf.push("page.html");
 
             //获取文章的页面数据

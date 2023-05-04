@@ -4,6 +4,13 @@ use std::fs;
 use std::io::Write;
 use std::path::PathBuf;
 
+//页面属性枚举
+#[derive(Debug, Serialize, Deserialize)]
+pub enum PageAttr {
+    Static,
+    Single,
+}
+
 //页面存储地方
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]
 pub struct ThemePosition {
@@ -22,9 +29,11 @@ pub struct Theme {
     pub location: PathBuf,
 }
 
+//主题中的设置参数
 #[derive(Debug, Serialize, Deserialize)]
-struct Config {
-    name: String,
+pub struct Config {
+    pub name: Option<String>,
+    pub mode: Option<PageAttr>,
 }
 
 impl ThemePosition {}
@@ -105,13 +114,13 @@ fn find_conf_file_to_theme(dir: PathBuf, them_cof: &mut ThemeConf, count: i32) {
 
                             let theme = if img.exists() {
                                 Theme {
-                                    name: config.name,
+                                    name: config.name.unwrap_or("Null".to_string()),
                                     img_url: img,
                                     location: PathBuf::from(path.parent().unwrap()),
                                 }
                             } else {
                                 Theme {
-                                    name: config.name,
+                                    name: config.name.unwrap_or("Null".to_string()),
                                     img_url: PathBuf::new(),
                                     location: PathBuf::from(path.parent().unwrap()),
                                 }

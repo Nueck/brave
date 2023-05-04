@@ -1,3 +1,4 @@
+use crate::utils::common::get_page_location;
 use actix_web::http::header;
 use actix_web::web::Path;
 use actix_web::{get, web, HttpResponse, Responder, Result};
@@ -12,7 +13,6 @@ use minijinja::{context, Environment};
 use sea_orm::{ColumnTrait, EntityTrait, QueryFilter, QueryOrder};
 use serde::{Deserialize, Serialize};
 use std::fs;
-use std::path::PathBuf;
 
 #[get("/{name}/content")]
 pub async fn content_page(data: web::Data<AppState>, name: Path<String>) -> Result<impl Responder> {
@@ -33,9 +33,7 @@ pub async fn content_page(data: web::Data<AppState>, name: Path<String>) -> Resu
         }
         Some(user) => {
             // Article::find().filter(article::Column::UserId.eq(user.user_id)).;
-            let mut path_buf = PathBuf::new();
-            path_buf.push("./page");
-            path_buf.push(name.to_string());
+            let mut path_buf = get_page_location(user.user_name.as_str());
             path_buf.push("content.html");
 
             let string = fs::read_to_string(path_buf).unwrap();

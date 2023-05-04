@@ -1,3 +1,4 @@
+use crate::utils::common::get_page_location;
 use actix_web::http::header;
 use actix_web::web::{self, Path};
 use actix_web::{get, HttpRequest, HttpResponse, Responder, Result};
@@ -9,7 +10,6 @@ use brave_db::entity::users;
 use minijinja::{context, Environment};
 use sea_orm::{ColumnTrait, EntityTrait, QueryFilter};
 use std::fs;
-use std::path::PathBuf;
 
 #[get("/{name}/404")]
 pub async fn error_page(
@@ -32,9 +32,7 @@ pub async fn error_page(
                 .finish())
         }
         Some(user) => {
-            let mut path_buf = PathBuf::new();
-            path_buf.push("./page");
-            path_buf.push(user.user_name.to_string());
+            let mut path_buf = get_page_location(user.user_name.as_str());
             path_buf.push("404.html");
 
             let string = match fs::read_to_string(path_buf) {
