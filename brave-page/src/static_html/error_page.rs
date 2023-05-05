@@ -11,7 +11,7 @@ use minijinja::{context, Environment};
 use sea_orm::{ColumnTrait, EntityTrait, QueryFilter};
 use std::fs;
 
-#[get("/{name}/404")]
+#[get("/404")]
 pub async fn error_page(
     data: web::Data<AppState>,
     name: Path<String>,

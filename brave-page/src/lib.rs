@@ -6,15 +6,15 @@ mod functionally;
 mod home;
 mod index;
 mod macros;
-mod single_page;
 mod static_html;
 mod template;
 mod utils;
 
-use crate::files::file_load_config;
+use crate::files::{file_load_config, single_files_load, single_index_load};
 use crate::home::error::not_found;
 use crate::index::{index_page, main_page};
 use crate::template::template_init;
+use crate::utils::{SingleGuard, StaticGuard};
 use actix_cors::Cors;
 use actix_files::Files;
 use actix_web::http::StatusCode;
@@ -29,17 +29,30 @@ pub fn page_config(cfg: &mut web::ServiceConfig) {
     cfg.service(
         web::scope("")
             .app_data(tmpl_reload.clone())
+            .wrap(
+                Cors::default()
+                    .allow_any_header()
+                    .allowed_methods(vec!["GET"]) //只允许GET
+                    .allow_any_origin() //允许任何来源
+                    .max_age(3600),
+            )
             .wrap(ErrorHandlers::new().handler(StatusCode::NOT_FOUND, not_found))
             .service(
-                web::scope(&GLOBAL_CONFIG.interface.blog_scope) //博客方面的加载
-                    .wrap(
-                        Cors::default()
-                            .allow_any_header()
-                            .allowed_methods(vec!["GET"]) //只允许GET
-                            .allow_any_origin() //允许任何来源
-                            .max_age(3600),
+                web::scope(&GLOBAL_CONFIG.interface.blog_scope)
+                    .route("", web::get().to(main_page))
+                    .route("/", web::get().to(main_page))
+                    .service(
+                        web::scope("/{name}")
+                            .guard(StaticGuard)
+                            .configure(blog_config),
                     )
-                    .configure(blog_config), //博客显示
+                    .service(
+                        web::scope("/{name}")
+                            .guard(SingleGuard)
+                            .route("", web::get().to(single_index_load))
+                            .route("/", web::get().to(single_index_load))
+                            .service(single_files_load),
+                    ),
             )
             .configure(home_config),
     );
@@ -57,10 +70,8 @@ fn home_config(cfg: &mut web::ServiceConfig) {
 
 //用于blog的页面加载
 fn blog_config(cfg: &mut web::ServiceConfig) {
-    cfg.route("", web::get().to(main_page))
-        .route("/", web::get().to(main_page))
-        .route("/{name}", web::get().to(index_page))
-        .route("/{name}/", web::get().to(index_page))
+    cfg.route("", web::get().to(index_page))
+        .route("/", web::get().to(index_page))
         .configure(static_html::blog_static_config)
         .configure(file_load_config);
 }

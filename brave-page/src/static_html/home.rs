@@ -1,4 +1,4 @@
-use crate::utils::common::{get_page_attr, get_page_location};
+use crate::utils::common::get_page_location;
 use actix_web::http::header;
 use actix_web::web::{self, Path};
 use actix_web::{get, HttpRequest, HttpResponse, Responder, Result};
@@ -11,7 +11,7 @@ use minijinja::{context, Environment};
 use sea_orm::{ColumnTrait, EntityTrait, QueryFilter};
 use std::fs;
 
-#[get("/{name}/home")]
+#[get("/home")]
 pub async fn home_page(
     data: web::Data<AppState>,
     name: Path<String>,

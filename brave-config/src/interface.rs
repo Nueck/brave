@@ -27,6 +27,16 @@ impl Interface {
         )
     }
 
+    //获取blog
+    pub fn get_server_blog_uri() -> String {
+        format!(
+            "http://{}:{}/{}",
+            GLOBAL_CONFIG.interface.service_add,
+            GLOBAL_CONFIG.interface.service_port,
+            GLOBAL_CONFIG.interface.blog_scope
+        )
+    }
+
     /*获取当前网站的地址*/
     pub fn get_current_address() -> String {
         format!(
@@ -63,7 +73,6 @@ impl Interface {
         )
     }
 
-    /*用户blog*/
     pub fn redirect_admin_home() -> String {
         format!(
             "http://{}:{}/{}/{}/home",
@@ -74,7 +83,7 @@ impl Interface {
         )
     }
 
-    /*用户blog*/
+    //用户blog
     pub fn redirect_user_blog_home(name: &str) -> String {
         format!(
             "http://{}:{}/{}/{}/home",
@@ -85,7 +94,17 @@ impl Interface {
         )
     }
 
-    /*用户blog*/
+    //用户blog
+    pub fn redirect_user_blog(name: &str) -> String {
+        format!(
+            "http://{}:{}/{}/{}/",
+            GLOBAL_CONFIG.interface.service_add,
+            GLOBAL_CONFIG.interface.service_port,
+            GLOBAL_CONFIG.interface.blog_scope,
+            name,
+        )
+    }
+
     pub fn redirect_admin_blog() -> String {
         format!(
             "http://{}:{}/{}/{}/home",

@@ -20,11 +20,11 @@ use std::path::PathBuf;
 pub(crate) fn blog_static_category_config(cfg: &mut web::ServiceConfig) {
     cfg.service(category_page)
         .service(category_info_page)
-        .route("/{name}/category/{filename:.*}", web::get().to(file_load));
+        .route("/category/{filename:.*}", web::get().to(file_load));
 }
 
 //用于分类和内容显示
-#[get("/{name}/category")]
+#[get("/category")]
 pub async fn category_page(
     data: web::Data<AppState>,
     name: Path<String>,

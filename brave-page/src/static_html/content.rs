@@ -14,7 +14,7 @@ use sea_orm::{ColumnTrait, EntityTrait, QueryFilter, QueryOrder};
 use serde::{Deserialize, Serialize};
 use std::fs;
 
-#[get("/{name}/content")]
+#[get("/content")]
 pub async fn content_page(data: web::Data<AppState>, name: Path<String>) -> Result<impl Responder> {
     /*文件路径先设置在当前目录public下*/
     let db = &data.conn;

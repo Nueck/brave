@@ -20,10 +20,10 @@ use std::fs;
 pub fn blog_static_page_config(cfg: &mut web::ServiceConfig) {
     cfg.service(page)
         .service(page_error)
-        .route("/{name}/page/{filename:.*}", web::get().to(file_load));
+        .route("/page/{filename:.*}", web::get().to(file_load));
 }
 
-#[get("/{name}/page")]
+#[get("/page")]
 async fn page_error(data: web::Data<AppState>, name: Path<String>) -> Result<impl Responder> {
     let db = &data.conn;
 

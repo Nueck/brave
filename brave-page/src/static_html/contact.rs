@@ -13,7 +13,7 @@ use minijinja::{context, Environment};
 use sea_orm::{ColumnTrait, EntityTrait, QueryFilter};
 use std::fs;
 
-#[get("/{name}/contact")]
+#[get("/contact")]
 pub async fn contact_page(
     data: web::Data<AppState>,
     name: Path<String>,
