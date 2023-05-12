@@ -48,7 +48,7 @@ async fn page_error(data: web::Data<AppState>, name: Path<String>) -> Result<imp
     }
 }
 
-#[get("/{name}/page/{table_id}")]
+#[get("/page/{table_id}")]
 async fn page(
     data: web::Data<AppState>,
     path: Path<(String, i64)>,
